@@ -16,6 +16,13 @@ export function Hero() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Add empty handler for search
+  const handleSearch = (results: any[]) => {
+    // This is intentionally empty as the Hero search just navigates
+    // or is handled by the parent component
+    console.log('Hero search results:', results);
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
       {/* Background gradient */}
@@ -72,7 +79,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-2xl mx-auto"
         >
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
         </motion.div>
 
         <motion.div 

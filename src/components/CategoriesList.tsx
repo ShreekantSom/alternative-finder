@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { categories } from '@/assets/data';
-import { useAnimateOnScroll } from '@/lib/animations';
-import { LucideIcon, Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Tool, GraduationCap, Landmark } from 'lucide-react';
+import { useAnimateInView } from '@/lib/animations';
+import { LucideIcon, Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
 import { crawlCategories } from '@/lib/crawler';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -16,7 +16,7 @@ interface Category {
 
 export function CategoriesList({ onCategorySelect }: { onCategorySelect: (category: string) => void }) {
   const [allCategories, setAllCategories] = useState<Category[]>(categories);
-  const { ref, isVisible } = useAnimateOnScroll();
+  const { ref, isInView } = useAnimateInView();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export function CategoriesList({ onCategorySelect }: { onCategorySelect: (catego
       'image': Image,
       'shield': Shield,
       'message-circle': MessageCircle,
-      'tool': Tool,
+      'tool': Wrench, // Changed Tool to Wrench
       'graduation-cap': GraduationCap,
       'landmark': Landmark,
       // Add default
@@ -76,7 +76,7 @@ export function CategoriesList({ onCategorySelect }: { onCategorySelect: (catego
   };
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="py-8 px-4">
+    <section ref={ref} className="py-8 px-4">
       <div className="container max-w-7xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-semibold mb-6">Browse by Category</h2>
         
@@ -84,7 +84,7 @@ export function CategoriesList({ onCategorySelect }: { onCategorySelect: (catego
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
           variants={containerVariants}
           initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
+          animate={isInView ? "visible" : "hidden"}
         >
           {allCategories.map((category) => {
             const IconComponent = getIconComponent(category.icon);
