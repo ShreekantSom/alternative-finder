@@ -7,10 +7,16 @@ import AlternativeCard from './AlternativeCard';
 import { fetchMoreAlternatives } from '@/lib/crawler';
 import { useToast } from "@/components/ui/use-toast";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
-export function AlternativesList({ searchResults = [] }: { searchResults?: any[] }) {
+interface AlternativesListProps {
+  searchResults?: any[];
+  selectedCategory?: string;
+}
+
+export function AlternativesList({ searchResults = [], selectedCategory = 'All' }: AlternativesListProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [filterCategory, setFilterCategory] = useState('All');
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState('All');
   const [allAlternatives, setAllAlternatives] = useState(alternatives);
@@ -19,12 +25,17 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
   const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
 
+  // Set filter category when selectedCategory prop changes
+  useEffect(() => {
+    setFilterCategory(selectedCategory);
+  }, [selectedCategory]);
+
   // Filter alternatives based on filters and search results
   const filteredAlternatives = searchResults.length > 0 
     ? searchResults 
     : allAlternatives.filter(alt => {
         return (
-          (selectedCategory === 'All' || alt.category === selectedCategory) &&
+          (filterCategory === 'All' || alt.category === filterCategory) &&
           (selectedPlatform === 'All' || alt.platform.includes(selectedPlatform)) &&
           (selectedPricing === 'All' || alt.pricing === selectedPricing)
         );
@@ -43,7 +54,7 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
     
     try {
       const nextPage = currentPage + 1;
-      const result = await fetchMoreAlternatives(nextPage, selectedCategory !== 'All' ? selectedCategory : undefined);
+      const result = await fetchMoreAlternatives(nextPage, filterCategory !== 'All' ? filterCategory : undefined);
       
       if (result.success && result.data) {
         if (result.data.length > 0) {
@@ -86,7 +97,7 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
   useEffect(() => {
     setCurrentPage(1);
     setHasMore(true);
-  }, [selectedCategory, selectedPlatform, selectedPricing]);
+  }, [filterCategory, selectedPlatform, selectedPricing]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -106,24 +117,29 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
             <h2 className="text-2xl md:text-3xl font-semibold mb-2">
               {searchResults.length > 0 
                 ? `Search Results (${searchResults.length})` 
-                : 'Popular Alternatives'}
+                : filterCategory !== 'All'
+                  ? `${filterCategory} Alternatives`
+                  : 'Popular Alternatives'}
             </h2>
             <p className="text-muted-foreground">
               {searchResults.length > 0 
                 ? 'Showing results matching your search'
-                : 'Discover the most loved alternatives by our community'}
+                : filterCategory !== 'All'
+                  ? `Discover ${filterCategory} alternatives loved by our community`
+                  : 'Discover the most loved alternatives by our community'}
             </p>
           </div>
           
           {searchResults.length === 0 && (
-            <button
+            <Button
               onClick={toggleFilter}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors duration-200"
+              variant="secondary"
+              className="flex items-center space-x-2"
             >
               <Filter className="w-4 h-4" />
               <span>Filters</span>
               <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-            </button>
+            </Button>
           )}
         </div>
         
@@ -140,8 +156,8 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
               <div>
                 <label className="block text-sm font-medium mb-2">Category</label>
                 <select 
-                  value={selectedCategory} 
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  value={filterCategory} 
+                  onChange={(e) => setFilterCategory(e.target.value)}
                   className="w-full p-2 rounded-lg border border-border bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {categories.map((category) => (
@@ -208,12 +224,14 @@ export function AlternativesList({ searchResults = [] }: { searchResults?: any[]
         {/* Load more button and pagination */}
         {filteredAlternatives.length > 0 && !isLoading && hasMore && searchResults.length === 0 && (
           <div className="mt-12 text-center">
-            <button 
-              className="px-6 py-3 bg-secondary hover:bg-secondary/70 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center mx-auto"
+            <Button 
+              variant="secondary"
+              size="lg"
+              className="mx-auto"
               onClick={loadMoreAlternatives}
             >
               Load more alternatives
-            </button>
+            </Button>
           </div>
         )}
         

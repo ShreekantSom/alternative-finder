@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchAlternatives } from '@/lib/crawler';
+import { useToast } from "@/components/ui/use-toast";
 
 interface SearchBarProps {
   className?: string;
@@ -12,9 +13,13 @@ interface SearchBarProps {
 export function SearchBar({ className = '', onSearch }: SearchBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>(['Photoshop', 'Spotify', 'Microsoft Office', 'Chrome']);
+  const [suggestions, setSuggestions] = useState<string[]>([
+    'Photoshop', 'Spotify', 'Microsoft Office', 'Chrome', 
+    'Final Cut Pro', 'Windows', 'Adobe Illustrator', 'Slack'
+  ]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<number | null>(null);
+  const { toast } = useToast();
 
   const handleClearSearch = () => {
     setSearchTerm('');
@@ -30,7 +35,16 @@ export function SearchBar({ className = '', onSearch }: SearchBarProps) {
     
     if (result.success && result.data) {
       onSearch(result.data);
+      // Store search term in recent searches
+      if (!suggestions.includes(searchTerm)) {
+        setSuggestions(prev => [searchTerm, ...prev].slice(0, 8));
+      }
     } else {
+      toast({
+        title: "Search failed",
+        description: result.error || "Please try again later",
+        variant: "destructive",
+      });
       onSearch([]);
     }
   };
@@ -80,6 +94,11 @@ export function SearchBar({ className = '', onSearch }: SearchBarProps) {
             // Delay blur to allow clicking on suggestions
             setTimeout(() => setIsFocused(false), 200);
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+          }}
           className="w-full py-4 px-3 bg-transparent border-none focus:outline-none text-base md:text-lg placeholder:text-muted-foreground/70"
         />
         
@@ -110,7 +129,7 @@ export function SearchBar({ className = '', onSearch }: SearchBarProps) {
         </button>
       </div>
       
-      {/* Suggestions dropdown (only show when focused and has input) */}
+      {/* Suggestions dropdown (only show when focused) */}
       <AnimatePresence>
         {isFocused && (
           <motion.div
@@ -121,22 +140,24 @@ export function SearchBar({ className = '', onSearch }: SearchBarProps) {
             className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl shadow-lg z-10 py-2 max-h-80 overflow-auto"
           >
             <div className="p-3 text-muted-foreground text-sm">
-              {searchTerm ? 'Suggested searches:' : 'Try searching for:'}
+              {searchTerm ? 'Suggested searches:' : 'Popular searches:'}
             </div>
             <div className="px-2">
-              {suggestions.map((suggestion, i) => (
-                <button
-                  key={i}
-                  className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary transition-colors duration-200 text-sm flex items-center"
-                  onClick={() => {
-                    setSearchTerm(suggestion);
-                    handleSearch();
-                  }}
-                >
-                  <Search className="w-4 h-4 mr-2 text-muted-foreground" />
-                  {suggestion}
-                </button>
-              ))}
+              {suggestions
+                .filter(suggestion => searchTerm ? suggestion.toLowerCase().includes(searchTerm.toLowerCase()) : true)
+                .map((suggestion, i) => (
+                  <button
+                    key={i}
+                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary transition-colors duration-200 text-sm flex items-center"
+                    onClick={() => {
+                      setSearchTerm(suggestion);
+                      handleSearch();
+                    }}
+                  >
+                    <Search className="w-4 h-4 mr-2 text-muted-foreground" />
+                    {suggestion}
+                  </button>
+                ))}
             </div>
           </motion.div>
         )}

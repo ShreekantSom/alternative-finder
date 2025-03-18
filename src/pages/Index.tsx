@@ -53,6 +53,12 @@ const Index = () => {
     setSelectedCategory(category);
     // Clear search results when selecting category
     setSearchResults([]);
+    
+    // Scroll to alternatives list
+    document.getElementById('alternatives-list')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
   // Framer Motion variants
@@ -84,7 +90,12 @@ const Index = () => {
               <CategoriesList onCategorySelect={handleCategorySelect} />
             </>
           )}
-          <AlternativesList searchResults={searchResults} />
+          <div id="alternatives-list">
+            <AlternativesList 
+              searchResults={searchResults} 
+              selectedCategory={selectedCategory}
+            />
+          </div>
         </main>
         
         <footer className="bg-secondary py-12 px-4">
