@@ -1,31 +1,92 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, ChevronDown } from 'lucide-react';
+import { Filter, ChevronDown, Loader2 } from 'lucide-react';
 import { alternatives } from '@/assets/data';
 import AlternativeCard from './AlternativeCard';
+import { fetchMoreAlternatives } from '@/lib/crawler';
+import { useToast } from "@/components/ui/use-toast";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
 
-export function AlternativesList() {
+export function AlternativesList({ searchResults = [] }: { searchResults?: any[] }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState('All');
+  const [allAlternatives, setAllAlternatives] = useState(alternatives);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { toast } = useToast();
+
+  // Filter alternatives based on filters and search results
+  const filteredAlternatives = searchResults.length > 0 
+    ? searchResults 
+    : allAlternatives.filter(alt => {
+        return (
+          (selectedCategory === 'All' || alt.category === selectedCategory) &&
+          (selectedPlatform === 'All' || alt.platform.includes(selectedPlatform)) &&
+          (selectedPricing === 'All' || alt.pricing === selectedPricing)
+        );
+      });
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  const filteredAlternatives = alternatives.filter(alt => {
-    return (
-      (selectedCategory === 'All' || alt.category === selectedCategory) &&
-      (selectedPlatform === 'All' || alt.platform.includes(selectedPlatform)) &&
-      (selectedPricing === 'All' || alt.pricing === selectedPricing)
-    );
-  });
-
   const categories = ['All', ...new Set(alternatives.map(alt => alt.category))];
   const platforms = ['All', ...new Set(alternatives.flatMap(alt => alt.platform))];
   const pricingOptions = ['All', 'Free', 'Freemium', 'Paid', 'Open Source'];
+
+  const loadMoreAlternatives = async () => {
+    setIsLoading(true);
+    
+    try {
+      const nextPage = currentPage + 1;
+      const result = await fetchMoreAlternatives(nextPage, selectedCategory !== 'All' ? selectedCategory : undefined);
+      
+      if (result.success && result.data) {
+        if (result.data.length > 0) {
+          setAllAlternatives(prev => [...prev, ...result.data]);
+          setCurrentPage(nextPage);
+        } else {
+          setHasMore(false);
+          toast({
+            title: "No more alternatives",
+            description: "You've reached the end of the list",
+          });
+        }
+      } else {
+        toast({
+          title: "Couldn't load more",
+          description: result.error || "Please try again later",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading more alternatives:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load more alternatives",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Reset state when search results change
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      setIsFilterOpen(false);
+    }
+  }, [searchResults]);
+
+  // Reset currentPage when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    setHasMore(true);
+  }, [selectedCategory, selectedPlatform, selectedPricing]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -42,18 +103,28 @@ export function AlternativesList() {
       <div className="container max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-2">Popular Alternatives</h2>
-            <p className="text-muted-foreground">Discover the most loved alternatives by our community</p>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-2">
+              {searchResults.length > 0 
+                ? `Search Results (${searchResults.length})` 
+                : 'Popular Alternatives'}
+            </h2>
+            <p className="text-muted-foreground">
+              {searchResults.length > 0 
+                ? 'Showing results matching your search'
+                : 'Discover the most loved alternatives by our community'}
+            </p>
           </div>
           
-          <button
-            onClick={toggleFilter}
-            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors duration-200"
-          >
-            <Filter className="w-4 h-4" />
-            <span>Filters</span>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-          </button>
+          {searchResults.length === 0 && (
+            <button
+              onClick={toggleFilter}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors duration-200"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filters</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
+            </button>
+          )}
         </div>
         
         {/* Filters panel */}
@@ -119,7 +190,7 @@ export function AlternativesList() {
         >
           {filteredAlternatives.map((alternative, index) => (
             <AlternativeCard 
-              key={alternative.id} 
+              key={`${alternative.id}-${index}`} 
               alternative={alternative} 
               index={index}
             />
@@ -134,12 +205,47 @@ export function AlternativesList() {
           </div>
         )}
         
-        {/* Load more button */}
-        {filteredAlternatives.length > 0 && (
+        {/* Load more button and pagination */}
+        {filteredAlternatives.length > 0 && !isLoading && hasMore && searchResults.length === 0 && (
           <div className="mt-12 text-center">
-            <button className="px-6 py-3 bg-secondary hover:bg-secondary/70 rounded-lg font-medium transition-colors duration-200">
+            <button 
+              className="px-6 py-3 bg-secondary hover:bg-secondary/70 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center mx-auto"
+              onClick={loadMoreAlternatives}
+            >
               Load more alternatives
             </button>
+          </div>
+        )}
+        
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center justify-center px-6 py-3 bg-secondary rounded-lg">
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              <span>Loading more alternatives...</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Pagination for search results */}
+        {searchResults.length > 0 && (
+          <div className="mt-12">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationLink href="#" isActive>1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">2</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">3</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { useMotionValue, useSpring, useInView } from 'framer-motion';
 
 // Custom hook for animate on scroll
 export function useAnimateOnScroll(rootMargin = '0px') {
@@ -15,7 +16,7 @@ export function useAnimateOnScroll(rootMargin = '0px') {
             observer.unobserve(ref);
           }
         },
-        { rootMargin }
+        { rootMargin, threshold: 0.1 }
       );
 
       observer.observe(ref);
@@ -29,6 +30,14 @@ export function useAnimateOnScroll(rootMargin = '0px') {
   }, [ref, rootMargin]);
 
   return { ref: setRef, isVisible };
+}
+
+// Enhanced version that works better with Framer Motion
+export function useAnimateInView(options = { once: true, amount: 0.3 }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, options);
+  
+  return { ref, isInView };
 }
 
 // Custom hook for lazy loading images
@@ -81,5 +90,48 @@ export function usePageTransition() {
     pageClass: `transition-opacity duration-700 ease-in-out ${
       isPageVisible ? 'opacity-100' : 'opacity-0'
     }`
+  };
+}
+
+// Smooth counter animation hook
+export function useSmoothCounter(value: number, duration = 2) {
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, {
+    stiffness: 100,
+    damping: 30,
+    duration: duration * 1000,
+  });
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    motionValue.set(value);
+  }, [motionValue, value]);
+  
+  useEffect(() => {
+    const unsubscribe = springValue.onChange(latest => {
+      setDisplayValue(Math.round(latest));
+    });
+    return unsubscribe;
+  }, [springValue]);
+  
+  return displayValue;
+}
+
+// Stagger children animation hook
+export function useStaggerChildren() {
+  return {
+    container: {
+      hidden: { opacity: 0 },
+      show: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1
+        }
+      }
+    },
+    item: {
+      hidden: { opacity: 0, y: 20 },
+      show: { opacity: 1, y: 0 }
+    }
   };
 }

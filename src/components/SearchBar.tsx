@@ -1,19 +1,60 @@
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { searchAlternatives } from '@/lib/crawler';
 
 interface SearchBarProps {
   className?: string;
+  onSearch: (results: any[]) => void;
 }
 
-export function SearchBar({ className = '' }: SearchBarProps) {
+export function SearchBar({ className = '', onSearch }: SearchBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>(['Photoshop', 'Spotify', 'Microsoft Office', 'Chrome']);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<number | null>(null);
 
   const handleClearSearch = () => {
     setSearchTerm('');
+    onSearch([]);
   };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    setIsSearching(true);
+    const result = await searchAlternatives(searchTerm);
+    setIsSearching(false);
+    
+    if (result.success && result.data) {
+      onSearch(result.data);
+    } else {
+      onSearch([]);
+    }
+  };
+
+  // Handle input changes with debounce
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      window.clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (searchTerm.trim()) {
+      searchTimeoutRef.current = window.setTimeout(() => {
+        handleSearch();
+      }, 500);
+    } else {
+      onSearch([]);
+    }
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        window.clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchTerm]);
 
   return (
     <div className={`relative ${className}`}>
@@ -35,7 +76,10 @@ export function SearchBar({ className = '' }: SearchBarProps) {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => {
+            // Delay blur to allow clicking on suggestions
+            setTimeout(() => setIsFocused(false), 200);
+          }}
           className="w-full py-4 px-3 bg-transparent border-none focus:outline-none text-base md:text-lg placeholder:text-muted-foreground/70"
         />
         
@@ -56,17 +100,19 @@ export function SearchBar({ className = '' }: SearchBarProps) {
         </AnimatePresence>
         
         <button 
-          className="h-full flex items-center justify-center px-5 py-3 bg-primary text-white font-medium transition-all duration-200 hover:bg-primary/90"
+          className={`h-full flex items-center justify-center px-5 py-3 bg-primary text-white font-medium transition-all duration-200 hover:bg-primary/90 ${isSearching ? 'opacity-80' : ''}`}
           aria-label="Search"
+          onClick={handleSearch}
+          disabled={isSearching}
         >
-          <span className="hidden md:inline">Search</span>
+          <span className="hidden md:inline">{isSearching ? 'Searching...' : 'Search'}</span>
           <Search className="w-5 h-5 md:hidden" />
         </button>
       </div>
       
       {/* Suggestions dropdown (only show when focused and has input) */}
       <AnimatePresence>
-        {isFocused && searchTerm && (
+        {isFocused && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,14 +121,17 @@ export function SearchBar({ className = '' }: SearchBarProps) {
             className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl shadow-lg z-10 py-2 max-h-80 overflow-auto"
           >
             <div className="p-3 text-muted-foreground text-sm">
-              Try searching for:
+              {searchTerm ? 'Suggested searches:' : 'Try searching for:'}
             </div>
             <div className="px-2">
-              {['Photoshop', 'Spotify', 'Microsoft Office', 'Chrome'].map((suggestion, i) => (
+              {suggestions.map((suggestion, i) => (
                 <button
                   key={i}
                   className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary transition-colors duration-200 text-sm flex items-center"
-                  onClick={() => setSearchTerm(suggestion)}
+                  onClick={() => {
+                    setSearchTerm(suggestion);
+                    handleSearch();
+                  }}
                 >
                   <Search className="w-4 h-4 mr-2 text-muted-foreground" />
                   {suggestion}

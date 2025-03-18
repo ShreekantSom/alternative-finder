@@ -4,12 +4,15 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import AlternativesList from '@/components/AlternativesList';
 import FeaturedAlternative from '@/components/FeaturedAlternative';
+import CategoriesList from '@/components/CategoriesList';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 
 const Index = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   // Show scroll to top button when scrolled down
   useEffect(() => {
@@ -36,6 +39,22 @@ const Index = () => {
     });
   };
 
+  // Handle search results
+  const handleSearch = (results: any[]) => {
+    setSearchResults(results);
+    // Clear category selection when searching
+    if (results.length > 0) {
+      setSelectedCategory('All');
+    }
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    // Clear search results when selecting category
+    setSearchResults([]);
+  };
+
   // Framer Motion variants
   const pageVariants = {
     initial: { opacity: 0 },
@@ -55,12 +74,17 @@ const Index = () => {
         exit="exit"
         variants={pageVariants}
       >
-        <Navbar />
+        <Navbar onSearch={handleSearch} />
         
         <main>
-          <Hero />
-          <FeaturedAlternative />
-          <AlternativesList />
+          {searchResults.length === 0 && (
+            <>
+              <Hero />
+              <FeaturedAlternative />
+              <CategoriesList onCategorySelect={handleCategorySelect} />
+            </>
+          )}
+          <AlternativesList searchResults={searchResults} />
         </main>
         
         <footer className="bg-secondary py-12 px-4">
