@@ -1,12 +1,12 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthService } from '@/lib/auth';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 import { SoftwareManager } from '@/components/admin/SoftwareManager';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -38,6 +38,12 @@ export function Dashboard() {
           <p className="text-sm text-muted-foreground">
             Logged in as: <span className="font-medium text-foreground">{user.email}</span>
           </p>
+          <Link to="/profile">
+            <Button variant="outline" size="sm">
+              <User className="w-4 h-4 mr-2" />
+              Profile
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Logout

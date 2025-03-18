@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -171,13 +170,11 @@ export function SoftwareManager() {
       if (editingSoftware) {
         result = await softwareService.updateSoftware(editingSoftware.id, {
           ...data,
-          id: editingSoftware.id,
           likes: editingSoftware.likes,
         });
       } else {
         result = await softwareService.createSoftware({
           ...data,
-          id: `new-${Date.now()}`,
           likes: 0,
         });
       }
@@ -280,7 +277,6 @@ export function SoftwareManager() {
         </Table>
       </div>
 
-      {/* Add/Edit Software Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -468,7 +464,6 @@ export function SoftwareManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
