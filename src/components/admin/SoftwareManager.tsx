@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -173,10 +174,19 @@ export function SoftwareManager() {
           likes: editingSoftware.likes,
         });
       } else {
-        result = await softwareService.createSoftware({
-          ...data,
+        // Fix: Ensure all required fields are provided when creating new software
+        const newSoftware: Omit<Alternative, 'id'> = {
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          imageUrl: data.imageUrl,
+          url: data.url,
+          pricing: data.pricing,
+          platform: data.platform,
           likes: 0,
-        });
+        };
+        
+        result = await softwareService.createSoftware(newSoftware);
       }
 
       if (result.success) {
