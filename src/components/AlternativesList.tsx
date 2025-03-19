@@ -8,22 +8,29 @@ import { fetchMoreAlternatives } from '@/lib/crawler';
 import { useToast } from "@/components/ui/use-toast";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+import { Alternative } from '@/assets/data';
 
 interface AlternativesListProps {
-  searchResults?: any[];
+  alternatives: Alternative[];
+  isLoading: boolean;
+  searchResults?: Alternative[];
   selectedCategory?: string;
 }
 
-export function AlternativesList({ searchResults = [], selectedCategory = 'All' }: AlternativesListProps) {
+export function AlternativesList({ alternatives: providedAlternatives, isLoading, searchResults = [], selectedCategory = 'All' }: AlternativesListProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState('All');
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState('All');
-  const [allAlternatives, setAllAlternatives] = useState(alternatives);
-  const [isLoading, setIsLoading] = useState(false);
+  const [allAlternatives, setAllAlternatives] = useState(providedAlternatives);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
+
+  // Update allAlternatives when providedAlternatives changes
+  useEffect(() => {
+    setAllAlternatives(providedAlternatives);
+  }, [providedAlternatives]);
 
   // Set filter category when selectedCategory prop changes
   useEffect(() => {

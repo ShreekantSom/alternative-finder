@@ -68,7 +68,6 @@ export function Index() {
       <Navbar />
       <main>
         <Hero />
-        {/* Pass onSearch as a prop to SearchBar component */}
         <div className="container mx-auto px-4 py-8">
           <SearchBar onSearch={handleSearch} />
         </div>
@@ -79,6 +78,7 @@ export function Index() {
             <AlternativesList 
               alternatives={searchResults} 
               isLoading={false} 
+              searchResults={searchResults}
             />
           </div>
         ) : (
@@ -91,6 +91,7 @@ export function Index() {
               <AlternativesList 
                 alternatives={alternatives} 
                 isLoading={isLoading} 
+                selectedCategory={selectedCategory}
               />
             </div>
           </>

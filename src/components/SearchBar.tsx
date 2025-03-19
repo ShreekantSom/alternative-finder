@@ -35,7 +35,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           software.category.toLowerCase().includes(searchQuery.toLowerCase())
         );
         
-        console.info('Hero search results:', filteredResults);
+        console.info('Search results:', filteredResults);
         onSearch(filteredResults);
       } else {
         toast({
