@@ -14,12 +14,14 @@ interface AuthResult {
 // Simple storage for mock users
 const USERS_STORAGE_KEY = 'alternative_app_users';
 const CURRENT_USER_KEY = 'alternative_app_current_user';
+const AUTH_TOKEN_KEY = 'alternative_app_auth_token';
 
 type StoredUser = {
   id: string;
   email: string;
   password: string; // In a real app, never store plain-text passwords
   role: 'user' | 'admin';
+  createdAt: string;
 };
 
 // Initialize with an admin user
@@ -31,7 +33,15 @@ const initUsers = (): void => {
         email: 'admin@example.com',
         password: 'admin123', // In a real app, this would be hashed
         role: 'admin',
+        createdAt: new Date().toISOString(),
       },
+      {
+        id: '2',
+        email: 'user@example.com',
+        password: 'user123', // In a real app, this would be hashed
+        role: 'user',
+        createdAt: new Date().toISOString(),
+      }
     ];
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(initialUsers));
   }
@@ -39,6 +49,29 @@ const initUsers = (): void => {
 
 // Call this when the app initializes
 initUsers();
+
+// Generate a fake JWT-like token (for demo purposes only)
+const generateToken = (userId: string): string => {
+  const payload = {
+    sub: userId,
+    iat: Date.now(),
+    exp: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+  };
+  return btoa(JSON.stringify(payload)); // Base64 encode (NOT a real JWT implementation)
+};
+
+// In a real app, this would validate the JWT signature and check its expiration
+const validateToken = (token: string): { valid: boolean; userId?: string } => {
+  try {
+    const decoded = JSON.parse(atob(token)); // Base64 decode
+    if (decoded.exp < Date.now()) {
+      return { valid: false };
+    }
+    return { valid: true, userId: decoded.sub };
+  } catch (e) {
+    return { valid: false };
+  }
+};
 
 export const AuthService = {
   login: async (email: string, password: string): Promise<AuthResult> => {
@@ -54,6 +87,10 @@ export const AuthService = {
       if (!user) {
         return { success: false, error: 'Invalid email or password' };
       }
+
+      // Generate and store auth token
+      const token = generateToken(user.id);
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
 
       // Store current user (excluding password)
       const { password: _, ...userWithoutPassword } = user;
@@ -88,11 +125,16 @@ export const AuthService = {
         email,
         password, // In a real app, this would be hashed
         role: 'user',
+        createdAt: new Date().toISOString(),
       };
 
       // Save to "database"
       users.push(newUser);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+      // Generate and store auth token
+      const token = generateToken(newUser.id);
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
 
       // Log in the user
       const { password: _, ...userWithoutPassword } = newUser;
@@ -110,15 +152,33 @@ export const AuthService = {
 
   logout: (): void => {
     localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
   },
 
   getCurrentUser: (): { id: string; email: string; role: 'user' | 'admin' } | null => {
+    // First check if we have a valid token
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) {
+      return null;
+    }
+
+    const validation = validateToken(token);
+    if (!validation.valid) {
+      // Token is invalid or expired, clear auth state
+      AuthService.logout();
+      return null;
+    }
+
+    // Token is valid, return the user
     const userJson = localStorage.getItem(CURRENT_USER_KEY);
     return userJson ? JSON.parse(userJson) : null;
   },
 
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem(CURRENT_USER_KEY);
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) return false;
+    
+    return validateToken(token).valid;
   },
 
   isAdmin: (): boolean => {

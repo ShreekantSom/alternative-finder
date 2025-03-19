@@ -1,6 +1,5 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,11 +31,20 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
-export default function AuthForm() {
+interface AuthFormProps {
+  initialMode?: 'login' | 'signup';
+  onSuccess?: (message: string) => void;
+}
+
+export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("login");
+  const [activeTab, setActiveTab] = useState<string>(initialMode);
   const { toast } = useToast();
-  const navigate = useNavigate();
+
+  // Update the active tab if initialMode prop changes
+  useEffect(() => {
+    setActiveTab(initialMode);
+  }, [initialMode]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -60,11 +68,15 @@ export default function AuthForm() {
     try {
       const result = await AuthService.login(values.email, values.password);
       if (result.success) {
+        const successMessage = "Login successful! Welcome back.";
         toast({
-          title: "Login successful",
-          description: "Welcome back!",
+          title: "Logged in",
+          description: successMessage,
         });
-        navigate('/dashboard');
+        
+        if (onSuccess) {
+          onSuccess(successMessage);
+        }
       } else {
         toast({
           title: "Login failed",
@@ -73,6 +85,7 @@ export default function AuthForm() {
         });
       }
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Login failed",
         description: "An unexpected error occurred",
@@ -88,11 +101,15 @@ export default function AuthForm() {
     try {
       const result = await AuthService.signup(values.email, values.password);
       if (result.success) {
+        const successMessage = "Your account has been created successfully!";
         toast({
           title: "Account created",
-          description: "Your account has been created successfully!",
+          description: successMessage,
         });
-        navigate('/dashboard');
+        
+        if (onSuccess) {
+          onSuccess(successMessage);
+        }
       } else {
         toast({
           title: "Signup failed",
@@ -101,6 +118,7 @@ export default function AuthForm() {
         });
       }
     } catch (error) {
+      console.error("Signup error:", error);
       toast({
         title: "Signup failed",
         description: "An unexpected error occurred",
