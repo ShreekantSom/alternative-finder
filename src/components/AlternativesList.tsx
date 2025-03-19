@@ -25,6 +25,7 @@ export function AlternativesList({ alternatives: providedAlternatives, isLoading
   const [allAlternatives, setAllAlternatives] = useState(providedAlternatives);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { toast } = useToast();
 
   // Update allAlternatives when providedAlternatives changes
@@ -57,7 +58,7 @@ export function AlternativesList({ alternatives: providedAlternatives, isLoading
   const pricingOptions = ['All', 'Free', 'Freemium', 'Paid', 'Open Source'];
 
   const loadMoreAlternatives = async () => {
-    setIsLoading(true);
+    setLoadingMore(true);
     
     try {
       const nextPage = currentPage + 1;
@@ -89,7 +90,7 @@ export function AlternativesList({ alternatives: providedAlternatives, isLoading
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -229,7 +230,7 @@ export function AlternativesList({ alternatives: providedAlternatives, isLoading
         )}
         
         {/* Load more button and pagination */}
-        {filteredAlternatives.length > 0 && !isLoading && hasMore && searchResults.length === 0 && (
+        {filteredAlternatives.length > 0 && !isLoading && !loadingMore && hasMore && searchResults.length === 0 && (
           <div className="mt-12 text-center">
             <Button 
               variant="secondary"
@@ -243,7 +244,7 @@ export function AlternativesList({ alternatives: providedAlternatives, isLoading
         )}
         
         {/* Loading indicator */}
-        {isLoading && (
+        {(isLoading || loadingMore) && (
           <div className="mt-8 text-center">
             <div className="inline-flex items-center justify-center px-6 py-3 bg-secondary rounded-lg">
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
