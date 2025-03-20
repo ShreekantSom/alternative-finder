@@ -1,8 +1,9 @@
 
 import { useState, useRef } from 'react';
-import { Heart, Share2, ExternalLink } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Tag } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { motion } from 'framer-motion';
+import { Badge } from "@/components/ui/badge";
 
 interface AlternativeCardProps {
   alternative: Alternative;
@@ -59,9 +60,10 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
         
         {/* Category label */}
         <div className="absolute top-3 left-3">
-          <span className="inline-block bg-primary/10 text-primary text-xs font-medium py-1 px-2 rounded-full">
+          <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1">
+            <Tag size={12} />
             {alternative.category}
-          </span>
+          </Badge>
         </div>
       </div>
 

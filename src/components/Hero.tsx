@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
-import SearchBar from './SearchBar';
 
 export function Hero() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,13 +14,6 @@ export function Hero() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Add empty handler for search
-  const handleSearch = (results: any[]) => {
-    // This is intentionally empty as the Hero search just navigates
-    // or is handled by the parent component
-    console.log('Hero search results:', results);
-  };
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
@@ -72,15 +64,6 @@ export function Hero() {
           Tired of your current software? We've curated thousands of alternatives 
           to help you find the perfect replacement for any application.
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl mx-auto"
-        >
-          <SearchBar onSearch={handleSearch} />
-        </motion.div>
 
         <motion.div 
           className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground"

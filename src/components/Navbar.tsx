@@ -2,16 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import SearchBar from '@/components/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 
-type NavbarProps = {
-  onSearch?: (results: any[]) => void;
-}
-
-export function Navbar({ onSearch }: NavbarProps) {
+export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<{email: string} | null>(null);
@@ -37,12 +32,6 @@ export function Navbar({ onSearch }: NavbarProps) {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  const handleSearch = (results: any[]) => {
-    if (onSearch) {
-      onSearch(results);
-    }
-  };
 
   const handleAuthClick = () => {
     if (user) {
@@ -71,13 +60,6 @@ export function Navbar({ onSearch }: NavbarProps) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          {/* Search Bar (only on homepage) */}
-          {location.pathname === '/' && onSearch && (
-            <div className="max-w-md w-full">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-          )}
-          
           <nav className="flex items-center space-x-6">
             <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors">Home</Link>
             <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
@@ -113,11 +95,6 @@ export function Navbar({ onSearch }: NavbarProps) {
               transition={{ duration: 0.2 }}
               className="absolute top-full left-0 right-0 bg-background shadow-lg p-4 md:hidden"
             >
-              {location.pathname === '/' && onSearch && (
-                <div className="mb-4">
-                  <SearchBar onSearch={handleSearch} />
-                </div>
-              )}
               <nav className="flex flex-col space-y-4">
                 <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors py-2">Home</Link>
                 <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors py-2">Discover</Link>
