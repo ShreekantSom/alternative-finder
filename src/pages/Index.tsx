@@ -5,7 +5,6 @@ import Hero from '@/components/Hero';
 import AlternativesList from '@/components/AlternativesList';
 import CategoriesList from '@/components/CategoriesList';
 import FeaturedAlternative from '@/components/FeaturedAlternative';
-import SearchBar from '@/components/SearchBar';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
 import { useToast } from "@/components/ui/use-toast";
@@ -61,19 +60,23 @@ export function Index() {
   const handleSearch = (results: Alternative[]) => {
     setSearchResults(results);
     setShowSearchResults(true);
+    // Scroll to results section
+    setTimeout(() => {
+      const resultsSection = document.querySelector('.search-results-section');
+      if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   return (
     <div className="min-h-screen">
       <Navbar />
       <main>
-        <Hero />
-        <div className="container mx-auto px-4 py-8">
-          <SearchBar onSearch={handleSearch} />
-        </div>
+        <Hero onSearch={handleSearch} />
         
         {showSearchResults ? (
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8 search-results-section">
             <h2 className="text-2xl font-bold mb-6">Search Results</h2>
             {searchResults.length === 0 ? (
               <div className="text-center py-10">

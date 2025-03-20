@@ -2,8 +2,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
+import SearchBar from '@/components/SearchBar';
+import { Alternative } from '@/assets/data';
 
-export function Hero() {
+interface HeroProps {
+  onSearch: (results: Alternative[]) => void;
+}
+
+export function Hero({ onSearch }: HeroProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -14,6 +20,21 @@ export function Hero() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handlePopularSearch = (software: string) => {
+    // Simulate clicking on popular software by executing a search
+    const formElement = document.querySelector('form');
+    const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+    
+    if (inputElement && formElement) {
+      inputElement.value = software;
+      // Trigger the form submission after a small delay to allow for value change
+      setTimeout(() => {
+        const submitEvent = new Event('submit', { cancelable: true });
+        formElement.dispatchEvent(submitEvent);
+      }, 100);
+    }
+  };
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
@@ -56,7 +77,7 @@ export function Hero() {
         </motion.h1>
 
         <motion.p 
-          className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12"
+          className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -65,20 +86,51 @@ export function Hero() {
           to help you find the perfect replacement for any application.
         </motion.p>
 
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-2xl mx-auto mb-6"
+        >
+          <SearchBar onSearch={onSearch} />
+        </motion.div>
+
+        {/* Popular Software - Now directly below search bar */}
         <motion.div 
-          className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground"
+          className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
           <span>Popular:</span>
-          <button className="hover:text-primary transition-colors">Photoshop</button>
+          <button 
+            className="hover:text-primary transition-colors"
+            onClick={() => handlePopularSearch("Photoshop")}
+          >
+            Photoshop
+          </button>
           <span>•</span>
-          <button className="hover:text-primary transition-colors">Spotify</button>
+          <button 
+            className="hover:text-primary transition-colors"
+            onClick={() => handlePopularSearch("Spotify")}
+          >
+            Spotify
+          </button>
           <span>•</span>
-          <button className="hover:text-primary transition-colors">Chrome</button>
+          <button 
+            className="hover:text-primary transition-colors"
+            onClick={() => handlePopularSearch("Chrome")}
+          >
+            Chrome
+          </button>
           <span>•</span>
-          <button className="hover:text-primary transition-colors">Microsoft Office</button>
+          <button 
+            className="hover:text-primary transition-colors"
+            onClick={() => handlePopularSearch("Microsoft Office")}
+          >
+            Microsoft Office
+          </button>
         </motion.div>
       </div>
 
