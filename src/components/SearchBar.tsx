@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { softwareService } from '@/lib/softwareService';
+import { searchAlternatives } from '@/lib/crawler';
 import { Alternative } from '@/assets/data';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -26,17 +26,12 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     setIsSearching(true);
     
     try {
-      const result = await softwareService.getAllSoftware();
+      // Use the crawler's search function for better search results
+      const result = await searchAlternatives(searchQuery);
       
       if (result.success) {
-        const filteredResults = result.data.filter(software => 
-          software.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          software.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          software.category.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        
-        console.info('Search results:', filteredResults);
-        onSearch(filteredResults);
+        console.info('Search results:', result.data);
+        onSearch(result.data);
       } else {
         toast({
           title: "Search Error",

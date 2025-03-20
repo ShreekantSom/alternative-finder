@@ -75,6 +75,15 @@ export function Index() {
         {showSearchResults ? (
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-6">Search Results</h2>
+            {searchResults.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">No results found for your search. Try different keywords.</p>
+              </div>
+            ) : (
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">Found {searchResults.length} results</p>
+              </div>
+            )}
             <AlternativesList 
               alternatives={searchResults} 
               isLoading={false} 
