@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import AlternativesList from '@/components/AlternativesList';
@@ -16,10 +17,30 @@ export function Index() {
   const [searchResults, setSearchResults] = useState<Alternative[]>([]);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const { toast } = useToast();
+  const location = useLocation();
 
   useEffect(() => {
     fetchAlternatives();
   }, [selectedCategory]);
+
+  // Check for search results passed via location state (from Navbar)
+  useEffect(() => {
+    if (location.state?.searchResults) {
+      setSearchResults(location.state.searchResults);
+      setShowSearchResults(true);
+      
+      // Scroll to results section
+      setTimeout(() => {
+        const resultsSection = document.querySelector('.search-results-section');
+        if (resultsSection) {
+          resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      
+      // Clear the location state to prevent showing search results after refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchAlternatives = async () => {
     setIsLoading(true);
