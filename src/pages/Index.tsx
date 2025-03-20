@@ -60,6 +60,7 @@ export function Index() {
   const handleSearch = (results: Alternative[]) => {
     setSearchResults(results);
     setShowSearchResults(true);
+    
     // Scroll to results section
     setTimeout(() => {
       const resultsSection = document.querySelector('.search-results-section');

@@ -28,6 +28,10 @@ export function Hero({ onSearch }: HeroProps) {
     
     if (inputElement && formElement) {
       inputElement.value = software;
+      // Update the input value to trigger the change event
+      const event = new Event('input', { bubbles: true });
+      inputElement.dispatchEvent(event);
+      
       // Trigger the form submission after a small delay to allow for value change
       setTimeout(() => {
         const submitEvent = new Event('submit', { cancelable: true });
@@ -96,7 +100,7 @@ export function Hero({ onSearch }: HeroProps) {
           <SearchBar onSearch={onSearch} />
         </motion.div>
 
-        {/* Popular Software - Now directly below search bar */}
+        {/* Popular Software - Below search bar */}
         <motion.div 
           className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground"
           initial={{ opacity: 0 }}
@@ -130,6 +134,13 @@ export function Hero({ onSearch }: HeroProps) {
             onClick={() => handlePopularSearch("Microsoft Office")}
           >
             Microsoft Office
+          </button>
+          <span>•</span>
+          <button 
+            className="hover:text-primary transition-colors"
+            onClick={() => handlePopularSearch("Visual Studio Code")}
+          >
+            VS Code
           </button>
         </motion.div>
       </div>
