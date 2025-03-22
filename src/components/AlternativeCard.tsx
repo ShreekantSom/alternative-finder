@@ -34,6 +34,22 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     })
   };
 
+  // Get appropriate background color for pricing badge
+  const getPricingBgColor = (pricing: string) => {
+    switch(pricing) {
+      case 'Free':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'Freemium':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'Paid':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
+      case 'Subscription':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    }
+  };
+
   return (
     <motion.div
       ref={cardRef}
@@ -75,11 +91,11 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
           <div className="flex items-center space-x-1">
             {alternative.platform.slice(0, 3).map((platform, i) => (
               <span key={i} className="text-xs bg-secondary px-1.5 py-0.5 rounded">
-                {platform === 'Windows' ? 'Win' : 
-                 platform === 'macOS' ? 'Mac' : 
-                 platform === 'Linux' ? 'Lin' : 
+                {platform === 'iOS' ? 'iOS' : 
                  platform === 'Android' ? 'And' : 
-                 platform === 'iOS' ? 'iOS' : 
+                 platform === 'Web' ? 'Web' : 
+                 platform === 'Desktop' ? 'Dsk' :
+                 platform === 'Smart TVs' ? 'TV' : 
                  platform}
               </span>
             ))}
@@ -97,12 +113,7 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
         
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/50">
           <div className="flex items-center space-x-1">
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              alternative.pricing === 'Free' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-              alternative.pricing === 'Freemium' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-              alternative.pricing === 'Paid' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' :
-              'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
-            }`}>
+            <span className={`text-xs px-2 py-1 rounded-full ${getPricingBgColor(alternative.pricing)}`}>
               {alternative.pricing}
             </span>
           </div>

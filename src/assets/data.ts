@@ -1,5 +1,5 @@
 
-// Sample data for alternatives
+// Sample data for D2C service providers
 export interface Alternative {
   id: string;
   name: string;
@@ -7,7 +7,7 @@ export interface Alternative {
   category: string;
   likes: number;
   platform: string[];
-  pricing: 'Free' | 'Freemium' | 'Paid' | 'Open Source';
+  pricing: 'Free' | 'Freemium' | 'Paid' | 'Subscription';
   imageUrl: string;
   url: string;
 }
@@ -22,91 +22,91 @@ export interface Category {
 export const alternatives: Alternative[] = [
   {
     id: '1',
-    name: 'GIMP',
-    description: 'A free and open-source raster graphics editor used for image manipulation and editing.',
-    category: 'Photo Editing',
-    likes: 3425,
-    platform: ['Windows', 'macOS', 'Linux'],
-    pricing: 'Open Source',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/The_GIMP_icon_-_gnome.svg/1200px-The_GIMP_icon_-_gnome.svg.png',
-    url: 'https://www.gimp.org/'
+    name: 'Instacart',
+    description: 'Grocery delivery and pickup service with same-day delivery from local stores.',
+    category: 'Quick Commerce',
+    likes: 5425,
+    platform: ['iOS', 'Android', 'Web'],
+    pricing: 'Freemium',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Instacart_logo_and_wordmark.svg/2560px-Instacart_logo_and_wordmark.svg.png',
+    url: 'https://www.instacart.com/'
   },
   {
     id: '2',
-    name: 'Figma',
-    description: 'A collaborative interface design tool that enables multiple designers to work on the same project simultaneously.',
-    category: 'Design',
-    likes: 5829,
-    platform: ['Web', 'Windows', 'macOS'],
+    name: 'DoorDash',
+    description: 'Food delivery service that connects customers with local restaurants and offers on-demand delivery.',
+    category: 'Food Delivery',
+    likes: 6829,
+    platform: ['iOS', 'Android', 'Web'],
     pricing: 'Freemium',
-    imageUrl: 'https://cdn.sanity.io/images/599r6htc/localized/46a76c802176eb17b04e12108de7e7e0f3736dc6-1024x1024.png?w=670&h=670&q=75&fit=max&auto=format',
-    url: 'https://www.figma.com/'
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/DoorDash_logo.svg/2560px-DoorDash_logo.svg.png',
+    url: 'https://www.doordash.com/'
   },
   {
     id: '3',
-    name: 'Visual Studio Code',
-    description: 'A source-code editor made by Microsoft with support for debugging, syntax highlighting, and Git integration.',
-    category: 'Development',
+    name: 'Uber',
+    description: 'Ride-hailing service that connects riders with drivers for on-demand transportation.',
+    category: 'Ride-Sharing',
     likes: 7291,
-    platform: ['Windows', 'macOS', 'Linux'],
-    pricing: 'Free',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/2048px-Visual_Studio_Code_1.35_icon.svg.png',
-    url: 'https://code.visualstudio.com/'
+    platform: ['iOS', 'Android', 'Web'],
+    pricing: 'Paid',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Uber_App_Icon.svg/2048px-Uber_App_Icon.svg.png',
+    url: 'https://www.uber.com/'
   },
   {
     id: '4',
-    name: 'DaVinci Resolve',
-    description: 'A professional video editing, color correction, visual effects, and audio post-production application.',
-    category: 'Video Editing',
-    likes: 4128,
-    platform: ['Windows', 'macOS', 'Linux'],
-    pricing: 'Freemium',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/DaVinci_Resolve_17_logo.svg/1200px-DaVinci_Resolve_17_logo.svg.png',
-    url: 'https://www.blackmagicdesign.com/products/davinciresolve/'
+    name: 'Netflix',
+    description: 'Subscription-based streaming service offering movies, TV shows, and original content.',
+    category: 'Entertainment',
+    likes: 9128,
+    platform: ['iOS', 'Android', 'Web', 'Smart TVs'],
+    pricing: 'Subscription',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1280px-Netflix_2015_logo.svg.png',
+    url: 'https://www.netflix.com/'
   },
   {
     id: '5',
-    name: 'Brave Browser',
-    description: 'A free and open-source web browser focused on privacy and security with built-in ad blocking.',
-    category: 'Web Browsers',
-    likes: 6239,
-    platform: ['Windows', 'macOS', 'Linux', 'Android', 'iOS'],
-    pricing: 'Free',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Brave_lion_icon.svg/1024px-Brave_lion_icon.svg.png',
-    url: 'https://brave.com/'
+    name: 'HelloFresh',
+    description: 'Meal kit delivery service that provides pre-portioned ingredients and recipes for home cooking.',
+    category: 'Meal Kits',
+    likes: 4239,
+    platform: ['iOS', 'Android', 'Web'],
+    pricing: 'Subscription',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/HelloFresh_company_logo.svg/2560px-HelloFresh_company_logo.svg.png',
+    url: 'https://www.hellofresh.com/'
   },
   {
     id: '6',
-    name: 'Notion',
-    description: 'An all-in-one workspace for notes, tasks, wikis, and databases with a flexible, modular design.',
-    category: 'Productivity',
+    name: 'Spotify',
+    description: 'Digital music streaming service providing access to millions of songs, podcasts, and videos.',
+    category: 'Entertainment',
     likes: 8127,
-    platform: ['Web', 'Windows', 'macOS', 'Android', 'iOS'],
+    platform: ['iOS', 'Android', 'Web', 'Desktop'],
     pricing: 'Freemium',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png',
-    url: 'https://www.notion.so/'
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Spotify_logo_with_text.svg/2560px-Spotify_logo_with_text.svg.png',
+    url: 'https://www.spotify.com/'
   }
 ];
 
 export const categories: Category[] = [
-  { id: '1', name: 'Photo Editing', icon: 'image', count: 48 },
-  { id: '2', name: 'Design', icon: 'palette', count: 64 },
-  { id: '3', name: 'Development', icon: 'code', count: 127 },
-  { id: '4', name: 'Video Editing', icon: 'video', count: 37 },
-  { id: '5', name: 'Web Browsers', icon: 'globe', count: 22 },
-  { id: '6', name: 'Productivity', icon: 'check-square', count: 95 },
-  { id: '7', name: 'Music', icon: 'music', count: 41 },
-  { id: '8', name: 'Communication', icon: 'message-circle', count: 53 }
+  { id: '1', name: 'Quick Commerce', icon: 'truck', count: 24 },
+  { id: '2', name: 'Food Delivery', icon: 'utensils', count: 31 },
+  { id: '3', name: 'Ride-Sharing', icon: 'car', count: 15 },
+  { id: '4', name: 'Entertainment', icon: 'tv', count: 42 },
+  { id: '5', name: 'Meal Kits', icon: 'package', count: 18 },
+  { id: '6', name: 'Grocery', icon: 'shopping-basket', count: 27 },
+  { id: '7', name: 'Health & Wellness', icon: 'heart', count: 35 },
+  { id: '8', name: 'Fashion', icon: 'shirt', count: 29 }
 ];
 
 export const featuredAlternative: Alternative = {
   id: '7',
-  name: 'Affinity Designer',
-  description: 'A professional graphic design software that serves as a powerful alternative to Adobe Illustrator with a one-time purchase model instead of subscription.',
-  category: 'Design',
-  likes: 6843,
-  platform: ['Windows', 'macOS', 'iPad'],
-  pricing: 'Paid',
-  imageUrl: 'https://upload.wikimedia.org/wikipedia/en/7/7d/Affinity_Designer_logo_new.png',
-  url: 'https://affinity.serif.com/designer/'
+  name: 'Amazon Prime',
+  description: 'Subscription service that provides members with free shipping, streaming video/music, and other benefits across various consumer categories.',
+  category: 'Quick Commerce',
+  likes: 9843,
+  platform: ['iOS', 'Android', 'Web', 'Smart TVs'],
+  pricing: 'Subscription',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Amazon_Prime_Logo.svg/2560px-Amazon_Prime_Logo.svg.png',
+  url: 'https://www.amazon.com/prime'
 };

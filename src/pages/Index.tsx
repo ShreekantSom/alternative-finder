@@ -57,12 +57,12 @@ export function Index() {
       } else {
         toast({
           title: "Error",
-          description: "Failed to load software alternatives",
+          description: "Failed to load service providers",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error("Error fetching alternatives:", error);
+      console.error("Error fetching services:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -120,7 +120,7 @@ export function Index() {
             <CategoriesList onCategorySelect={handleCategorySelect} />
             <div className="container mx-auto px-4 py-8">
               <h2 className="text-2xl font-bold mb-6">
-                {selectedCategory === "All" ? "All Software" : selectedCategory}
+                {selectedCategory === "All" ? "All Service Providers" : `${selectedCategory} Services`}
               </h2>
               <AlternativesList 
                 alternatives={alternatives} 
