@@ -7,7 +7,7 @@ export interface Alternative {
   category: string;
   likes: number;
   platform: string[];
-  pricing: 'Free' | 'Freemium' | 'Paid' | 'Subscription';
+  pricing: 'Free' | 'Freemium' | 'Paid' | 'Subscription' | 'Open Source';
   imageUrl: string;
   url: string;
 }

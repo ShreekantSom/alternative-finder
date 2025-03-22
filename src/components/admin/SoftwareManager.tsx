@@ -50,7 +50,7 @@ const softwareSchema = z.object({
   category: z.string().min(1, { message: "Please select a category." }),
   imageUrl: z.string().url({ message: "Please enter a valid URL." }),
   url: z.string().url({ message: "Please enter a valid URL." }),
-  pricing: z.enum(["Free", "Freemium", "Paid", "Open Source"], {
+  pricing: z.enum(["Free", "Freemium", "Paid", "Subscription", "Open Source"], {
     required_error: "Please select a pricing model.",
   }),
   platform: z.array(z.string()).min(1, { message: "Select at least one platform." }),
@@ -407,6 +407,7 @@ export function SoftwareManager() {
                           <SelectItem value="Free">Free</SelectItem>
                           <SelectItem value="Freemium">Freemium</SelectItem>
                           <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="Subscription">Subscription</SelectItem>
                           <SelectItem value="Open Source">Open Source</SelectItem>
                         </SelectContent>
                       </Select>
