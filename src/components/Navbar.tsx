@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, News } from 'lucide-react';
+import { Menu, X, User, FileText } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import { Alternative } from '@/assets/data';
 import { PincodeMenu } from './PincodeMenu';
@@ -19,24 +18,21 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check authentication status
   useEffect(() => {
     const currentUser = AuthService.getCurrentUser();
     setUser(currentUser);
-  }, [location.pathname]); // Re-check when route changes
+  }, [location.pathname]);
 
-  // Handle scroll event to add background color
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
       
-      // Check if we've scrolled past the hero section (approx. 80vh)
       const heroHeight = window.innerHeight * 0.8;
       setShowNavbarSearch(window.scrollY > heroHeight);
     };
     
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial scroll position
+    handleScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -52,7 +48,6 @@ export function Navbar() {
   };
 
   const handleItemSelect = (alternative: Alternative) => {
-    // Navigate to the service detail page with slug
     const slug = alternative.name
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
@@ -70,7 +65,6 @@ export function Navbar() {
       }`}
     >
       <div className="container flex items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
           <div className="rounded-xl bg-primary p-1.5">
             <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
@@ -80,13 +74,10 @@ export function Navbar() {
           <span className="font-bold text-lg">D2C Directory</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-4">
           <nav className="flex items-center space-x-4">
-            {/* Pincode Menu */}
             <PincodeMenu className="border-none" />
             
-            {/* Search bar that appears when scrolled down */}
             <AnimatePresence>
               <NavbarSearch 
                 showSearch={showNavbarSearch} 
@@ -98,7 +89,7 @@ export function Navbar() {
             <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
             <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors">Categories</Link>
             <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1.5">
-              <News size={16} />
+              <FileText size={16} />
               News
             </Link>
             <Button 
@@ -113,7 +104,6 @@ export function Navbar() {
           </nav>
         </div>
 
-        {/* Mobile Menu Button */}
         <button 
           className="md:hidden p-2 text-foreground/80 hover:text-foreground"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -122,7 +112,6 @@ export function Navbar() {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Mobile Menu */}
         <AnimatePresence>
           <MobileMenu 
             isOpen={isMenuOpen}
