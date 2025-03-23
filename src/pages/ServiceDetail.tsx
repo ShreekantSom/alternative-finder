@@ -1,16 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, ExternalLink, Tag, Check, Users, Calendar, Star, MapPin } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import AlternativesList from '@/components/AlternativesList';
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import ServiceHeader from '@/components/service/ServiceHeader';
+import PincodeAlert from '@/components/service/PincodeAlert';
+import ServiceCTA from '@/components/service/ServiceCTA';
+import RelatedServices from '@/components/service/RelatedServices';
 
 export function ServiceDetail() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
@@ -176,148 +176,33 @@ export function ServiceDetail() {
         </div>
 
         {/* Pincode availability alert */}
-        {isAvailableInPincode !== null && (
-          <Alert className={`mb-6 ${isAvailableInPincode ? 'bg-green-50 text-green-800 border-green-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
-            <MapPin className="h-4 w-4 mr-2" />
-            <AlertDescription>
-              {isAvailableInPincode 
-                ? `${service.name} is available in your area (${localStorage.getItem("userPincode")})` 
-                : `${service.name} is not currently available in your area (${localStorage.getItem("userPincode")})`}
-            </AlertDescription>
-          </Alert>
-        )}
+        <PincodeAlert 
+          isAvailable={isAvailableInPincode} 
+          serviceName={service.name} 
+          userPincode={localStorage.getItem("userPincode")} 
+        />
 
         {/* Service header */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Service image */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border/50 p-8 flex items-center justify-center">
-            <img 
-              src={service.imageUrl} 
-              alt={service.name} 
-              className="max-h-48 max-w-full object-contain"
-            />
-          </div>
-
-          {/* Service info */}
-          <div className="lg:col-span-2">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-2">
-                  <h1 className="text-3xl font-bold">{service.name}</h1>
-                  <div className="flex space-x-2">
-                    <button 
-                      onClick={handleLike}
-                      className={`p-2 rounded-full transition-colors ${
-                        isLiked 
-                          ? 'bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400' 
-                          : 'bg-secondary text-muted-foreground'
-                      }`}
-                      aria-label={isLiked ? 'Unlike' : 'Like'}
-                    >
-                      <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                    </button>
-                    <button 
-                      onClick={handleShare}
-                      className="p-2 rounded-full bg-secondary text-muted-foreground transition-colors hover:text-foreground"
-                      aria-label="Share"
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Tag size={12} />
-                    {service.category}
-                  </Badge>
-                  <span className={`px-2 py-1 rounded-full text-xs ${getPricingBgColor(service.pricing)}`}>
-                    {service.pricing}
-                  </span>
-                </div>
-                
-                <p className="text-lg mb-6">{service.description}</p>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  <div className="flex items-center">
-                    <Star className="w-5 h-5 mr-2 text-amber-500" />
-                    <span><strong>{service.likes}</strong> likes</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-5 h-5 mr-2 text-blue-500" />
-                    <span>Popular service</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-purple-500" />
-                    <span>Updated regularly</span>
-                  </div>
-                </div>
-                
-                {service.availablePincodes && service.availablePincodes.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="font-medium mb-2 flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4" />
-                      Available in pincodes:
-                    </h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      {service.availablePincodes.slice(0, 5).map((pin, index) => (
-                        <Badge key={index} variant="outline">{pin}</Badge>
-                      ))}
-                      {service.availablePincodes.length > 5 && (
-                        <Badge variant="outline">+{service.availablePincodes.length - 5} more</Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-4">
-                <h3 className="font-medium mb-2">Available on:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {service.platform.map((platform, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      <Check size={12} />
-                      {platform}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ServiceHeader 
+          service={service} 
+          isLiked={isLiked} 
+          onLike={handleLike} 
+          onShare={handleShare} 
+          getPricingBgColor={getPricingBgColor} 
+        />
 
         {/* CTA section */}
-        <Card className="mb-12 bg-gradient-to-r from-primary/10 to-primary/5 border-none">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-6 md:mb-0">
-                <h2 className="text-2xl font-bold mb-2">Ready to try {service.name}?</h2>
-                <p className="text-muted-foreground">Visit the official website to learn more and get started.</p>
-              </div>
-              <a 
-                href={service.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-all"
-              >
-                Visit Website
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
-          </CardContent>
-        </Card>
+        <ServiceCTA 
+          serviceName={service.name} 
+          serviceUrl={service.url} 
+        />
 
         {/* Related services */}
-        {relatedServices.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Similar Services</h2>
-            <AlternativesList 
-              alternatives={relatedServices} 
-              isLoading={false} 
-              selectedCategory={service.category}
-            />
-          </section>
-        )}
+        <RelatedServices 
+          services={relatedServices} 
+          isLoading={false} 
+          category={service.category} 
+        />
       </main>
     </div>
   );
