@@ -1,3 +1,4 @@
+
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
 
@@ -63,14 +64,14 @@ class SoftwareService {
       } else {
         return {
           success: false,
-          error: "Software not found"
+          error: "D2C service not found"
         };
       }
     } catch (error) {
-      console.error("Error fetching software by ID:", error);
+      console.error("Error fetching D2C service by ID:", error);
       return {
         success: false,
-        error: "Failed to load software"
+        error: "Failed to load D2C service"
       };
     }
   }
@@ -85,6 +86,103 @@ class SoftwareService {
 
   async searchSoftware(query: string) {
     return searchAlternatives(query);
+  }
+
+  async createSoftware(newService: Omit<Alternative, 'id'>): Promise<ServiceResult> {
+    try {
+      // In a real app, this would be a backend API call
+      // For demo purposes, we'll just simulate a successful creation
+      const { alternatives } = await import('@/assets/data');
+      
+      // Generate a new ID (in a real app, the backend would do this)
+      const newId = (alternatives.length + 1).toString();
+      
+      const newD2CService = {
+        id: newId,
+        ...newService
+      };
+      
+      // Note: In this demo, we aren't actually adding to the alternatives array
+      // because it's imported and can't be modified. In a real app, this would 
+      // be stored in a database.
+      
+      return {
+        success: true,
+        data: newD2CService
+      };
+    } catch (error) {
+      console.error('Error creating D2C service:', error);
+      return {
+        success: false,
+        error: 'Failed to create D2C service'
+      };
+    }
+  }
+
+  async updateSoftware(id: string, updatedService: Partial<Alternative>): Promise<ServiceResult> {
+    try {
+      // In a real app, this would be a backend API call
+      // For demo purposes, we'll just simulate a successful update
+      const { alternatives } = await import('@/assets/data');
+      
+      const existingService = alternatives.find(service => service.id === id);
+      
+      if (!existingService) {
+        return {
+          success: false,
+          error: 'D2C service not found'
+        };
+      }
+      
+      // Create an updated version (in a real app, this would update the database)
+      const updatedD2CService = {
+        ...existingService,
+        ...updatedService
+      };
+      
+      return {
+        success: true,
+        data: updatedD2CService
+      };
+    } catch (error) {
+      console.error('Error updating D2C service:', error);
+      return {
+        success: false,
+        error: 'Failed to update D2C service'
+      };
+    }
+  }
+
+  async deleteSoftware(id: string): Promise<ServiceResult> {
+    try {
+      // In a real app, this would be a backend API call
+      // For demo purposes, we'll just simulate a successful deletion
+      const { alternatives } = await import('@/assets/data');
+      
+      const serviceExists = alternatives.some(service => service.id === id);
+      
+      if (!serviceExists) {
+        return {
+          success: false,
+          error: 'D2C service not found'
+        };
+      }
+      
+      // Note: In this demo, we aren't actually removing from the alternatives array
+      // because it's imported and can't be modified. In a real app, this would 
+      // delete from a database.
+      
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error) {
+      console.error('Error deleting D2C service:', error);
+      return {
+        success: false,
+        error: 'Failed to delete D2C service'
+      };
+    }
   }
 }
 
