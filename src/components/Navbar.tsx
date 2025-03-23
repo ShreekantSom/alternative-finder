@@ -3,23 +3,18 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, Search, News } from 'lucide-react';
+import { Menu, X, User, News } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
-import { Input } from '@/components/ui/input';
-import { searchAlternatives } from '@/lib/crawler';
 import { Alternative } from '@/assets/data';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { PincodeMenu } from './PincodeMenu';
+import NavbarSearch from './navbar/NavbarSearch';
+import MobileMenu from './navbar/MobileMenu';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showNavbarSearch, setShowNavbarSearch] = useState(false);
   const [user, setUser] = useState<{email: string} | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [liveResults, setLiveResults] = useState<Alternative[]>([]);
-  const [showResults, setShowResults] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,53 +43,11 @@ export function Navbar() {
     };
   }, []);
 
-  // Live search when query changes
-  useEffect(() => {
-    const searchTimer = setTimeout(async () => {
-      if (searchQuery.trim().length >= 2) {
-        try {
-          const result = await searchAlternatives(searchQuery);
-          if (result.success) {
-            setLiveResults(result.data);
-            setShowResults(true);
-          }
-        } catch (error) {
-          console.error("Error during live search:", error);
-        }
-      } else {
-        setLiveResults([]);
-        setShowResults(false);
-      }
-    }, 300);
-    
-    return () => clearTimeout(searchTimer);
-  }, [searchQuery]);
-
   const handleAuthClick = () => {
     if (user) {
       navigate('/dashboard');
     } else {
       navigate('/auth');
-    }
-  };
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!searchQuery.trim()) {
-      return;
-    }
-    
-    try {
-      const result = await searchAlternatives(searchQuery);
-      
-      if (result.success) {
-        // Navigate to home with search results
-        navigate('/', { state: { searchResults: result.data } });
-        setShowResults(false);
-      }
-    } catch (error) {
-      console.error("Error during search:", error);
     }
   };
 
@@ -108,21 +61,7 @@ export function Navbar() {
       .trim();
     
     navigate(`/d2c/${slug}`);
-    setShowResults(false);
   };
-
-  // Close results when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const searchContainer = document.querySelector('.navbar-search-container');
-      if (searchContainer && !searchContainer.contains(event.target as Node)) {
-        setShowResults(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <header 
@@ -149,71 +88,10 @@ export function Navbar() {
             
             {/* Search bar that appears when scrolled down */}
             <AnimatePresence>
-              {showNavbarSearch && (
-                <motion.div 
-                  className="navbar-search-container relative"
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: 'auto' }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <form onSubmit={handleSearch} className="w-full">
-                    <div className="relative flex items-center">
-                      <Search className="absolute left-3 text-muted-foreground" size={16} />
-                      <Input
-                        type="text"
-                        placeholder="Search services..."
-                        className="pl-9 h-9 w-[250px]"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        autoComplete="off"
-                      />
-                    </div>
-                  </form>
-                  
-                  {showResults && liveResults.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg">
-                      <ScrollArea className="max-h-[300px]">
-                        <div className="p-2">
-                          <div className="flex justify-between items-center px-2 py-1 text-xs text-muted-foreground">
-                            <span>Search Results</span>
-                            <span>{liveResults.length} found</span>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            {liveResults.slice(0, 6).map((item) => (
-                              <div
-                                key={item.id}
-                                className="flex items-center justify-between p-2 hover:bg-accent rounded-md cursor-pointer"
-                                onClick={() => handleItemSelect(item)}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div className="w-7 h-7 rounded overflow-hidden flex-shrink-0">
-                                    <img 
-                                      src={item.imageUrl} 
-                                      alt={item.name}
-                                      className="w-full h-full object-cover" 
-                                    />
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-sm">{item.name}</p>
-                                    <p className="text-xs text-muted-foreground line-clamp-1">
-                                      {item.description.substring(0, 60)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <Badge variant="outline" className="ml-2 text-xs">
-                                  {item.category}
-                                </Badge>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </ScrollArea>
-                    </div>
-                  )}
-                </motion.div>
-              )}
+              <NavbarSearch 
+                showSearch={showNavbarSearch} 
+                onItemSelect={handleItemSelect} 
+              />
             </AnimatePresence>
 
             <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors">Home</Link>
@@ -246,89 +124,13 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="absolute top-full left-0 right-0 bg-background shadow-lg p-4 md:hidden"
-            >
-              <nav className="flex flex-col space-y-4">
-                {/* Pincode menu for mobile */}
-                <div className="py-2">
-                  <PincodeMenu className="w-full border-none" />
-                </div>
-                
-                {/* Mobile search bar when scrolled */}
-                {showNavbarSearch && (
-                  <div className="navbar-search-container relative mb-2">
-                    <form onSubmit={handleSearch} className="w-full">
-                      <div className="relative flex items-center">
-                        <Search className="absolute left-3 text-muted-foreground" size={16} />
-                        <Input
-                          type="text"
-                          placeholder="Search services..."
-                          className="pl-9 h-9 w-full"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          autoComplete="off"
-                        />
-                      </div>
-                    </form>
-                    
-                    {showResults && liveResults.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg">
-                        <ScrollArea className="max-h-[300px]">
-                          <div className="p-2">
-                            <div className="space-y-1">
-                              {liveResults.slice(0, 6).map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="flex items-center justify-between p-2 hover:bg-accent rounded-md cursor-pointer"
-                                  onClick={() => handleItemSelect(item)}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded overflow-hidden flex-shrink-0">
-                                      <img 
-                                        src={item.imageUrl} 
-                                        alt={item.name}
-                                        className="w-full h-full object-cover" 
-                                      />
-                                    </div>
-                                    <p className="font-medium text-sm">{item.name}</p>
-                                  </div>
-                                  <Badge variant="outline" className="ml-2 text-xs">
-                                    {item.category}
-                                  </Badge>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </ScrollArea>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors py-2">Home</Link>
-                <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors py-2">Discover</Link>
-                <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors py-2">Categories</Link>
-                <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors py-2 flex items-center gap-1.5">
-                  <News size={16} />
-                  News
-                </Link>
-                <Button 
-                  variant="outline"
-                  className="justify-start gap-1.5 w-full"
-                  onClick={handleAuthClick}
-                >
-                  <User size={16} />
-                  {user ? 'Dashboard' : 'Sign In'}
-                </Button>
-              </nav>
-            </motion.div>
-          )}
+          <MobileMenu 
+            isOpen={isMenuOpen}
+            showNavbarSearch={showNavbarSearch}
+            user={user} 
+            handleAuthClick={handleAuthClick}
+            handleItemSelect={handleItemSelect}
+          />
         </AnimatePresence>
       </div>
     </header>
