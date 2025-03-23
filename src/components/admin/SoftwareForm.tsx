@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Alternative, Category } from '@/assets/data';
+import { X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const softwareSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -35,6 +37,7 @@ const softwareSchema = z.object({
     required_error: "Please select a pricing model.",
   }),
   platform: z.array(z.string()).min(1, { message: "Select at least one platform." }),
+  availablePincodes: z.array(z.string()).optional(),
 });
 
 interface SoftwareFormProps {
@@ -44,6 +47,9 @@ interface SoftwareFormProps {
 }
 
 export function SoftwareForm({ editingSoftware, categories, onSubmit }: SoftwareFormProps) {
+  const [newPincode, setNewPincode] = useState('');
+  const [pincodes, setPincodes] = useState<string[]>([]);
+
   const form = useForm<z.infer<typeof softwareSchema>>({
     resolver: zodResolver(softwareSchema),
     defaultValues: {
@@ -54,6 +60,7 @@ export function SoftwareForm({ editingSoftware, categories, onSubmit }: Software
       url: "",
       pricing: "Free",
       platform: [],
+      availablePincodes: [],
     },
   });
 
@@ -67,7 +74,11 @@ export function SoftwareForm({ editingSoftware, categories, onSubmit }: Software
         url: editingSoftware.url,
         pricing: editingSoftware.pricing,
         platform: editingSoftware.platform,
+        availablePincodes: editingSoftware.availablePincodes || [],
       });
+      
+      // Set pincodes for the UI
+      setPincodes(editingSoftware.availablePincodes || []);
     } else {
       form.reset({
         name: "",
@@ -77,7 +88,9 @@ export function SoftwareForm({ editingSoftware, categories, onSubmit }: Software
         url: "",
         pricing: "Free",
         platform: [],
+        availablePincodes: [],
       });
+      setPincodes([]);
     }
   }, [editingSoftware, form]);
 
@@ -90,9 +103,41 @@ export function SoftwareForm({ editingSoftware, categories, onSubmit }: Software
     { id: "web", label: "Web" },
   ];
 
+  const addPincode = () => {
+    // Validate pincode format (6 digits for Indian pincodes)
+    if (/^\d{6}$/.test(newPincode) && !pincodes.includes(newPincode)) {
+      const updatedPincodes = [...pincodes, newPincode];
+      setPincodes(updatedPincodes);
+      form.setValue('availablePincodes', updatedPincodes);
+      setNewPincode('');
+    }
+  };
+
+  const removePincode = (pincode: string) => {
+    const updatedPincodes = pincodes.filter(p => p !== pincode);
+    setPincodes(updatedPincodes);
+    form.setValue('availablePincodes', updatedPincodes);
+  };
+
+  const handlePincodeKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addPincode();
+    }
+  };
+
+  const handleFormSubmit = async (data: z.infer<typeof softwareSchema>) => {
+    // Ensure pincodes are included in the form data
+    const formData = {
+      ...data,
+      availablePincodes: pincodes
+    };
+    await onSubmit(formData);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -206,6 +251,58 @@ export function SoftwareForm({ editingSoftware, categories, onSubmit }: Software
                   </SelectContent>
                 </Select>
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Available Pincodes Field */}
+        <FormField
+          control={form.control}
+          name="availablePincodes"
+          render={() => (
+            <FormItem>
+              <FormLabel>Available Pincodes</FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input
+                    placeholder="Enter 6-digit pincode"
+                    value={newPincode}
+                    onChange={(e) => setNewPincode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                    onKeyPress={handlePincodeKeyPress}
+                  />
+                </FormControl>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={addPincode}
+                >
+                  Add
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {pincodes.map((pincode) => (
+                  <Badge 
+                    key={pincode} 
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {pincode}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1"
+                      onClick={() => removePincode(pincode)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Add pincodes where this service is available
+              </p>
               <FormMessage />
             </FormItem>
           )}

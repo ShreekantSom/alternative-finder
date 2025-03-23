@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, Search } from 'lucide-react';
+import { Menu, X, User, Search, News } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import { Input } from '@/components/ui/input';
 import { searchAlternatives } from '@/lib/crawler';
 import { Alternative } from '@/assets/data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { PincodeMenu } from './PincodeMenu';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,7 +99,15 @@ export function Navbar() {
   };
 
   const handleItemSelect = (alternative: Alternative) => {
-    navigate('/', { state: { searchResults: [alternative] } });
+    // Navigate to the service detail page with slug
+    const slug = alternative.name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+    
+    navigate(`/d2c/${slug}`);
     setShowResults(false);
   };
 
@@ -129,12 +138,15 @@ export function Navbar() {
               <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
             </svg>
           </div>
-          <span className="font-bold text-lg">AlternativeFinder</span>
+          <span className="font-bold text-lg">D2C Directory</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
-          <nav className="flex items-center space-x-6">
+        <div className="hidden md:flex items-center space-x-4">
+          <nav className="flex items-center space-x-4">
+            {/* Pincode Menu */}
+            <PincodeMenu className="border-none" />
+            
             {/* Search bar that appears when scrolled down */}
             <AnimatePresence>
               {showNavbarSearch && (
@@ -150,7 +162,7 @@ export function Navbar() {
                       <Search className="absolute left-3 text-muted-foreground" size={16} />
                       <Input
                         type="text"
-                        placeholder="Search alternatives..."
+                        placeholder="Search services..."
                         className="pl-9 h-9 w-[250px]"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,6 +219,10 @@ export function Navbar() {
             <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors">Home</Link>
             <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
             <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors">Categories</Link>
+            <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1.5">
+              <News size={16} />
+              News
+            </Link>
             <Button 
               variant="outline" 
               size="sm" 
@@ -239,6 +255,11 @@ export function Navbar() {
               className="absolute top-full left-0 right-0 bg-background shadow-lg p-4 md:hidden"
             >
               <nav className="flex flex-col space-y-4">
+                {/* Pincode menu for mobile */}
+                <div className="py-2">
+                  <PincodeMenu className="w-full border-none" />
+                </div>
+                
                 {/* Mobile search bar when scrolled */}
                 {showNavbarSearch && (
                   <div className="navbar-search-container relative mb-2">
@@ -247,7 +268,7 @@ export function Navbar() {
                         <Search className="absolute left-3 text-muted-foreground" size={16} />
                         <Input
                           type="text"
-                          placeholder="Search alternatives..."
+                          placeholder="Search services..."
                           className="pl-9 h-9 w-full"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
@@ -293,6 +314,10 @@ export function Navbar() {
                 <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors py-2">Home</Link>
                 <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors py-2">Discover</Link>
                 <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors py-2">Categories</Link>
+                <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors py-2 flex items-center gap-1.5">
+                  <News size={16} />
+                  News
+                </Link>
                 <Button 
                   variant="outline"
                   className="justify-start gap-1.5 w-full"

@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import ServiceDetail from "./pages/ServiceDetail";
+import NewsSection from "./pages/NewsSection";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/service/:id" element={<ServiceDetail />} />
+          <Route path="/d2c/:slug" element={<ServiceDetail />} />
+          <Route path="/news" element={<NewsSection />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

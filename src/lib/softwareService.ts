@@ -76,6 +76,44 @@ class SoftwareService {
     }
   }
 
+  async getSoftwareBySlug(slug: string) {
+    try {
+      // Import alternatives
+      const { alternatives } = await import('@/assets/data');
+      
+      // Create slug from name and find matching service
+      const software = alternatives.find(item => this.createSlug(item.name) === slug);
+      
+      if (software) {
+        return {
+          success: true,
+          data: software
+        };
+      } else {
+        return {
+          success: false,
+          error: "D2C service not found"
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching D2C service by slug:", error);
+      return {
+        success: false,
+        error: "Failed to load D2C service"
+      };
+    }
+  }
+
+  // Helper function to create URL-friendly slug from a string
+  createSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Remove consecutive hyphens
+      .trim();
+  }
+
   async getCategories() {
     return crawlCategories();
   }
@@ -86,6 +124,27 @@ class SoftwareService {
 
   async searchSoftware(query: string) {
     return searchAlternatives(query);
+  }
+
+  // Check if a D2C service is available in a specific pincode
+  async checkPincodeAvailability(serviceId: string, pincode: string): Promise<boolean> {
+    try {
+      const result = await this.getSoftwareById(serviceId);
+      if (result.success && result.data) {
+        // In a real app, this would check against the service's available pincodes
+        // For demo purposes, we'll simulate with simple logic
+        const service = result.data as Alternative;
+        if (service.availablePincodes) {
+          return service.availablePincodes.includes(pincode);
+        }
+        // Default to available if no pincodes are specified
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking pincode availability:", error);
+      return false;
+    }
   }
 
   async createSoftware(newService: Omit<Alternative, 'id'>): Promise<ServiceResult> {

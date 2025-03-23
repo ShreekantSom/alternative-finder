@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, ExternalLink, Tag, Check, Users, Calendar, Star } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, Share2, ExternalLink, Tag, Check, Users, Calendar, Star, MapPin } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
 import { useToast } from "@/components/ui/use-toast";
@@ -10,40 +10,74 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import AlternativesList from '@/components/AlternativesList';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function ServiceDetail() {
-  const { id } = useParams<{ id: string }>();
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const [service, setService] = useState<Alternative | null>(null);
   const [relatedServices, setRelatedServices] = useState<Alternative[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [isAvailableInPincode, setIsAvailableInPincode] = useState<boolean | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
       setIsLoading(true);
       try {
+        let result;
+        
         if (id) {
-          const result = await softwareService.getSoftwareById(id);
-          if (result.success && result.data) {
-            setService(result.data);
-            // Fetch related services from the same category
-            const relatedResult = await softwareService.getSoftwareByCategory(result.data.category);
-            if (relatedResult.success) {
-              // Filter out the current service and limit to 3 items
-              setRelatedServices(
-                relatedResult.data
-                  .filter((item: Alternative) => item.id !== id)
-                  .slice(0, 3)
-              );
-            }
-          } else {
-            toast({
-              title: "Error",
-              description: "Service not found",
-              variant: "destructive",
-            });
+          // If ID is provided in URL, use it to fetch the service
+          result = await softwareService.getSoftwareById(id);
+        } else if (slug) {
+          // If slug is provided in URL, use it to fetch the service
+          result = await softwareService.getSoftwareBySlug(slug);
+        } else {
+          // No valid identifier provided
+          toast({
+            title: "Error",
+            description: "Invalid service identifier",
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+        
+        if (result.success && result.data) {
+          setService(result.data);
+          
+          // If accessed by ID but slug is available, redirect to the slug URL
+          if (id && !slug) {
+            const serviceSlug = softwareService.createSlug(result.data.name);
+            navigate(`/d2c/${serviceSlug}`, { replace: true });
           }
+          
+          // Check availability in user's pincode
+          const userPincode = localStorage.getItem("userPincode");
+          if (userPincode && result.data.availablePincodes) {
+            const isAvailable = result.data.availablePincodes.includes(userPincode);
+            setIsAvailableInPincode(isAvailable);
+          }
+          
+          // Fetch related services from the same category
+          const relatedResult = await softwareService.getSoftwareByCategory(result.data.category);
+          if (relatedResult.success) {
+            // Filter out the current service and limit to 3 items
+            setRelatedServices(
+              relatedResult.data
+                .filter((item: Alternative) => item.id !== result.data.id)
+                .slice(0, 3)
+            );
+          }
+        } else {
+          toast({
+            title: "Error",
+            description: "Service not found",
+            variant: "destructive",
+          });
+          navigate('/');
         }
       } catch (error) {
         console.error("Error fetching service:", error);
@@ -58,7 +92,7 @@ export function ServiceDetail() {
     };
 
     fetchServiceDetails();
-  }, [id, toast]);
+  }, [id, slug, toast, navigate]);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -141,6 +175,18 @@ export function ServiceDetail() {
           </Link>
         </div>
 
+        {/* Pincode availability alert */}
+        {isAvailableInPincode !== null && (
+          <Alert className={`mb-6 ${isAvailableInPincode ? 'bg-green-50 text-green-800 border-green-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+            <MapPin className="h-4 w-4 mr-2" />
+            <AlertDescription>
+              {isAvailableInPincode 
+                ? `${service.name} is available in your area (${localStorage.getItem("userPincode")})` 
+                : `${service.name} is not currently available in your area (${localStorage.getItem("userPincode")})`}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Service header */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           {/* Service image */}
@@ -206,6 +252,23 @@ export function ServiceDetail() {
                     <span>Updated regularly</span>
                   </div>
                 </div>
+                
+                {service.availablePincodes && service.availablePincodes.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-medium mb-2 flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4" />
+                      Available in pincodes:
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {service.availablePincodes.slice(0, 5).map((pin, index) => (
+                        <Badge key={index} variant="outline">{pin}</Badge>
+                      ))}
+                      {service.availablePincodes.length > 5 && (
+                        <Badge variant="outline">+{service.availablePincodes.length - 5} more</Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="mt-4">
