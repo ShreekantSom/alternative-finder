@@ -109,8 +109,7 @@ export function MobileMenu({
           </div>
         )}
 
-        <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors py-2">Home</Link>
-        <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors py-2">Discover</Link>
+        <Link to="/discover" className="text-foreground/80 hover:text-foreground transition-colors py-2">Discover</Link>
         <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors py-2">Categories</Link>
         <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors py-2 flex items-center gap-1.5">
           <FileText size={16} />

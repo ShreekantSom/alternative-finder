@@ -1,19 +1,40 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, FileText } from 'lucide-react';
+import { Menu, X, User, FileText, ChevronDown } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import { Alternative } from '@/assets/data';
 import { PincodeMenu } from './PincodeMenu';
 import NavbarSearch from './navbar/NavbarSearch';
 import MobileMenu from './navbar/MobileMenu';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { crawlCategories } from '@/lib/crawler';
+import { useEffect, useState } from 'react';
+import { Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
+
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  count: number;
+}
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showNavbarSearch, setShowNavbarSearch] = useState(false);
   const [user, setUser] = useState<{email: string} | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +60,22 @@ export function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    // Fetch categories for the dropdown
+    const fetchCategories = async () => {
+      try {
+        const result = await crawlCategories();
+        if (result.success && result.data) {
+          setCategories(result.data.filter((cat: Category) => cat.id !== 'all'));
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+
   const handleAuthClick = () => {
     if (user) {
       navigate('/dashboard');
@@ -56,6 +93,29 @@ export function Navbar() {
       .trim();
     
     navigate(`/d2c/${slug}`);
+  };
+
+  const getIconComponent = (iconName: string) => {
+    const iconMap: {[key: string]: any} = {
+      'globe': Globe,
+      'paintbrush': Paintbrush,
+      'code': Code,
+      'gamepad-2': Gamepad2,
+      'music': Music,
+      'briefcase': Briefcase,
+      'image': Image,
+      'shield': Shield,
+      'message-circle': MessageCircle,
+      'tool': Wrench,
+      'wrench': Wrench,
+      'graduation-cap': GraduationCap,
+      'landmark': Landmark,
+      // Add default
+      'layers': Globe,
+    };
+    
+    const IconComponent = iconMap[iconName] || Globe;
+    return <IconComponent className="mr-2 h-4 w-4" />;
   };
 
   return (
@@ -85,9 +145,40 @@ export function Navbar() {
               />
             </AnimatePresence>
 
-            <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors">Home</Link>
-            <Link to="/#alternatives-list" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
-            <Link to="/#categories" className="text-foreground/80 hover:text-foreground transition-colors">Categories</Link>
+            <Link to="/discover" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
+            
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="bg-transparent text-foreground/80 hover:text-foreground hover:bg-transparent">
+                    Categories
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      {categories.map((category) => (
+                        <li key={category.id} className="row-span-1">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={`/?category=${category.name}`}
+                              className="flex p-2 select-none rounded-md hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            >
+                              {getIconComponent(category.icon)}
+                              <div className="text-sm font-medium">
+                                {category.name}
+                                <div className="text-xs text-muted-foreground">
+                                  {category.count} apps
+                                </div>
+                              </div>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            
             <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1.5">
               <FileText size={16} />
               News
