@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import ServiceDetail from "./pages/ServiceDetail";
 import NewsSection from "./pages/NewsSection";
+import Collections from "./pages/Collections";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,8 @@ const App = () => (
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/d2c/:slug" element={<ServiceDetail />} />
         <Route path="/news" element={<NewsSection />} />
+        <Route path="/collections" element={<Collections />} />
+        <Route path="/collection/:id" element={<Collections />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

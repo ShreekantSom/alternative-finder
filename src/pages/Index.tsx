@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,6 +6,7 @@ import AlternativesList from '@/components/AlternativesList';
 import CategoriesList from '@/components/CategoriesList';
 import FeaturedAlternative from '@/components/FeaturedAlternative';
 import HomeNews from '@/components/home/HomeNews';
+import CuratedCollections from '@/components/home/CuratedCollections';
 import AdvancedFilters from '@/components/filters/AdvancedFilters';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
@@ -30,13 +30,11 @@ export function Index() {
     fetchAlternatives();
   }, [selectedCategory, advancedFilters]);
 
-  // Check for search results passed via location state (from Navbar)
   useEffect(() => {
     if (location.state?.searchResults) {
       setSearchResults(location.state.searchResults);
       setShowSearchResults(true);
       
-      // Scroll to results section
       setTimeout(() => {
         const resultsSection = document.querySelector('.search-results-section');
         if (resultsSection) {
@@ -44,7 +42,6 @@ export function Index() {
         }
       }, 100);
       
-      // Clear the location state to prevent showing search results after refresh
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -60,29 +57,23 @@ export function Index() {
       }
       
       if (result.success) {
-        // Apply advanced filters
         let filteredData = result.data;
         
-        // Filter by price range if applicable
         if (advancedFilters.priceRange && advancedFilters.priceRange.length === 2) {
           filteredData = filteredData.filter(item => {
-            // Assuming there's a price field or we extract it from description
             const price = extractPrice(item);
             return price >= advancedFilters.priceRange[0] && price <= advancedFilters.priceRange[1];
           });
         }
         
-        // Filter by location if applicable
         if (advancedFilters.location && advancedFilters.location !== 'All') {
           filteredData = filteredData.filter(item => {
             return item.availablePincodes?.includes(advancedFilters.location);
           });
         }
         
-        // Filter by sustainability if applicable
         if (advancedFilters.sustainability) {
           filteredData = filteredData.filter(item => {
-            // Check if description mentions sustainability
             return item.description.toLowerCase().includes('sustainable') || 
                    item.description.toLowerCase().includes('eco-friendly');
           });
@@ -108,10 +99,7 @@ export function Index() {
     }
   };
 
-  // Helper function to extract price from item
   const extractPrice = (item: Alternative): number => {
-    // This is a simplified example. In a real app, you'd have a proper price field
-    // For now, we'll return a random price based on the item's id for demonstration
     return parseInt(item.id) * 100;
   };
 
@@ -124,7 +112,6 @@ export function Index() {
     setSearchResults(results);
     setShowSearchResults(true);
     
-    // Scroll to results section
     setTimeout(() => {
       const resultsSection = document.querySelector('.search-results-section');
       if (resultsSection) {
@@ -163,13 +150,12 @@ export function Index() {
           </div>
         ) : (
           <>
-            {/* Featured Alternative Section - Now above Categories */}
             <FeaturedAlternative />
             
-            {/* Categories Section */}
             <CategoriesList onCategorySelect={handleCategorySelect} />
             
-            {/* Advanced Filters */}
+            <CuratedCollections />
+            
             <div className="container mx-auto px-4 py-8">
               <AdvancedFilters onChange={handleAdvancedFilterChange} />
               
@@ -183,7 +169,6 @@ export function Index() {
               />
             </div>
             
-            {/* News Section - Added at the bottom */}
             <HomeNews />
           </>
         )}
