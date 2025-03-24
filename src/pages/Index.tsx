@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,6 +8,7 @@ import CategoriesList from '@/components/CategoriesList';
 import FeaturedAlternative from '@/components/FeaturedAlternative';
 import HomeNews from '@/components/home/HomeNews';
 import CuratedCollections from '@/components/home/CuratedCollections';
+import NewBrandSpotlights from '@/components/home/NewBrandSpotlights';
 import AdvancedFilters from '@/components/filters/AdvancedFilters';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
@@ -155,6 +157,8 @@ export function Index() {
             <CategoriesList onCategorySelect={handleCategorySelect} />
             
             <CuratedCollections />
+            
+            <NewBrandSpotlights />
             
             <div className="container mx-auto px-4 py-8">
               <AdvancedFilters onChange={handleAdvancedFilterChange} />
