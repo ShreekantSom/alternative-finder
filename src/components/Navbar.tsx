@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, FileText, ChevronDown } from 'lucide-react';
+import { Menu, X, User, FileText, ChevronDown, Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import { Alternative } from '@/assets/data';
 import { PincodeMenu } from './PincodeMenu';
@@ -19,8 +18,6 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { crawlCategories } from '@/lib/crawler';
-import { useEffect, useState } from 'react';
-import { Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -61,7 +58,6 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    // Fetch categories for the dropdown
     const fetchCategories = async () => {
       try {
         const result = await crawlCategories();
