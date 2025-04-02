@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -67,9 +68,19 @@ const Navbar = () => {
     const fetchCategories = async () => {
       try {
         const categoriesData = await crawlCategories();
-        setCategories(categoriesData);
+        if (categoriesData.success && Array.isArray(categoriesData.data)) {
+          const formattedCategories = categoriesData.data.map(cat => ({
+            name: cat.name,
+            url: `/?category=${encodeURIComponent(cat.name)}`
+          }));
+          setCategories(formattedCategories);
+        } else {
+          console.error("Error: categories data is not in expected format");
+          setCategories([]);
+        }
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories([]);
       }
     };
 
@@ -97,6 +108,22 @@ const Navbar = () => {
   const handleLogout = () => {
     AuthService.logout();
     navigate('/');
+  };
+
+  const handleItemSelect = (alternative: Alternative) => {
+    // Close menu if open
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+    
+    // Navigate to the service detail page
+    const slug = alternative.name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+      
+    navigate(`/d2c/${slug}`);
   };
 
   return (
@@ -134,7 +161,7 @@ const Navbar = () => {
                         return (
                           <Link
                             key={category.name}
-                            to={`/?category=${encodeURIComponent(category.name)}`}
+                            to={category.url}
                             className="flex items-center gap-2 p-2 hover:bg-secondary rounded-md transition-colors"
                           >
                             <Icon className="h-4 w-4 text-primary" />
@@ -172,7 +199,7 @@ const Navbar = () => {
         </div>
         
         <div className="flex-1 max-w-md mx-4 hidden sm:block">
-          <NavbarSearch />
+          <NavbarSearch onItemSelect={handleItemSelect} showSearch={true} />
         </div>
         
         {/* Right side - Auth buttons */}
@@ -246,13 +273,11 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <MobileMenu 
-            isOpen={isMenuOpen} 
-            onClose={() => setIsMenuOpen(false)} 
-            categories={categories}
-            getCategoryIcon={getCategoryIcon}
-            isLoggedIn={isLoggedIn}
+            isOpen={isMenuOpen}
+            showNavbarSearch={true}
             user={user}
-            onLogout={handleLogout}
+            handleAuthClick={() => isLoggedIn ? navigate('/dashboard') : navigate('/auth')}
+            handleItemSelect={handleItemSelect}
           />
         )}
       </AnimatePresence>

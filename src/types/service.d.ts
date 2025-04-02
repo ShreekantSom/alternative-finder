@@ -12,5 +12,12 @@ declare module '@/assets/data' {
       youtube?: string;
     };
     features?: string[];
+    performance?: number;
+    support?: number;
+    referralProgram?: {
+      enabled: boolean;
+      discountPercent?: number;
+      referralCode?: string;
+    };
   }
 }

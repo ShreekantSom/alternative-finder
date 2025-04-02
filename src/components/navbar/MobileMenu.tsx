@@ -14,7 +14,7 @@ import SearchResults from './SearchResults';
 interface MobileMenuProps {
   isOpen: boolean;
   showNavbarSearch: boolean;
-  user: { email: string } | null;
+  user: { email: string; role?: string } | null;
   handleAuthClick: () => void;
   handleItemSelect: (alternative: Alternative) => void;
 }
@@ -121,7 +121,7 @@ export function MobileMenu({
           onClick={handleAuthClick}
         >
           <User size={16} />
-          {user ? 'Dashboard' : 'Sign In'}
+          {user ? (user.role === 'brand' ? 'Brand Dashboard' : 'Dashboard') : 'Sign In'}
         </Button>
       </nav>
     </motion.div>

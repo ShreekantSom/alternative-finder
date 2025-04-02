@@ -1,10 +1,21 @@
 
-import { Facebook, Twitter, Linkedin, Share2, Link as LinkIcon, Copy } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Share2, Link as LinkIcon, Copy, Gift, Clipboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
 import { Alternative } from '@/assets/data';
 import { useToast } from '@/components/ui/use-toast';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface ServiceSocialLinksProps {
   service: Alternative;
@@ -13,6 +24,8 @@ interface ServiceSocialLinksProps {
 export function ServiceSocialLinks({ service }: ServiceSocialLinksProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Create the share URLs
   const pageUrl = window.location.href;
@@ -29,6 +42,37 @@ export function ServiceSocialLinks({ service }: ServiceSocialLinksProps) {
       description: "Link copied to clipboard",
     });
     setTimeout(() => setCopied(false), 3000);
+  };
+  
+  const handleReferralCodeSubmit = () => {
+    if (!referralCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a referral code",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // In a real app, this would validate the referral code with the backend
+    toast({
+      title: "Success!",
+      description: `Referral code "${referralCode}" applied successfully!`,
+    });
+    
+    setIsDialogOpen(false);
+    setReferralCode('');
+  };
+  
+  const handleGenerateReferralLink = () => {
+    // In a real app, this would generate a unique referral link from the backend
+    const generatedCode = `${service.name.substring(0, 3).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`;
+    const referralLink = `${window.location.origin}/d2c/${service.name.toLowerCase().replace(/\s+/g, '-')}?ref=${generatedCode}`;
+    
+    navigator.clipboard.writeText(referralLink);
+    toast({
+      description: "Referral link generated and copied to clipboard!",
+    });
   };
   
   const openShareWindow = (url: string) => {
@@ -155,6 +199,59 @@ export function ServiceSocialLinks({ service }: ServiceSocialLinksProps) {
               </TooltipTrigger>
               <TooltipContent>
                 <p>{copied ? 'Copied!' : 'Copy link'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        
+        {/* Referral Section */}
+        <div className="flex items-center ml-auto">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Gift className="h-4 w-4" />
+                <span>Enter Referral Code</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Enter Referral Code</DialogTitle>
+                <DialogDescription>
+                  Enter a referral code to get special discounts or benefits for {service.name}.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Label htmlFor="referralCode">Referral Code</Label>
+                <Input
+                  id="referralCode"
+                  placeholder="Enter code (e.g., FRIEND50)"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  className="mt-2"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleReferralCodeSubmit}>Apply Code</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="ml-2" 
+                  onClick={handleGenerateReferralLink}
+                >
+                  <Clipboard className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Get Referral Link</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Generate and copy a referral link</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

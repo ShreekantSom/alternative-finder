@@ -6,18 +6,32 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CheckCircle, XCircle, MinusCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, MinusCircle, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown, DollarSign, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ServiceComparisonTableProps {
   mainService: Alternative;
 }
+
+// Array of comparison features
+const COMPARISON_FEATURES = [
+  { name: 'Pricing', key: 'pricing', icon: <DollarSign className="h-4 w-4 mr-1" /> },
+  { name: 'Rating', key: 'likes', icon: <ThumbsUp className="h-4 w-4 mr-1" /> },
+  { name: 'Platform', key: 'platform', icon: <Clock className="h-4 w-4 mr-1" /> },
+  { name: 'Key Features', key: 'features', icon: <CheckCircle className="h-4 w-4 mr-1" /> },
+  { name: 'Location Support', key: 'availablePincodes', icon: <CheckCircle className="h-4 w-4 mr-1" /> },
+  { name: 'Performance', key: 'performance', icon: <Clock className="h-4 w-4 mr-1" /> },
+  { name: 'Customer Support', key: 'support', icon: <ThumbsUp className="h-4 w-4 mr-1" /> },
+  { name: 'Referral Program', key: 'referralProgram', icon: <ThumbsUp className="h-4 w-4 mr-1" /> },
+];
 
 export function ServiceComparisonTable({ mainService }: ServiceComparisonTableProps) {
   const { toast } = useToast();
   const [competitors, setCompetitors] = useState<Alternative[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
+  const [selectedView, setSelectedView] = useState('table');
 
   useEffect(() => {
     const fetchCompetitors = async () => {
@@ -55,19 +69,22 @@ export function ServiceComparisonTable({ mainService }: ServiceComparisonTablePr
     fetchCompetitors();
   }, [mainService.id, mainService.category, showMore, toast]);
 
-  // Define comparison features
-  const comparisonFeatures = [
-    { name: 'Pricing', key: 'pricing' },
-    { name: 'Rating', key: 'likes' },
-    { name: 'Platform', key: 'platform' },
-    { name: 'Key Features', key: 'features' },
-    { name: 'Location Support', key: 'availablePincodes' },
-  ];
-
   const renderValue = (service: Alternative, feature: { name: string; key: string }) => {
     const key = feature.key as keyof Alternative;
+    
+    // Handle undefined values
+    if (!service[key]) {
+      if (key === 'referralProgram') {
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      }
+      if (key === 'performance' || key === 'support') {
+        return <MinusCircle className="h-5 w-5 text-gray-400" />;
+      }
+      return <MinusCircle className="h-5 w-5 text-gray-400" />;
+    }
+    
     const value = service[key];
-
+    
     if (key === 'pricing') {
       return <Badge variant="outline">{value as string}</Badge>;
     }
@@ -95,19 +112,99 @@ export function ServiceComparisonTable({ mainService }: ServiceComparisonTablePr
     }
 
     if (key === 'features') {
-      // This is a mock since we don't have features in our data model
-      // In a real app, this would come from the service data
+      // In a real app, this would come from the service's actual features
       return (
         <ul className="text-sm list-disc pl-4 space-y-1">
-          <li>Feature 1</li>
-          <li>Feature 2</li>
-          <li>Feature 3</li>
+          {(service.features || ['Basic feature']).map((feature, idx) => (
+            <li key={idx}>{feature}</li>
+          ))}
         </ul>
       );
     }
+    
+    if (key === 'performance') {
+      // Mock performance rating
+      const rating = Math.floor(Math.random() * 5) + 1;
+      return (
+        <div className="flex">
+          {[...Array(rating)].map((_, i) => (
+            <ThumbsUp key={i} className="h-4 w-4 text-green-500 mr-1" />
+          ))}
+        </div>
+      );
+    }
+    
+    if (key === 'support') {
+      // Mock support rating
+      const rating = Math.floor(Math.random() * 5) + 1;
+      return (
+        <div className="flex">
+          {[...Array(rating)].map((_, i) => (
+            <ThumbsUp key={i} className="h-4 w-4 text-blue-500 mr-1" />
+          ))}
+        </div>
+      );
+    }
+    
+    if (key === 'referralProgram') {
+      // Mock referral program info
+      return service.id === mainService.id || Math.random() > 0.5 ? 
+        <div className="text-sm">
+          <CheckCircle className="h-5 w-5 text-green-500 inline mr-1" /> 
+          <span>Available</span>
+        </div> : 
+        <XCircle className="h-5 w-5 text-red-500" />;
+    }
 
-    return value ? value : <MinusCircle className="h-5 w-5 text-gray-400" />;
+    if (typeof value === 'object' && value !== null) {
+      return <span>Available</span>;
+    }
+
+    return String(value);
   };
+
+  // Card view for each service
+  const renderServiceCard = (service: Alternative) => (
+    <div className="bg-card border rounded-lg shadow-sm p-4 mb-4">
+      <div className="flex items-center mb-4">
+        <div className="h-12 w-12 rounded-full overflow-hidden mr-3">
+          <img 
+            src={service.imageUrl || "/placeholder.svg"} 
+            alt={service.name} 
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div>
+          <h3 className="font-semibold">{service.name}</h3>
+          <p className="text-sm text-muted-foreground">{service.category}</p>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        {COMPARISON_FEATURES.map(feature => (
+          <div key={feature.key} className="flex justify-between items-center py-1 border-b border-muted">
+            <div className="flex items-center text-sm font-medium">
+              {feature.icon} {feature.name}
+            </div>
+            <div className="text-sm">{renderValue(service, feature)}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-4 flex justify-between">
+        <Badge variant="outline" className={
+          service.pricing === 'Free' ? 'bg-green-100 text-green-800' :
+          service.pricing === 'Freemium' ? 'bg-blue-100 text-blue-800' :
+          'bg-purple-100 text-purple-800'
+        }>
+          {service.pricing}
+        </Badge>
+        <Button variant="link" size="sm" onClick={() => window.open(service.url, '_blank')}>
+          Visit Website
+        </Button>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -130,37 +227,62 @@ export function ServiceComparisonTable({ mainService }: ServiceComparisonTablePr
   return (
     <div className="mt-12 mb-16">
       <h2 className="text-2xl font-bold mb-6">Compare with Alternatives</h2>
-      <div className="overflow-x-auto">
-        <Table className="w-full">
-          <TableCaption>
-            Comparison of {mainService.name} with alternatives in the {mainService.category} category.
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Features</TableHead>
-              <TableHead className="bg-secondary/40">{mainService.name}</TableHead>
-              {competitors.map(competitor => (
-                <TableHead key={competitor.id}>{competitor.name}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {comparisonFeatures.map((feature) => (
-              <TableRow key={feature.key}>
-                <TableCell className="font-medium">{feature.name}</TableCell>
-                <TableCell className="bg-secondary/20">
-                  {renderValue(mainService, feature)}
-                </TableCell>
+      
+      <Tabs defaultValue="table" className="mb-6" onValueChange={setSelectedView}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="table">Table View</TabsTrigger>
+          <TabsTrigger value="cards">Card View</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="table" className="overflow-x-auto">
+          <Table className="w-full">
+            <TableCaption>
+              Comparison of {mainService.name} with alternatives in the {mainService.category} category.
+            </TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[200px]">Features</TableHead>
+                <TableHead className="bg-secondary/40">{mainService.name}</TableHead>
                 {competitors.map(competitor => (
-                  <TableCell key={`${competitor.id}-${feature.key}`}>
-                    {renderValue(competitor, feature)}
-                  </TableCell>
+                  <TableHead key={competitor.id}>{competitor.name}</TableHead>
                 ))}
               </TableRow>
+            </TableHeader>
+            <TableBody>
+              {COMPARISON_FEATURES.map((feature) => (
+                <TableRow key={feature.key}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center">
+                      {feature.icon} {feature.name}
+                    </div>
+                  </TableCell>
+                  <TableCell className="bg-secondary/20">
+                    {renderValue(mainService, feature)}
+                  </TableCell>
+                  {competitors.map(competitor => (
+                    <TableCell key={`${competitor.id}-${feature.key}`}>
+                      {renderValue(competitor, feature)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TabsContent>
+        
+        <TabsContent value="cards">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              {renderServiceCard(mainService)}
+            </div>
+            {competitors.map(competitor => (
+              <div key={competitor.id} className="md:col-span-1">
+                {renderServiceCard(competitor)}
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
       
       {competitors.length > 2 && (
         <Button
