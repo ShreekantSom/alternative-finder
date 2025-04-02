@@ -15,6 +15,7 @@ import Collections from "./pages/Collections";
 import Discover from "./pages/Discover";
 import BrandDashboard from "./pages/BrandDashboard";
 import CategoryDetail from "./pages/CategoryDetail";
+import BrandSubmission from "./pages/BrandSubmission";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/brand-dashboard" element={<BrandDashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/brand-submission" element={<BrandSubmission />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/d2c/:slug" element={<ServiceDetail />} />
         <Route path="/news" element={<NewsSection />} />

@@ -55,9 +55,10 @@ const signupSchema = z.object({
 interface AuthFormProps {
   initialMode?: 'login' | 'signup';
   onSuccess?: (message: string) => void;
+  isAdminLogin?: boolean;
 }
 
-export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormProps) {
+export default function AuthForm({ initialMode = 'login', onSuccess, isAdminLogin = false }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(initialMode);
   const { toast } = useToast();
@@ -92,7 +93,7 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
-      const result = await AuthService.login(values.email, values.password);
+      const result = await AuthService.login(values.email, values.password, isAdminLogin);
       if (result.success) {
         const successMessage = "Login successful! Welcome back.";
         toast({
@@ -123,6 +124,16 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
   };
 
   const onSignupSubmit = async (values: z.infer<typeof signupSchema>) => {
+    // Prevent signup on admin domain
+    if (isAdminLogin) {
+      toast({
+        title: "Signup not allowed",
+        description: "Admin accounts can only be created through the system",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await AuthService.signup(
@@ -165,159 +176,204 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
   return (
     <div className="bg-background rounded-lg border shadow-sm p-6">
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold">Welcome to AlternativeFinder</h1>
+        <h1 className="text-2xl font-bold">
+          {isAdminLogin ? "Admin Login" : "Welcome to AlternativeFinder"}
+        </h1>
         <p className="text-muted-foreground mt-2">
-          {activeTab === "login" ? "Sign in to your account" : "Create a new account"}
+          {isAdminLogin 
+            ? "Sign in to access the admin panel"
+            : (activeTab === "login" ? "Sign in to your account" : "Create a new account")
+          }
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="login">Login</TabsTrigger>
-          <TabsTrigger value="signup">Sign up</TabsTrigger>
-        </TabsList>
+      {isAdminLogin ? (
+        // Admin login form
+        <Form {...loginForm}>
+          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+            <FormField
+              control={loginForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="admin@example.com" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={loginForm.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="••••••••" type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+        </Form>
+      ) : (
+        // Regular login/signup tabs
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="signup">Sign up</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="login">
-          <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-              <FormField
-                control={loginForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="email@example.com" type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={loginForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="••••••••" type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
-              </Button>
-            </form>
-          </Form>
-        </TabsContent>
-
-        <TabsContent value="signup">
-          <Form {...signupForm}>
-            <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
-              <FormField
-                control={signupForm.control}
-                name="accountType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Type</FormLabel>
-                    <Select 
-                      defaultValue={field.value} 
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select account type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="brand">Brand</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {accountType === "brand" && (
+          <TabsContent value="login">
+            <Form {...loginForm}>
+              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                 <FormField
-                  control={signupForm.control}
-                  name="brandName"
+                  control={loginForm.control}
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Brand Name</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your brand name" {...field} />
+                        <Input placeholder="email@example.com" type="email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-              
-              <FormField
-                control={signupForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="email@example.com" type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={signupForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="••••••••" type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={signupForm.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="••••••••" type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create account"}
-              </Button>
-            </form>
-          </Form>
-        </TabsContent>
-      </Tabs>
+                <FormField
+                  control={loginForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input placeholder="••••••••" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign in"}
+                </Button>
+              </form>
+            </Form>
+          </TabsContent>
 
-      <div className="mt-6 pt-6 border-t text-center text-sm text-muted-foreground">
-        <p>
-          {activeTab === "login"
-            ? "Don't have an account? "
-            : "Already have an account? "}
-          <Button
-            variant="link"
-            className="p-0 h-auto text-primary"
-            onClick={() => setActiveTab(activeTab === "login" ? "signup" : "login")}
-          >
-            {activeTab === "login" ? "Sign up" : "Sign in"}
-          </Button>
-        </p>
-      </div>
+          <TabsContent value="signup">
+            <Form {...signupForm}>
+              <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+                <FormField
+                  control={signupForm.control}
+                  name="accountType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Type</FormLabel>
+                      <Select 
+                        defaultValue={field.value} 
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select account type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="brand">Brand</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {accountType === "brand" && (
+                  <FormField
+                    control={signupForm.control}
+                    name="brandName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your brand name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
+                <FormField
+                  control={signupForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="email@example.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={signupForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input placeholder="••••••••" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={signupForm.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input placeholder="••••••••" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Creating account..." : "Create account"}
+                </Button>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {!isAdminLogin && (
+        <div className="mt-6 pt-6 border-t text-center text-sm text-muted-foreground">
+          <p>
+            {activeTab === "login"
+              ? "Don't have an account? "
+              : "Already have an account? "}
+            <Button
+              variant="link"
+              className="p-0 h-auto text-primary"
+              onClick={() => setActiveTab(activeTab === "login" ? "signup" : "login")}
+            >
+              {activeTab === "login" ? "Sign up" : "Sign in"}
+            </Button>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -46,8 +46,8 @@ export function PincodeMenu({ className }: PincodeMenuProps) {
       localStorage.setItem("userPincode", pincode);
       setSavedPincode(pincode);
       toast({
-        title: "Pincode Updated",
-        description: `Your delivery location has been set to ${pincode}`,
+        title: "Location Updated",
+        description: `Your location has been set to ${pincode}`,
       });
       
       // Refresh current page to update availability
@@ -66,7 +66,7 @@ export function PincodeMenu({ className }: PincodeMenuProps) {
       <MenubarMenu>
         <MenubarTrigger className="flex items-center gap-1.5">
           <MapPin className="h-4 w-4" />
-          {savedPincode ? `Deliver to: ${savedPincode}` : "Set Your Location"}
+          {savedPincode ? `Location: ${savedPincode}` : "Set Your Location"}
         </MenubarTrigger>
         <MenubarContent className="w-56">
           <div className="p-2 space-y-2">

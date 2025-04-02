@@ -10,9 +10,14 @@ export function Auth() {
   const location = useLocation();
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
-  // Check if there's a specific mode requested in the URL (e.g., /auth?mode=signup)
+  // Check if this is an admin login page
   useEffect(() => {
+    // Check if the hostname starts with admin.
+    const isAdminDomain = window.location.hostname.startsWith('admin.');
+    setIsAdminLogin(isAdminDomain);
+
     const params = new URLSearchParams(location.search);
     const mode = params.get('mode');
     if (mode === 'signup') {
@@ -26,15 +31,30 @@ export function Auth() {
     // Redirect if already logged in
     if (AuthService.isAuthenticated()) {
       const currentUser = AuthService.getCurrentUser();
-      // Redirect based on user role
-      if (currentUser?.role === 'brand') {
-        navigate('/brand-dashboard');
+      
+      // Redirect based on user role and domain
+      if (isAdminLogin) {
+        if (currentUser?.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          // If not admin but on admin subdomain, show error
+          setSuccessMessage("Access denied. Admin credentials required.");
+          AuthService.logout();
+          return;
+        }
       } else {
-        const redirectTo = location.state?.from || '/dashboard';
-        navigate(redirectTo);
+        // Regular domain redirects
+        if (currentUser?.role === 'brand') {
+          navigate('/brand-dashboard');
+        } else if (currentUser?.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          const redirectTo = location.state?.from || '/dashboard';
+          navigate(redirectTo);
+        }
       }
     }
-  }, [navigate, location.state]);
+  }, [navigate, location.state, isAdminLogin]);
 
   const handleAuthSuccess = (message: string) => {
     setSuccessMessage(message);
@@ -42,10 +62,25 @@ export function Auth() {
     // Check user role for redirection
     const currentUser = AuthService.getCurrentUser();
     
-    // Redirect after showing success message briefly
+    // Special handling for admin domain
+    if (isAdminLogin) {
+      if (currentUser?.role === 'admin') {
+        // Redirect admin to dashboard after showing success message briefly
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } else {
+        // Not an admin but on admin domain
+        setSuccessMessage("Access denied. Admin credentials required.");
+        AuthService.logout();
+      }
+      return;
+    }
+    
+    // Regular domain redirects
     setTimeout(() => {
       if (currentUser?.role === 'brand') {
         navigate('/brand-dashboard');
+      } else if (currentUser?.role === 'admin') {
+        navigate('/dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -56,13 +91,14 @@ export function Auth() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/20">
       <div className="w-full max-w-md">
         {successMessage && (
-          <Alert className="mb-4 bg-green-50 border-green-200">
+          <Alert className={successMessage.includes("denied") ? "mb-4 bg-red-50 border-red-200" : "mb-4 bg-green-50 border-green-200"}>
             <AlertDescription>{successMessage}</AlertDescription>
           </Alert>
         )}
         <AuthForm 
           initialMode={authMode} 
           onSuccess={handleAuthSuccess}
+          isAdminLogin={isAdminLogin}
         />
       </div>
     </div>

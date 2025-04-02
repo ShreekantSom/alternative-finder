@@ -1,4 +1,3 @@
-
 // Mock authentication service - would be replaced with a real auth system
 
 interface AuthResult {
@@ -10,6 +9,7 @@ interface AuthResult {
     role: 'user' | 'admin' | 'brand';
     brandId?: string;
     brandName?: string;
+    pendingApproval?: boolean;
   };
 }
 
@@ -17,6 +17,8 @@ interface AuthResult {
 const USERS_STORAGE_KEY = 'alternative_app_users';
 const CURRENT_USER_KEY = 'alternative_app_current_user';
 const AUTH_TOKEN_KEY = 'alternative_app_auth_token';
+const PENDING_BRANDS_KEY = 'alternative_app_pending_brands';
+const PENDING_SUGGESTIONS_KEY = 'alternative_app_pending_suggestions';
 
 type StoredUser = {
   id: string;
@@ -25,6 +27,7 @@ type StoredUser = {
   role: 'user' | 'admin' | 'brand';
   brandId?: string;
   brandName?: string;
+  pendingApproval?: boolean;
   createdAt: string;
 };
 
@@ -87,7 +90,7 @@ const validateToken = (token: string): { valid: boolean; userId?: string } => {
 };
 
 export const AuthService = {
-  login: async (email: string, password: string): Promise<AuthResult> => {
+  login: async (email: string, password: string, isAdminLogin = false): Promise<AuthResult> => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -99,6 +102,11 @@ export const AuthService = {
       
       if (!user) {
         return { success: false, error: 'Invalid email or password' };
+      }
+
+      // For admin login, enforce admin role
+      if (isAdminLogin && user.role !== 'admin') {
+        return { success: false, error: 'Access denied. Admin credentials required.' };
       }
 
       // Generate and store auth token
@@ -145,6 +153,7 @@ export const AuthService = {
       if (role === 'brand' && brandName) {
         newUser.brandId = `brand-${Date.now()}`;
         newUser.brandName = brandName;
+        newUser.pendingApproval = true; // Brand accounts need approval
       }
 
       // Save to "database"
@@ -208,5 +217,133 @@ export const AuthService = {
   isBrand: (): boolean => {
     const user = AuthService.getCurrentUser();
     return user?.role === 'brand';
+  },
+
+  // Brand/Service submission and approval functions
+  submitBrandForApproval: async (brandData: any): Promise<{success: boolean, error?: string}> => {
+    try {
+      const pendingBrandsJson = localStorage.getItem(PENDING_BRANDS_KEY);
+      const pendingBrands = pendingBrandsJson ? JSON.parse(pendingBrandsJson) : [];
+      
+      // Add submission ID and timestamp
+      const submission = {
+        ...brandData,
+        id: `submission-${Date.now()}`,
+        submittedAt: new Date().toISOString(),
+        status: 'pending'
+      };
+      
+      // Save submission
+      pendingBrands.push(submission);
+      localStorage.setItem(PENDING_BRANDS_KEY, JSON.stringify(pendingBrands));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error submitting brand:', error);
+      return { success: false, error: 'Failed to submit brand for approval' };
+    }
+  },
+  
+  getPendingBrands: async (): Promise<any[]> => {
+    const pendingBrandsJson = localStorage.getItem(PENDING_BRANDS_KEY);
+    return pendingBrandsJson ? JSON.parse(pendingBrandsJson) : [];
+  },
+  
+  approveBrand: async (submissionId: string): Promise<{success: boolean, error?: string}> => {
+    try {
+      // Get pending brands
+      const pendingBrandsJson = localStorage.getItem(PENDING_BRANDS_KEY);
+      const pendingBrands = pendingBrandsJson ? JSON.parse(pendingBrandsJson) : [];
+      
+      // Find the submission
+      const submissionIndex = pendingBrands.findIndex((s: any) => s.id === submissionId);
+      if (submissionIndex === -1) {
+        return { success: false, error: 'Submission not found' };
+      }
+      
+      const submission = pendingBrands[submissionIndex];
+      
+      if (submission.userId) {
+        // User suggested a brand - create a new brand entry
+        // Implementation would depend on how brands are stored
+      } else if (submission.brandId) {
+        // Existing brand submitted new info - update the brand
+        // Find the user and update pendingApproval status
+        const usersJson = localStorage.getItem(USERS_STORAGE_KEY);
+        const users: StoredUser[] = usersJson ? JSON.parse(usersJson) : [];
+        
+        const userIndex = users.findIndex(u => u.brandId === submission.brandId);
+        if (userIndex !== -1) {
+          users[userIndex].pendingApproval = false;
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+        }
+      }
+      
+      // Update submission status
+      pendingBrands[submissionIndex].status = 'approved';
+      pendingBrands[submissionIndex].approvedAt = new Date().toISOString();
+      localStorage.setItem(PENDING_BRANDS_KEY, JSON.stringify(pendingBrands));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error approving brand:', error);
+      return { success: false, error: 'Failed to approve brand' };
+    }
+  },
+  
+  rejectBrand: async (submissionId: string, reason: string): Promise<{success: boolean, error?: string}> => {
+    try {
+      // Get pending brands
+      const pendingBrandsJson = localStorage.getItem(PENDING_BRANDS_KEY);
+      const pendingBrands = pendingBrandsJson ? JSON.parse(pendingBrandsJson) : [];
+      
+      // Find the submission
+      const submissionIndex = pendingBrands.findIndex((s: any) => s.id === submissionId);
+      if (submissionIndex === -1) {
+        return { success: false, error: 'Submission not found' };
+      }
+      
+      // Update submission status
+      pendingBrands[submissionIndex].status = 'rejected';
+      pendingBrands[submissionIndex].rejectedAt = new Date().toISOString();
+      pendingBrands[submissionIndex].rejectionReason = reason;
+      localStorage.setItem(PENDING_BRANDS_KEY, JSON.stringify(pendingBrands));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error rejecting brand:', error);
+      return { success: false, error: 'Failed to reject brand' };
+    }
+  },
+
+  // User suggestion for brands/services
+  submitBrandSuggestion: async (suggestionData: any, userId: string): Promise<{success: boolean, error?: string}> => {
+    try {
+      const pendingSuggestionsJson = localStorage.getItem(PENDING_SUGGESTIONS_KEY);
+      const pendingSuggestions = pendingSuggestionsJson ? JSON.parse(pendingSuggestionsJson) : [];
+      
+      // Add suggestion ID and timestamp
+      const suggestion = {
+        ...suggestionData,
+        id: `suggestion-${Date.now()}`,
+        userId,
+        submittedAt: new Date().toISOString(),
+        status: 'pending'
+      };
+      
+      // Save suggestion
+      pendingSuggestions.push(suggestion);
+      localStorage.setItem(PENDING_SUGGESTIONS_KEY, JSON.stringify(pendingSuggestions));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error submitting suggestion:', error);
+      return { success: false, error: 'Failed to submit brand suggestion' };
+    }
+  },
+  
+  getPendingSuggestions: async (): Promise<any[]> => {
+    const pendingSuggestionsJson = localStorage.getItem(PENDING_SUGGESTIONS_KEY);
+    return pendingSuggestionsJson ? JSON.parse(pendingSuggestionsJson) : [];
   }
 };

@@ -1,10 +1,11 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthService } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { LogOut, Plus, Star } from 'lucide-react';
+import { LogOut, Plus, Star, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import BrandNewsList from '@/components/brand/BrandNewsList';
 import BrandSpotlightManager from '@/components/brand/BrandSpotlightManager';
 
@@ -38,12 +39,28 @@ export function BrandDashboard() {
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{user.brandName}</span>
           </p>
+          <Link to="/brand-submission">
+            <Button variant="outline" size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Update Brand Info
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
         </div>
       </div>
+
+      {user.pendingApproval && (
+        <Alert className="mb-6 border-amber-200 bg-amber-50">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-800">Pending Approval</AlertTitle>
+          <AlertDescription className="text-amber-700">
+            Your brand account is waiting for admin approval. Some features may be limited until your account is approved.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="news" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">

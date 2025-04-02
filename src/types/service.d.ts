@@ -20,5 +20,15 @@ declare module '@/assets/data' {
       referralCode?: string;
     };
     tags?: string[];
+    pendingApproval?: boolean;
+    submittedBy?: {
+      id: string;
+      type: 'user' | 'brand';
+      date: string;
+    };
+    approvedBy?: {
+      id: string;
+      date: string;
+    };
   }
 }
