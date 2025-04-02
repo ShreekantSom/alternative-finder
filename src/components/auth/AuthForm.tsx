@@ -13,6 +13,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthService } from "@/lib/auth";
@@ -26,10 +33,24 @@ const signupSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  accountType: z.enum(["user", "brand"]),
+  brandName: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
-});
+}).refine(
+  (data) => {
+    // If account type is brand, brandName is required
+    if (data.accountType === "brand") {
+      return !!data.brandName;
+    }
+    return true;
+  },
+  {
+    message: "Brand name is required for brand accounts",
+    path: ["brandName"],
+  }
+);
 
 interface AuthFormProps {
   initialMode?: 'login' | 'signup';
@@ -60,8 +81,13 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
       email: "",
       password: "",
       confirmPassword: "",
+      accountType: "user",
+      brandName: "",
     },
   });
+
+  // Watch account type to conditionally render brand name field
+  const accountType = signupForm.watch("accountType");
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
@@ -99,9 +125,16 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
   const onSignupSubmit = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
     try {
-      const result = await AuthService.signup(values.email, values.password);
+      const result = await AuthService.signup(
+        values.email, 
+        values.password,
+        values.accountType as 'user' | 'brand',
+        values.accountType === 'brand' ? values.brandName : undefined
+      );
       if (result.success) {
-        const successMessage = "Your account has been created successfully!";
+        const accountTypeLabel = values.accountType === 'brand' ? 'brand' : 'user';
+        const successMessage = `Your ${accountTypeLabel} account has been created successfully!`;
+        
         toast({
           title: "Account created",
           description: successMessage,
@@ -183,6 +216,47 @@ export default function AuthForm({ initialMode = 'login', onSuccess }: AuthFormP
         <TabsContent value="signup">
           <Form {...signupForm}>
             <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+              <FormField
+                control={signupForm.control}
+                name="accountType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account Type</FormLabel>
+                    <Select 
+                      defaultValue={field.value} 
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="brand">Brand</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {accountType === "brand" && (
+                <FormField
+                  control={signupForm.control}
+                  name="brandName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Brand Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your brand name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
               <FormField
                 control={signupForm.control}
                 name="email"

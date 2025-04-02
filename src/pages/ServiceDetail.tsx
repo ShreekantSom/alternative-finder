@@ -196,6 +196,12 @@ export function ServiceDetail() {
           serviceName={service.name} 
           serviceUrl={service.url} 
         />
+        
+        {/* Reviews section */}
+        <ServiceReviews 
+          serviceId={service.id}
+          serviceName={service.name}
+        />
 
         {/* Related services */}
         <RelatedServices 

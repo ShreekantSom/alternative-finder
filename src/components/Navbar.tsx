@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -74,7 +75,11 @@ export function Navbar() {
 
   const handleAuthClick = () => {
     if (user) {
-      navigate('/dashboard');
+      if (user.role === 'brand') {
+        navigate('/brand-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       navigate('/auth');
     }
@@ -186,7 +191,7 @@ export function Navbar() {
               onClick={handleAuthClick}
             >
               <User size={16} />
-              {user ? 'Dashboard' : 'Sign In'}
+              {user ? (user.role === 'brand' ? 'Brand Dashboard' : 'Dashboard') : 'Sign In'}
             </Button>
           </nav>
         </div>

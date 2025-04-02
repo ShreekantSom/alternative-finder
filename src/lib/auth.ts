@@ -7,7 +7,9 @@ interface AuthResult {
   user?: {
     id: string;
     email: string;
-    role: 'user' | 'admin';
+    role: 'user' | 'admin' | 'brand';
+    brandId?: string;
+    brandName?: string;
   };
 }
 
@@ -20,7 +22,9 @@ type StoredUser = {
   id: string;
   email: string;
   password: string; // In a real app, never store plain-text passwords
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'brand';
+  brandId?: string;
+  brandName?: string;
   createdAt: string;
 };
 
@@ -40,6 +44,15 @@ const initUsers = (): void => {
         email: 'user@example.com',
         password: 'user123', // In a real app, this would be hashed
         role: 'user',
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: '3',
+        email: 'brand@example.com',
+        password: 'brand123', // In a real app, this would be hashed
+        role: 'brand',
+        brandId: 'brand-1',
+        brandName: 'Example Brand',
         createdAt: new Date().toISOString(),
       }
     ];
@@ -106,7 +119,7 @@ export const AuthService = {
     }
   },
 
-  signup: async (email: string, password: string): Promise<AuthResult> => {
+  signup: async (email: string, password: string, role: 'user' | 'brand' = 'user', brandName?: string): Promise<AuthResult> => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -124,9 +137,15 @@ export const AuthService = {
         id: Date.now().toString(),
         email,
         password, // In a real app, this would be hashed
-        role: 'user',
+        role,
         createdAt: new Date().toISOString(),
       };
+      
+      // Add brand details if it's a brand account
+      if (role === 'brand' && brandName) {
+        newUser.brandId = `brand-${Date.now()}`;
+        newUser.brandName = brandName;
+      }
 
       // Save to "database"
       users.push(newUser);
@@ -155,7 +174,7 @@ export const AuthService = {
     localStorage.removeItem(AUTH_TOKEN_KEY);
   },
 
-  getCurrentUser: (): { id: string; email: string; role: 'user' | 'admin' } | null => {
+  getCurrentUser: () => {
     // First check if we have a valid token
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) {
@@ -184,5 +203,10 @@ export const AuthService = {
   isAdmin: (): boolean => {
     const user = AuthService.getCurrentUser();
     return user?.role === 'admin';
+  },
+
+  isBrand: (): boolean => {
+    const user = AuthService.getCurrentUser();
+    return user?.role === 'brand';
   }
 };

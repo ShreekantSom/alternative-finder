@@ -1,4 +1,5 @@
 
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import NewsSection from "./pages/NewsSection";
 import Collections from "./pages/Collections";
 import Discover from "./pages/Discover";
+import BrandDashboard from "./pages/BrandDashboard";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,7 @@ const App = () => (
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/brand-dashboard" element={<BrandDashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/d2c/:slug" element={<ServiceDetail />} />

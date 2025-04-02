@@ -25,10 +25,32 @@ export function Auth() {
   useEffect(() => {
     // Redirect if already logged in
     if (AuthService.isAuthenticated()) {
-      const redirectTo = location.state?.from || '/dashboard';
-      navigate(redirectTo);
+      const currentUser = AuthService.getCurrentUser();
+      // Redirect based on user role
+      if (currentUser?.role === 'brand') {
+        navigate('/brand-dashboard');
+      } else {
+        const redirectTo = location.state?.from || '/dashboard';
+        navigate(redirectTo);
+      }
     }
   }, [navigate, location.state]);
+
+  const handleAuthSuccess = (message: string) => {
+    setSuccessMessage(message);
+    
+    // Check user role for redirection
+    const currentUser = AuthService.getCurrentUser();
+    
+    // Redirect after showing success message briefly
+    setTimeout(() => {
+      if (currentUser?.role === 'brand') {
+        navigate('/brand-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    }, 1500);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/20">
@@ -40,13 +62,7 @@ export function Auth() {
         )}
         <AuthForm 
           initialMode={authMode} 
-          onSuccess={(message) => {
-            setSuccessMessage(message);
-            // Redirect after showing success message briefly
-            setTimeout(() => {
-              navigate('/dashboard');
-            }, 1500);
-          }}
+          onSuccess={handleAuthSuccess}
         />
       </div>
     </div>
