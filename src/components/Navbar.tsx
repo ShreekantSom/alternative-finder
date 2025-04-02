@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, FileText, ChevronDown, Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
+import { Menu, X, User, FileText, ChevronDown } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import { Alternative } from '@/assets/data';
 import { PincodeMenu } from './PincodeMenu';
@@ -19,203 +18,246 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { crawlCategories } from '@/lib/crawler';
+import { Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
 
 interface Category {
-  id: string;
   name: string;
-  icon: string;
-  count: number;
+  url: string;
 }
 
-export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showNavbarSearch, setShowNavbarSearch] = useState(false);
-  const [user, setUser] = useState<{email: string} | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  
+const getCategoryIcon = (categoryName: string) => {
+  switch (categoryName) {
+    case 'Design Tools':
+      return Paintbrush;
+    case 'Development Tools':
+      return Code;
+    case 'Productivity':
+      return Briefcase;
+    case 'Marketing':
+      return MessageCircle;
+    case 'Utilities':
+      return Wrench;
+    case 'Education':
+      return GraduationCap;
+    case 'Entertainment':
+      return Gamepad2;
+    case 'Music & Audio':
+      return Music;
+    case 'Graphics & Design':
+      return Image;
+    case 'Security':
+      return Shield;
+    case 'Travel':
+      return Landmark;
+    default:
+      return Globe;
+  }
+};
+
+const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    const currentUser = AuthService.getCurrentUser();
-    setUser(currentUser);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-      
-      const heroHeight = window.innerHeight * 0.8;
-      setShowNavbarSearch(window.scrollY > heroHeight);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<{email: string; role?: string} | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const result = await crawlCategories();
-        if (result.success && result.data) {
-          setCategories(result.data.filter((cat: Category) => cat.id !== 'all'));
-        }
+        const categoriesData = await crawlCategories();
+        setCategories(categoriesData);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
-    
+
     fetchCategories();
   }, []);
 
-  const handleAuthClick = () => {
-    if (user) {
-      if (user.role === 'brand') {
-        navigate('/brand-dashboard');
-      } else {
-        navigate('/dashboard');
-      }
-    } else {
-      navigate('/auth');
+  useEffect(() => {
+    // Check authentication status
+    const currentUser = AuthService.getCurrentUser();
+    setIsLoggedIn(!!currentUser);
+    setUser(currentUser);
+  }, [location.pathname]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== "") {
+      navigate(`/?query=${searchQuery}`);
     }
   };
 
-  const handleItemSelect = (alternative: Alternative) => {
-    const slug = alternative.name
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-    
-    navigate(`/d2c/${slug}`);
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const iconMap: {[key: string]: any} = {
-      'globe': Globe,
-      'paintbrush': Paintbrush,
-      'code': Code,
-      'gamepad-2': Gamepad2,
-      'music': Music,
-      'briefcase': Briefcase,
-      'image': Image,
-      'shield': Shield,
-      'message-circle': MessageCircle,
-      'tool': Wrench,
-      'wrench': Wrench,
-      'graduation-cap': GraduationCap,
-      'landmark': Landmark,
-      // Add default
-      'layers': Globe,
-    };
-    
-    const IconComponent = iconMap[iconName] || Globe;
-    return <IconComponent className="mr-2 h-4 w-4" />;
+  const handleLogout = () => {
+    AuthService.logout();
+    navigate('/');
   };
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 py-3 md:py-4 transition-all duration-300 ${
-        isScrolled ? 'bg-background/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'
-      }`}
-    >
-      <div className="container flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="rounded-xl bg-primary p-1.5">
-            <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
-              <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
+    <header className="bg-background border-b border-border sticky top-0 z-50">
+      <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
+        {/* Logo and navigation */}
+        <div className="flex items-center gap-6">
+          <Link to="/" className="flex items-center gap-2 font-bold text-xl">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="h-6 w-6 text-primary"
+            >
+              <path d="m7 11 2-2-2-2" />
+              <path d="M11 13h4" />
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
             </svg>
-          </div>
-          <span className="font-bold text-lg">D2C Directory</span>
-        </Link>
-
-        <div className="hidden md:flex items-center space-x-4">
-          <nav className="flex items-center space-x-4">
-            <PincodeMenu className="border-none" />
-            
-            <AnimatePresence>
-              <NavbarSearch 
-                showSearch={showNavbarSearch} 
-                onItemSelect={handleItemSelect} 
-              />
-            </AnimatePresence>
-
-            <Link to="/discover" className="text-foreground/80 hover:text-foreground transition-colors">Discover</Link>
-            
+            <span className="hidden sm:inline">Alternatives</span>
+          </Link>
+          
+          <div className="hidden md:flex items-center gap-1">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent text-foreground/80 hover:text-foreground hover:bg-transparent">
-                    Categories
-                  </NavigationMenuTrigger>
+                  <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {categories.map((category) => (
-                        <li key={category.id} className="row-span-1">
-                          <NavigationMenuLink asChild>
-                            <Link
-                              to={`/?category=${category.name}`}
-                              className="flex p-2 select-none rounded-md hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            >
-                              {getIconComponent(category.icon)}
-                              <div className="text-sm font-medium">
-                                {category.name}
-                                <div className="text-xs text-muted-foreground">
-                                  {category.count} apps
-                                </div>
-                              </div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 w-[500px]">
+                      {categories.map((category) => {
+                        const Icon = getCategoryIcon(category.name);
+                        return (
+                          <Link
+                            key={category.name}
+                            to={`/?category=${encodeURIComponent(category.name)}`}
+                            className="flex items-center gap-2 p-2 hover:bg-secondary rounded-md transition-colors"
+                          >
+                            <Icon className="h-4 w-4 text-primary" />
+                            <span>{category.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link to="/discover">
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Discover
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link to="/collections">
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Collections
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link to="/news">
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      News
+                    </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            
-            <Link to="/news" className="text-foreground/80 hover:text-foreground transition-colors flex items-center gap-1.5">
-              <FileText size={16} />
-              News
-            </Link>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-1.5"
-              onClick={handleAuthClick}
-            >
-              <User size={16} />
-              {user ? (user.role === 'brand' ? 'Brand Dashboard' : 'Dashboard') : 'Sign In'}
-            </Button>
-          </nav>
+          </div>
         </div>
+        
+        <div className="flex-1 max-w-md mx-4 hidden sm:block">
+          <NavbarSearch />
+        </div>
+        
+        {/* Right side - Auth buttons */}
+        <div className="flex items-center gap-2">
+          <PincodeMenu />
+          
+          <AnimatePresence initial={false}>
+            {isLoggedIn ? (
+              <motion.div
+                className="flex items-center gap-2"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:flex"
+                  onClick={() => user?.role === 'brand' ? navigate('/brand-dashboard') : navigate('/dashboard')}
+                >
+                  <User className="h-4 w-4 mr-1" />
+                  {user?.role === 'brand' ? 'Brand Dashboard' : 'Dashboard'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                className="flex items-center gap-2"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/auth')}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => navigate('/auth?mode=signup')}
+                >
+                  Sign Up
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
+      </nav>
 
-        <button 
-          className="md:hidden p-2 text-foreground/80 hover:text-foreground"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <AnimatePresence>
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
           <MobileMenu 
-            isOpen={isMenuOpen}
-            showNavbarSearch={showNavbarSearch}
-            user={user} 
-            handleAuthClick={handleAuthClick}
-            handleItemSelect={handleItemSelect}
+            isOpen={isMenuOpen} 
+            onClose={() => setIsMenuOpen(false)} 
+            categories={categories}
+            getCategoryIcon={getCategoryIcon}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            onLogout={handleLogout}
           />
-        </AnimatePresence>
-      </div>
+        )}
+      </AnimatePresence>
     </header>
   );
-}
+};
 
 export default Navbar;

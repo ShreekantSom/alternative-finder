@@ -10,7 +10,10 @@ import { Button } from '@/components/ui/button';
 import ServiceHeader from '@/components/service/ServiceHeader';
 import PincodeAlert from '@/components/service/PincodeAlert';
 import ServiceCTA from '@/components/service/ServiceCTA';
+import ServiceReviews from '@/components/service/ServiceReviews';
 import RelatedServices from '@/components/service/RelatedServices';
+import ServiceSocialLinks from '@/components/service/ServiceSocialLinks';
+import ServiceComparisonTable from '@/components/service/ServiceComparisonTable';
 
 export function ServiceDetail() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
@@ -190,12 +193,18 @@ export function ServiceDetail() {
           onShare={handleShare} 
           getPricingBgColor={getPricingBgColor} 
         />
+        
+        {/* Social Media Links */}
+        <ServiceSocialLinks service={service} />
 
         {/* CTA section */}
         <ServiceCTA 
           serviceName={service.name} 
           serviceUrl={service.url} 
         />
+        
+        {/* Comparison Table */}
+        <ServiceComparisonTable mainService={service} />
         
         {/* Reviews section */}
         <ServiceReviews 
