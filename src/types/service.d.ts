@@ -19,5 +19,6 @@ declare module '@/assets/data' {
       discountPercent?: number;
       referralCode?: string;
     };
+    tags?: string[];
   }
 }

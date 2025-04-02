@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAnimateInView } from '@/lib/animations';
+import { Link } from 'react-router-dom';
 import { LucideIcon, Globe, Paintbrush, Code, Gamepad2, Music, Briefcase, Image, Shield, MessageCircle, Wrench, GraduationCap, Landmark } from 'lucide-react';
 import { crawlCategories } from '@/lib/crawler';
 import { useToast } from "@/components/ui/use-toast";
@@ -155,15 +156,20 @@ export function CategoriesList({ onCategorySelect }: { onCategorySelect: (catego
                 key={category.id}
                 variants={itemVariants}
                 className="cursor-pointer"
-                onClick={() => onCategorySelect(category.id === 'all' ? 'All' : category.name)}
               >
-                <div className="flex flex-col items-center p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-accent transition-all duration-200">
-                  <div className="w-12 h-12 flex items-center justify-center bg-accent rounded-full mb-3">
-                    <IconComponent className="w-6 h-6 text-primary" />
+                <Link 
+                  to={category.id === 'all' ? '/' : `/category/${category.id}`}
+                  onClick={() => onCategorySelect(category.id === 'all' ? 'All' : category.name)}
+                  className="block"
+                >
+                  <div className="flex flex-col items-center p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-accent transition-all duration-200">
+                    <div className="w-12 h-12 flex items-center justify-center bg-accent rounded-full mb-3">
+                      <IconComponent className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="font-medium text-center">{category.name}</h3>
+                    <p className="text-sm text-muted-foreground">{category.count} apps</p>
                   </div>
-                  <h3 className="font-medium text-center">{category.name}</h3>
-                  <p className="text-sm text-muted-foreground">{category.count} apps</p>
-                </div>
+                </Link>
               </motion.div>
             );
           })}
