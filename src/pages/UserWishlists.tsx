@@ -480,10 +480,10 @@ export function UserWishlists() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {selectedWishlist.items.map((item, idx) => (
-                        <AlternativeCard
-                          key={item.id}
-                          alternative={item}
-                          index={idx}
+                        <AlternativeCard 
+                          key={item.alternativeId} 
+                          alternative={item.alternative} 
+                          index={idx} 
                         />
                       ))}
                     </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -7,6 +6,7 @@ import { softwareService } from '@/lib/softwareService';
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
+import { Card } from "@/components/ui/card";
 import ServiceHeader from '@/components/service/ServiceHeader';
 import PincodeAlert from '@/components/service/PincodeAlert';
 import ServiceCTA from '@/components/service/ServiceCTA';
@@ -15,6 +15,7 @@ import RelatedServices from '@/components/service/RelatedServices';
 import ServiceSocialLinks from '@/components/service/ServiceSocialLinks';
 import ServiceComparisonTable from '@/components/service/ServiceComparisonTable';
 import ServiceDetailTabs from '@/components/service/ServiceDetailTabs';
+import ExternalReviews from '@/components/service/ExternalReviews';
 
 export function ServiceDetail() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
@@ -166,6 +167,13 @@ export function ServiceDetail() {
           serviceName={business.name} 
           serviceUrl={business.url} 
         />
+        
+        {business.externalReviews && business.externalReviews.length > 0 && (
+          <ExternalReviews 
+            reviews={business.externalReviews} 
+            serviceName={business.name}
+          />
+        )}
         
         <ServiceComparisonTable mainService={business} />
         

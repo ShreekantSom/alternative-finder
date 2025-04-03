@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
@@ -9,6 +8,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { CheckCircle, XCircle, MinusCircle, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown, DollarSign, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FeatureDisplay } from '@/components/service/FeatureDisplay';
 
 interface ServiceComparisonTableProps {
   mainService: Alternative;
@@ -116,7 +116,7 @@ export function ServiceComparisonTable({ mainService }: ServiceComparisonTablePr
       return (
         <ul className="text-sm list-disc pl-4 space-y-1">
           {(service.features || ['Basic feature']).map((feature, idx) => (
-            <li key={idx}>{feature}</li>
+            <span key={idx}><FeatureDisplay feature={feature} /></span>
           ))}
         </ul>
       );

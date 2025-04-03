@@ -1,15 +1,10 @@
 
 import { Check } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-
-interface Feature {
-  name: string;
-  description: string;
-  iconName?: string;
-}
+import { FeatureItem } from '@/assets/data';
 
 interface BusinessFeaturesTabProps {
-  features?: Array<string | Feature>;
+  features?: Array<string | FeatureItem>;
 }
 
 export function BusinessFeaturesTab({ features }: BusinessFeaturesTabProps) {

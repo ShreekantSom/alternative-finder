@@ -13,6 +13,7 @@ import {
   CardTitle,
   CardDescription 
 } from "@/components/ui/card";
+import { FeatureDisplay } from '@/components/service/FeatureDisplay';
 
 interface AlternativeCardProps {
   alternative: Alternative;
@@ -178,9 +179,9 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
             {Array.isArray(alternative.features) && alternative.features.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {alternative.features.slice(0, 2).map((feature, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs">
-                    {typeof feature === 'object' && feature.name ? feature.name : feature}
-                  </Badge>
+                  <span key={i} className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                    <FeatureDisplay feature={feature} />
+                  </span>
                 ))}
                 {alternative.features.length > 2 && (
                   <Badge variant="secondary" className="text-xs">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -9,6 +8,7 @@ import { Loader2, Tag, ThumbsUp } from 'lucide-react';
 import { Alternative, Category } from '@/assets/data';
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import CategoryFeatureBadge from '@/components/CategoryFeatureBadge';
 
 export function CategoryDetail() {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -161,9 +161,7 @@ export function CategoryDetail() {
                       {service.features && service.features.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {service.features.slice(0, 2).map((feature, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {feature}
-                            </Badge>
+                            <CategoryFeatureBadge key={idx} feature={feature} />
                           ))}
                         </div>
                       )}

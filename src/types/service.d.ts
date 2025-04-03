@@ -3,6 +3,12 @@ import { Alternative as BaseAlternative } from '@/assets/data';
 
 // Extend the Alternative type with company/business information
 declare module '@/assets/data' {
+  export interface FeatureItem {
+    name: string;
+    description: string;
+    iconName?: string;
+  }
+
   interface Alternative extends BaseAlternative {
     socialLinks?: {
       facebook?: string;
@@ -11,11 +17,7 @@ declare module '@/assets/data' {
       instagram?: string;
       youtube?: string;
     };
-    features?: Array<string | {
-      name: string;
-      description: string;
-      iconName?: string;
-    }>;
+    features?: Array<string | FeatureItem>;
     performance?: number;
     support?: number;
     referralProgram?: {
@@ -79,5 +81,13 @@ declare module '@/assets/data' {
       tvOS?: string;
       amazonBrand?: string;
     };
+    // External reviews
+    externalReviews?: {
+      source: string;
+      rating: number;
+      count: number;
+      url: string;
+      verified: boolean;
+    }[];
   }
 }

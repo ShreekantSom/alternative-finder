@@ -1,4 +1,3 @@
-
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
 
@@ -85,6 +84,8 @@ class SoftwareService {
       const software = alternatives.find(item => this.createSlug(item.name) === slug);
       
       if (software) {
+        const externalReviews = await getExternalReviews(software.id);
+        software.externalReviews = externalReviews;
         return {
           success: true,
           data: software
@@ -243,6 +244,64 @@ class SoftwareService {
       };
     }
   }
+
+  async getSoftwareWithExternalReviews(id: string) {
+    const result = await this.getSoftwareById(id);
+    
+    if (result.success && result.data) {
+      const externalReviews = await getExternalReviews(id);
+      return {
+        ...result,
+        data: {
+          ...result.data,
+          externalReviews
+        }
+      };
+    }
+    
+    return result;
+  }
+}
+
+async function getExternalReviews(serviceId: string) {
+  // In a real app, this would fetch from an API or scraping service
+  // For demo purposes, we're returning mock data
+  
+  const mockReviews = [
+    {
+      source: "TrustPilot",
+      rating: 4.5,
+      count: 1247,
+      url: "https://trustpilot.com",
+      verified: true
+    },
+    {
+      source: "Google Reviews",
+      rating: 4.3,
+      count: 853,
+      url: "https://google.com",
+      verified: true
+    },
+    {
+      source: "Yelp",
+      rating: 3.8,
+      count: 412,
+      url: "https://yelp.com",
+      verified: false
+    }
+  ];
+  
+  // Simulate different reviews for different services
+  const lastDigit = parseInt(serviceId.slice(-1), 10);
+  if (lastDigit % 3 === 0) {
+    mockReviews[0].rating = 3.9;
+    mockReviews[1].rating = 4.1;
+  } else if (lastDigit % 3 === 1) {
+    mockReviews[0].rating = 4.7;
+    mockReviews[2].rating = 4.2;
+  }
+  
+  return mockReviews;
 }
 
 export const softwareService = new SoftwareService();
