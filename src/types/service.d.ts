@@ -11,7 +11,11 @@ declare module '@/assets/data' {
       instagram?: string;
       youtube?: string;
     };
-    features?: string[];
+    features?: Array<string | {
+      name: string;
+      description: string;
+      iconName?: string;
+    }>;
     performance?: number;
     support?: number;
     referralProgram?: {
@@ -49,7 +53,7 @@ declare module '@/assets/data' {
       date: string;
       imageUrl?: string;
     }[];
-    // New fields for franchise information
+    // Franchise information
     franchise?: {
       available: boolean;
       initialInvestment?: {
@@ -67,7 +71,7 @@ declare module '@/assets/data' {
       support?: string[];
       trainingProvided?: boolean;
     };
-    // New fields for app and store links
+    // App and store links
     appLinks?: {
       playStore?: string;
       appStore?: string;
@@ -75,10 +79,5 @@ declare module '@/assets/data' {
       tvOS?: string;
       amazonBrand?: string;
     };
-    features?: {
-      name: string;
-      description: string;
-      iconName?: string;
-    }[];
   }
 }

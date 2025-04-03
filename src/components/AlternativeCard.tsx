@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin, Award } from 'lucide-react';
@@ -42,7 +41,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    // Get the URL for the business
     const serviceUrl = `${window.location.origin}/service/${alternative.id}`;
     navigator.clipboard.writeText(serviceUrl);
     
@@ -52,7 +50,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     });
   };
 
-  // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -66,7 +63,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     })
   };
 
-  // Get appropriate background color for pricing badge
   const getPricingBgColor = (pricing: string) => {
     switch(pricing) {
       case 'Free':
@@ -110,7 +106,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
-            {/* Category label */}
             <div className="absolute top-3 left-3">
               <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1">
                 <Tag size={12} />
@@ -118,7 +113,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
               </Badge>
             </div>
             
-            {/* Business type badge */}
             {alternative.businessType && (
               <div className="absolute top-3 right-3">
                 <Badge variant="outline" className="bg-white/80 dark:bg-black/50 flex items-center gap-1 px-2 py-1">
@@ -128,7 +122,6 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
               </div>
             )}
             
-            {/* Franchise badge */}
             {alternative.franchise?.available && (
               <div className="absolute bottom-3 right-3">
                 <Badge variant="outline" className="bg-primary/20 text-primary flex items-center gap-1 px-2 py-1">
@@ -182,12 +175,11 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
               )}
             </div>
             
-            {/* Feature badges - show up to 2 features */}
             {Array.isArray(alternative.features) && alternative.features.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {alternative.features.slice(0, 2).map((feature, i) => (
                   <Badge key={i} variant="secondary" className="text-xs">
-                    {typeof feature === 'string' ? feature : feature.name}
+                    {typeof feature === 'object' && feature.name ? feature.name : feature}
                   </Badge>
                 ))}
                 {alternative.features.length > 2 && (

@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { Compass, Award, Filter } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Alternative, softwareService } from '@/lib/softwareService';
+import { Alternative } from '@/assets/data'; // Import directly from assets/data
+import { softwareService } from '@/lib/softwareService';
 import AlternativesGrid from '@/components/alternatives/AlternativesGrid';
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

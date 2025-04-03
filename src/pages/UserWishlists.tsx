@@ -479,37 +479,13 @@ export function UserWishlists() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedWishlist.items.map(item => {
-                        const business = businessesData[item.businessId];
-                        
-                        if (!business) {
-                          return (
-                            <Card key={item.businessId}>
-                              <CardHeader>
-                                <Skeleton className="h-6 w-3/4 mb-2" />
-                                <Skeleton className="h-4 w-1/2" />
-                              </CardHeader>
-                            </Card>
-                          );
-                        }
-                        
-                        return (
-                          <div key={item.businessId} className="relative group">
-                            <AlternativeCard 
-                              alternative={business} 
-                              index={index} // Add this line to fix the error
-                            />
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleRemoveFromWishlist(item.businessId)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        );
-                      })}
+                      {selectedWishlist.items.map((item, idx) => (
+                        <AlternativeCard
+                          key={item.id}
+                          alternative={item}
+                          index={idx}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
