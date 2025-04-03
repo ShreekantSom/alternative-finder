@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '@/lib/auth';
@@ -496,7 +495,10 @@ export function UserWishlists() {
                         
                         return (
                           <div key={item.businessId} className="relative group">
-                            <AlternativeCard alternative={business} />
+                            <AlternativeCard 
+                              alternative={business} 
+                              index={index} // Add this line to fix the error
+                            />
                             <Button
                               variant="destructive"
                               size="icon"

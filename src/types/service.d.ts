@@ -49,5 +49,36 @@ declare module '@/assets/data' {
       date: string;
       imageUrl?: string;
     }[];
+    // New fields for franchise information
+    franchise?: {
+      available: boolean;
+      initialInvestment?: {
+        min: number;
+        max: number;
+        currency: string;
+      };
+      fees?: {
+        franchiseFee?: number;
+        royaltyFee?: number; // Percentage
+        marketingFee?: number; // Percentage
+      };
+      requirements?: string[];
+      locations?: number; // Number of franchise locations
+      support?: string[];
+      trainingProvided?: boolean;
+    };
+    // New fields for app and store links
+    appLinks?: {
+      playStore?: string;
+      appStore?: string;
+      chromeWebStore?: string;
+      tvOS?: string;
+      amazonBrand?: string;
+    };
+    features?: {
+      name: string;
+      description: string;
+      iconName?: string;
+    }[];
   }
 }

@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin, Award } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { motion } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
@@ -127,6 +127,16 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
                 </Badge>
               </div>
             )}
+            
+            {/* Franchise badge */}
+            {alternative.franchise?.available && (
+              <div className="absolute bottom-3 right-3">
+                <Badge variant="outline" className="bg-primary/20 text-primary flex items-center gap-1 px-2 py-1">
+                  <Award size={12} />
+                  Franchise Available
+                </Badge>
+              </div>
+            )}
           </div>
 
           <CardHeader className="pb-0">
@@ -171,6 +181,22 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
                 </Badge>
               )}
             </div>
+            
+            {/* Feature badges - show up to 2 features */}
+            {Array.isArray(alternative.features) && alternative.features.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {alternative.features.slice(0, 2).map((feature, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs">
+                    {typeof feature === 'string' ? feature : feature.name}
+                  </Badge>
+                ))}
+                {alternative.features.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{alternative.features.length - 2}
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
           
           <CardFooter className="flex items-center justify-between border-t border-border/50 pt-4">
