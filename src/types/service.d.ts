@@ -1,7 +1,7 @@
 
 import { Alternative as BaseAlternative } from '@/assets/data';
 
-// Extend the Alternative type with social media links
+// Extend the Alternative type with company/business information
 declare module '@/assets/data' {
   interface Alternative extends BaseAlternative {
     socialLinks?: {
@@ -20,6 +20,17 @@ declare module '@/assets/data' {
       referralCode?: string;
     };
     tags?: string[];
+    businessType?: 'Physical Store' | 'Online Only' | 'Hybrid';
+    physicalLocations?: {
+      address: string;
+      city: string;
+      state: string;
+      zipCode: string;
+    }[];
+    deliveryOptions?: ('Home Delivery' | 'Click & Collect' | 'In-Store Only')[];
+    products?: string[];
+    services?: string[];
+    establishedYear?: number;
     pendingApproval?: boolean;
     submittedBy?: {
       id: string;

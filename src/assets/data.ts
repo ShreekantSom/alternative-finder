@@ -1,5 +1,4 @@
-
-// Sample data for D2C service providers
+// Sample data for companies/brands/businesses
 export interface Alternative {
   id: string;
   name: string;
@@ -10,7 +9,24 @@ export interface Alternative {
   pricing: 'Free' | 'Freemium' | 'Paid' | 'Subscription' | 'Open Source';
   imageUrl: string;
   url: string;
-  availablePincodes?: string[]; // Added this property
+  availablePincodes?: string[]; 
+  businessType?: 'Physical Store' | 'Online Only' | 'Hybrid';
+  physicalLocations?: {
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  }[];
+  deliveryOptions?: ('Home Delivery' | 'Click & Collect' | 'In-Store Only')[];
+  products?: string[];
+  services?: string[];
+  socialLinks?: {
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+    youtube?: string;
+  };
 }
 
 export interface Category {
@@ -31,7 +47,15 @@ export const alternatives: Alternative[] = [
     pricing: 'Freemium',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Instacart_logo_and_wordmark.svg/2560px-Instacart_logo_and_wordmark.svg.png',
     url: 'https://www.instacart.com/',
-    availablePincodes: ['110001', '110002', '400001', '400002']
+    availablePincodes: ['110001', '110002', '400001', '400002'],
+    businessType: 'Online Only',
+    deliveryOptions: ['Home Delivery'],
+    services: ['Grocery shopping', 'Same-day delivery', 'Store pickup'],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/instacart',
+      twitter: 'https://twitter.com/instacart',
+      instagram: 'https://www.instagram.com/instacart'
+    }
   },
   {
     id: '2',
@@ -43,7 +67,15 @@ export const alternatives: Alternative[] = [
     pricing: 'Freemium',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/DoorDash_logo.svg/2560px-DoorDash_logo.svg.png',
     url: 'https://www.doordash.com/',
-    availablePincodes: ['110001', '560001', '400001']
+    availablePincodes: ['110001', '560001', '400001'],
+    businessType: 'Online Only',
+    deliveryOptions: ['Home Delivery'],
+    services: ['Restaurant delivery', 'Grocery delivery', 'Convenience items'],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/doordash',
+      twitter: 'https://twitter.com/doordash',
+      instagram: 'https://www.instagram.com/doordash'
+    }
   },
   {
     id: '3',
@@ -55,7 +87,23 @@ export const alternatives: Alternative[] = [
     pricing: 'Paid',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Uber_App_Icon.svg/2048px-Uber_App_Icon.svg.png',
     url: 'https://www.uber.com/',
-    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001']
+    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001'],
+    businessType: 'Hybrid',
+    deliveryOptions: ['Home Delivery'],
+    services: ['Ride-hailing', 'Food delivery', 'Package delivery'],
+    physicalLocations: [
+      {
+        address: '1455 Market Street',
+        city: 'San Francisco',
+        state: 'CA',
+        zipCode: '94103'
+      }
+    ],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/uber',
+      twitter: 'https://twitter.com/uber',
+      linkedin: 'https://www.linkedin.com/company/uber-com/'
+    }
   },
   {
     id: '4',
@@ -67,7 +115,14 @@ export const alternatives: Alternative[] = [
     pricing: 'Subscription',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1280px-Netflix_2015_logo.svg.png',
     url: 'https://www.netflix.com/',
-    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001', '700001']
+    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001', '700001'],
+    businessType: 'Online Only',
+    services: ['Streaming service', 'Original content production'],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/netflix',
+      twitter: 'https://twitter.com/netflix',
+      instagram: 'https://www.instagram.com/netflix'
+    }
   },
   {
     id: '5',
@@ -79,7 +134,14 @@ export const alternatives: Alternative[] = [
     pricing: 'Subscription',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/HelloFresh_company_logo.svg/2560px-HelloFresh_company_logo.svg.png',
     url: 'https://www.hellofresh.com/',
-    availablePincodes: ['400001', '400002', '110001', '110002']
+    availablePincodes: ['400001', '400002', '110001', '110002'],
+    businessType: 'Online Only',
+    deliveryOptions: ['Home Delivery'],
+    products: ['Meal kits', 'Recipe cards', 'Pre-portioned ingredients'],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/HelloFresh',
+      instagram: 'https://www.instagram.com/hellofresh'
+    }
   },
   {
     id: '6',
@@ -91,7 +153,14 @@ export const alternatives: Alternative[] = [
     pricing: 'Freemium',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Spotify_logo_with_text.svg/2560px-Spotify_logo_with_text.svg.png',
     url: 'https://www.spotify.com/',
-    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001', '700001', '800001']
+    availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002', '600001', '700001', '800001'],
+    businessType: 'Online Only',
+    services: ['Music streaming', 'Podcast hosting', 'Audio content creation'],
+    socialLinks: {
+      facebook: 'https://www.facebook.com/Spotify',
+      twitter: 'https://twitter.com/spotify',
+      instagram: 'https://www.instagram.com/spotify'
+    }
   }
 ];
 

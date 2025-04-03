@@ -27,7 +27,7 @@ export function BrandSubmission() {
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">
-        {isSuggestion ? "Suggest a Brand" : "Submit Your Brand"}
+        {isSuggestion ? "Suggest a Business" : "Submit Your Business"}
       </h1>
       
       <BrandSubmissionForm isSuggestion={isSuggestion} />
@@ -35,8 +35,8 @@ export function BrandSubmission() {
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground">
           {isSuggestion 
-            ? "Thank you for helping us grow our directory of brands!" 
-            : "After submission, your brand will be reviewed by our team."}
+            ? "Thank you for helping us grow our directory of businesses!" 
+            : "After submission, your business will be reviewed by our team."}
         </p>
       </div>
     </div>

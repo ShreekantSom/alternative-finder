@@ -12,17 +12,17 @@ class SoftwareService {
   async getAllSoftware(): Promise<ServiceResult> {
     try {
       // In a real app, this would be a backend API call to a database
-      // For demo purposes, we'll return mock data for D2C service providers
+      // For demo purposes, we'll return mock data for businesses
       const { alternatives } = await import('@/assets/data');
       return {
         success: true,
         data: alternatives
       };
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error('Error fetching businesses:', error);
       return {
         success: false,
-        error: 'Failed to load services'
+        error: 'Failed to load businesses'
       };
     }
   }
@@ -38,10 +38,10 @@ class SoftwareService {
         data: filteredAlternatives
       };
     } catch (error) {
-      console.error('Error fetching services by category:', error);
+      console.error('Error fetching businesses by category:', error);
       return {
         success: false,
-        error: 'Failed to load services by category'
+        error: 'Failed to load businesses by category'
       };
     }
   }
@@ -64,14 +64,14 @@ class SoftwareService {
       } else {
         return {
           success: false,
-          error: "D2C service not found"
+          error: "Business not found"
         };
       }
     } catch (error) {
-      console.error("Error fetching D2C service by ID:", error);
+      console.error("Error fetching business by ID:", error);
       return {
         success: false,
-        error: "Failed to load D2C service"
+        error: "Failed to load business"
       };
     }
   }
@@ -81,7 +81,7 @@ class SoftwareService {
       // Import alternatives
       const { alternatives } = await import('@/assets/data');
       
-      // Create slug from name and find matching service
+      // Create slug from name and find matching business
       const software = alternatives.find(item => this.createSlug(item.name) === slug);
       
       if (software) {
@@ -92,14 +92,14 @@ class SoftwareService {
       } else {
         return {
           success: false,
-          error: "D2C service not found"
+          error: "Business not found"
         };
       }
     } catch (error) {
-      console.error("Error fetching D2C service by slug:", error);
+      console.error("Error fetching business by slug:", error);
       return {
         success: false,
-        error: "Failed to load D2C service"
+        error: "Failed to load business"
       };
     }
   }
@@ -126,12 +126,12 @@ class SoftwareService {
     return searchAlternatives(query);
   }
 
-  // Check if a D2C service is available in a specific pincode
+  // Check if a business is available in a specific pincode
   async checkPincodeAvailability(serviceId: string, pincode: string): Promise<boolean> {
     try {
       const result = await this.getSoftwareById(serviceId);
       if (result.success && result.data) {
-        // In a real app, this would check against the service's available pincodes
+        // In a real app, this would check against the business's available pincodes
         // For demo purposes, we'll simulate with simple logic
         const service = result.data as Alternative;
         if (service.availablePincodes) {
@@ -156,7 +156,7 @@ class SoftwareService {
       // Generate a new ID (in a real app, the backend would do this)
       const newId = (alternatives.length + 1).toString();
       
-      const newD2CService = {
+      const newBusiness = {
         id: newId,
         ...newService
       };
@@ -167,13 +167,13 @@ class SoftwareService {
       
       return {
         success: true,
-        data: newD2CService
+        data: newBusiness
       };
     } catch (error) {
-      console.error('Error creating D2C service:', error);
+      console.error('Error creating business:', error);
       return {
         success: false,
-        error: 'Failed to create D2C service'
+        error: 'Failed to create business'
       };
     }
   }
@@ -189,25 +189,25 @@ class SoftwareService {
       if (!existingService) {
         return {
           success: false,
-          error: 'D2C service not found'
+          error: 'Business not found'
         };
       }
       
       // Create an updated version (in a real app, this would update the database)
-      const updatedD2CService = {
+      const updatedBusiness = {
         ...existingService,
         ...updatedService
       };
       
       return {
         success: true,
-        data: updatedD2CService
+        data: updatedBusiness
       };
     } catch (error) {
-      console.error('Error updating D2C service:', error);
+      console.error('Error updating business:', error);
       return {
         success: false,
-        error: 'Failed to update D2C service'
+        error: 'Failed to update business'
       };
     }
   }
@@ -223,7 +223,7 @@ class SoftwareService {
       if (!serviceExists) {
         return {
           success: false,
-          error: 'D2C service not found'
+          error: 'Business not found'
         };
       }
       
@@ -236,10 +236,10 @@ class SoftwareService {
         data: { id }
       };
     } catch (error) {
-      console.error('Error deleting D2C service:', error);
+      console.error('Error deleting business:', error);
       return {
         success: false,
-        error: 'Failed to delete D2C service'
+        error: 'Failed to delete business'
       };
     }
   }

@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Share2, ExternalLink, Tag, Star, Users } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { motion } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,7 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    // Get the URL for the service
+    // Get the URL for the business
     const serviceUrl = `${window.location.origin}/service/${alternative.id}`;
     navigator.clipboard.writeText(serviceUrl);
     
@@ -117,6 +117,16 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
                 {alternative.category}
               </Badge>
             </div>
+            
+            {/* Business type badge */}
+            {alternative.businessType && (
+              <div className="absolute top-3 right-3">
+                <Badge variant="outline" className="bg-white/80 dark:bg-black/50 flex items-center gap-1 px-2 py-1">
+                  <Store size={12} />
+                  {alternative.businessType}
+                </Badge>
+              </div>
+            )}
           </div>
 
           <CardHeader className="pb-0">
@@ -147,10 +157,19 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
               {alternative.description}
             </CardDescription>
             
-            <div className="flex items-center mt-3 text-sm">
-              <Star className="w-4 h-4 text-amber-500 mr-1" />
-              <span className="font-medium">{alternative.likes.toLocaleString()}</span>
-              <span className="text-muted-foreground ml-1">likes</span>
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center text-sm">
+                <Star className="w-4 h-4 text-amber-500 mr-1" />
+                <span className="font-medium">{alternative.likes.toLocaleString()}</span>
+                <span className="text-muted-foreground ml-1">likes</span>
+              </div>
+              
+              {alternative.deliveryOptions?.includes('Home Delivery') && (
+                <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5 text-xs">
+                  <Truck className="w-3 h-3" />
+                  Delivery
+                </Badge>
+              )}
             </div>
           </CardContent>
           
