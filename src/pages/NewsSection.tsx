@@ -25,62 +25,62 @@ interface NewsArticle {
 const mockNewsArticles: NewsArticle[] = [
   {
     id: "1",
-    title: "New D2C Brands Disrupting the Fashion Industry",
-    summary: "Discover how these innovative D2C fashion brands are challenging traditional retail models.",
+    title: "New Brands Disrupting the Fashion Industry",
+    summary: "Discover how these innovative fashion brands are challenging traditional retail models.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas euismod, nunc ut aliquet faucibus, nisi nunc tincidunt nisi, euismod aliquet nunc nisl euismod.",
     category: "Fashion",
     author: "Jane Smith",
     publishedAt: "2023-06-15",
     readTime: "5 min",
-    tags: ["fashion", "d2c", "retail", "ecommerce"],
+    tags: ["fashion", "retail", "ecommerce"],
     imageUrl: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop"
   },
   {
     id: "2",
-    title: "The Rise of D2C Health and Wellness Products",
+    title: "The Rise of Health and Wellness Products",
     summary: "How consumer health brands are bypassing traditional channels to reach customers directly.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas euismod, nunc ut aliquet faucibus, nisi nunc tincidunt nisi, euismod aliquet nunc nisl euismod.",
     category: "Health",
     author: "Michael Johnson",
     publishedAt: "2023-05-22",
     readTime: "7 min",
-    tags: ["health", "wellness", "d2c", "supplements"],
+    tags: ["health", "wellness", "supplements"],
     imageUrl: "https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?q=80&w=800&auto=format&fit=crop"
   },
   {
     id: "3",
-    title: "D2C Food Delivery Services Expanding Nationwide",
-    summary: "These meal kit and specialty food D2C brands are seeing record growth post-pandemic.",
+    title: "Food Delivery Services Expanding Nationwide",
+    summary: "These meal kit and specialty food brands are seeing record growth post-pandemic.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas euismod, nunc ut aliquet faucibus, nisi nunc tincidunt nisi, euismod aliquet nunc nisl euismod.",
     category: "Food",
     author: "Sarah Williams",
     publishedAt: "2023-04-18",
     readTime: "4 min",
-    tags: ["food", "delivery", "meal-kits", "d2c"],
+    tags: ["food", "delivery", "meal-kits"],
     imageUrl: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=800&auto=format&fit=crop"
   },
   {
     id: "4",
-    title: "Tech Gadgets Going Direct: The New D2C Electronics Wave",
+    title: "Tech Gadgets Going Direct: The New Electronics Wave",
     summary: "Consumer electronics companies are increasingly adopting direct-to-consumer sales strategies.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas euismod, nunc ut aliquet faucibus, nisi nunc tincidunt nisi, euismod aliquet nunc nisl euismod.",
     category: "Technology",
     author: "David Chen",
     publishedAt: "2023-03-30",
     readTime: "6 min",
-    tags: ["technology", "electronics", "d2c", "gadgets"],
+    tags: ["technology", "electronics", "gadgets"],
     imageUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop"
   },
   {
     id: "5",
-    title: "How D2C Furniture Brands Are Redesigning the Customer Experience",
+    title: "How Furniture Brands Are Redesigning the Customer Experience",
     summary: "Innovative furniture companies are eliminating the middleman and offering better value.",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas euismod, nunc ut aliquet faucibus, nisi nunc tincidunt nisi, euismod aliquet nunc nisl euismod.",
     category: "Home",
     author: "Emily Rodriguez",
     publishedAt: "2023-02-14",
     readTime: "8 min",
-    tags: ["furniture", "home", "d2c", "design"],
+    tags: ["furniture", "home", "design"],
     imageUrl: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=800&auto=format&fit=crop"
   }
 ];
@@ -110,9 +110,9 @@ export function NewsSection() {
       <Navbar />
       <main className="container mx-auto px-4 py-10">
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">D2C Industry News</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">Business & Industry News</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Stay updated with the latest trends, insights, and developments in the Direct-to-Consumer industry.
+            Stay updated with the latest trends, insights, and developments in the business world.
           </p>
         </div>
         

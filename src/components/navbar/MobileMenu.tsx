@@ -85,7 +85,7 @@ export function MobileMenu({
       <nav className="flex flex-col space-y-4">
         {/* Pincode menu for mobile */}
         <div className="py-2">
-          <PincodeMenu className="w-full border-none" />
+          <PincodeMenu buttonClassName="w-full border-none" />
         </div>
         
         {/* Mobile search bar when scrolled */}
@@ -96,7 +96,7 @@ export function MobileMenu({
                 <Search className="absolute left-3 text-muted-foreground" size={16} />
                 <Input
                   type="text"
-                  placeholder="Search services..."
+                  placeholder="Search businesses..."
                   className="pl-9 h-9 w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}

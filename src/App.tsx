@@ -16,6 +16,7 @@ import Discover from "./pages/Discover";
 import BrandDashboard from "./pages/BrandDashboard";
 import CategoryDetail from "./pages/CategoryDetail";
 import BrandSubmission from "./pages/BrandSubmission";
+import UserWishlists from "./pages/UserWishlists";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,8 @@ const App = () => (
         <Route path="/collection/:id" element={<Collections />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/category/:categoryId" element={<CategoryDetail />} />
+        <Route path="/wishlists" element={<UserWishlists />} />
+        <Route path="/shared-wishlist/:id" element={<UserWishlists />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

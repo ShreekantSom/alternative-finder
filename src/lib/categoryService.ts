@@ -1,9 +1,17 @@
-
 import { Category } from '@/assets/data';
 import { AuthService } from './auth';
 import { toast } from "@/components/ui/use-toast";
 
 const CATEGORIES_STORAGE_KEY = 'alternative_app_categories';
+const SUBCATEGORIES_STORAGE_KEY = 'alternative_app_subcategories';
+
+// Define subcategory interface
+interface Subcategory {
+  id: string;
+  name: string;
+  parentCategoryId: string;
+  count?: number;
+}
 
 // Initialize with some default categories
 const initCategories = (): void => {
@@ -13,19 +21,66 @@ const initCategories = (): void => {
       { id: 'all', name: 'All Categories', icon: 'layers', count: 8641 },
       { id: 'business-finance', name: 'Business & Finance', icon: 'briefcase', count: 568 },
       { id: 'communication', name: 'Communication', icon: 'message-circle', count: 523 },
-      { id: 'development', name: 'Development', icon: 'code', count: 1245 },
+      { id: 'technology', name: 'Technology', icon: 'code', count: 1245 },
       { id: 'education-reference', name: 'Education & Reference', icon: 'graduation-cap', count: 412 },
-      { id: 'games-entertainment', name: 'Games & Entertainment', icon: 'gamepad-2', count: 897 },
+      { id: 'entertainment', name: 'Entertainment', icon: 'gamepad-2', count: 897 },
       { id: 'home-lifestyle', name: 'Home & Lifestyle', icon: 'landmark', count: 376 },
-      { id: 'multimedia', name: 'Multimedia', icon: 'image', count: 743 },
-      { id: 'music-audio', name: 'Music & Audio', icon: 'music', count: 489 },
-      { id: 'network-internet', name: 'Network & Internet', icon: 'globe', count: 652 },
-      { id: 'productivity', name: 'Productivity', icon: 'briefcase', count: 712 },
-      { id: 'security-privacy', name: 'Security & Privacy', icon: 'shield', count: 387 },
-      { id: 'system-utilities', name: 'System & Utilities', icon: 'wrench', count: 603 },
-      { id: 'design-photo', name: 'Design & Photo', icon: 'paintbrush', count: 432 },
+      { id: 'fashion-apparel', name: 'Fashion & Apparel', icon: 'shirt', count: 743 },
+      { id: 'food-beverages', name: 'Food & Beverages', icon: 'utensils', count: 489 },
+      { id: 'health-wellness', name: 'Health & Wellness', icon: 'heart-pulse', count: 652 },
+      { id: 'travel-hospitality', name: 'Travel & Hospitality', icon: 'plane', count: 712 },
+      { id: 'automotive', name: 'Automotive', icon: 'car', count: 387 },
+      { id: 'sports-fitness', name: 'Sports & Fitness', icon: 'dumbbell', count: 603 },
+      { id: 'beauty-personal-care', name: 'Beauty & Personal Care', icon: 'scissors', count: 432 },
+      { id: 'electronics', name: 'Electronics', icon: 'smartphone', count: 567 },
+      { id: 'pets', name: 'Pets', icon: 'dog', count: 289 },
+      { id: 'art-crafts', name: 'Art & Crafts', icon: 'palette', count: 341 },
+      { id: 'books-media', name: 'Books & Media', icon: 'book', count: 418 },
+      { id: 'baby-kids', name: 'Baby & Kids', icon: 'baby', count: 325 },
     ];
     localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(storedCategories));
+  }
+
+  // Initialize subcategories if not present
+  if (!localStorage.getItem(SUBCATEGORIES_STORAGE_KEY)) {
+    const initialSubcategories: Subcategory[] = [
+      // Business & Finance
+      { id: 'banking', name: 'Banking', parentCategoryId: 'business-finance' },
+      { id: 'insurance', name: 'Insurance', parentCategoryId: 'business-finance' },
+      { id: 'investment', name: 'Investment', parentCategoryId: 'business-finance' },
+      { id: 'accounting', name: 'Accounting', parentCategoryId: 'business-finance' },
+      { id: 'consulting', name: 'Consulting', parentCategoryId: 'business-finance' },
+      
+      // Technology
+      { id: 'software', name: 'Software', parentCategoryId: 'technology' },
+      { id: 'hardware', name: 'Hardware', parentCategoryId: 'technology' },
+      { id: 'cloud-services', name: 'Cloud Services', parentCategoryId: 'technology' },
+      { id: 'cybersecurity', name: 'Cybersecurity', parentCategoryId: 'technology' },
+      { id: 'ai-ml', name: 'AI & Machine Learning', parentCategoryId: 'technology' },
+      
+      // Fashion & Apparel
+      { id: 'clothing', name: 'Clothing', parentCategoryId: 'fashion-apparel' },
+      { id: 'footwear', name: 'Footwear', parentCategoryId: 'fashion-apparel' },
+      { id: 'accessories', name: 'Accessories', parentCategoryId: 'fashion-apparel' },
+      { id: 'jewelry', name: 'Jewelry', parentCategoryId: 'fashion-apparel' },
+      { id: 'luxury', name: 'Luxury', parentCategoryId: 'fashion-apparel' },
+      
+      // Health & Wellness
+      { id: 'fitness', name: 'Fitness', parentCategoryId: 'health-wellness' },
+      { id: 'nutrition', name: 'Nutrition', parentCategoryId: 'health-wellness' },
+      { id: 'mental-health', name: 'Mental Health', parentCategoryId: 'health-wellness' },
+      { id: 'meditation', name: 'Meditation', parentCategoryId: 'health-wellness' },
+      { id: 'healthcare', name: 'Healthcare', parentCategoryId: 'health-wellness' },
+      
+      // Food & Beverages
+      { id: 'restaurants', name: 'Restaurants', parentCategoryId: 'food-beverages' },
+      { id: 'cafes', name: 'Cafes', parentCategoryId: 'food-beverages' },
+      { id: 'grocery', name: 'Grocery', parentCategoryId: 'food-beverages' },
+      { id: 'specialty-food', name: 'Specialty Food', parentCategoryId: 'food-beverages' },
+      { id: 'beverages', name: 'Beverages', parentCategoryId: 'food-beverages' },
+    ];
+    
+    localStorage.setItem(SUBCATEGORIES_STORAGE_KEY, JSON.stringify(initialSubcategories));
   }
 };
 
@@ -191,5 +246,70 @@ export const categoryService = {
         variant: "destructive",
       });
     }
+  },
+  
+  // Subcategories methods
+  getAllSubcategories: async (): Promise<ServiceResult<Subcategory[]>> => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const subcategoriesJson = localStorage.getItem(SUBCATEGORIES_STORAGE_KEY);
+      const subcategories: Subcategory[] = subcategoriesJson ? JSON.parse(subcategoriesJson) : [];
+      
+      return { success: true, data: subcategories };
+    } catch (error) {
+      console.error('Failed to get subcategories:', error);
+      return { success: false, error: 'Failed to load subcategories' };
+    }
+  },
+  
+  getSubcategoriesByCategoryId: async (categoryId: string): Promise<ServiceResult<Subcategory[]>> => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const subcategoriesJson = localStorage.getItem(SUBCATEGORIES_STORAGE_KEY);
+      const subcategories: Subcategory[] = subcategoriesJson ? JSON.parse(subcategoriesJson) : [];
+      
+      const filteredSubcategories = subcategories.filter(sc => sc.parentCategoryId === categoryId);
+      
+      return { success: true, data: filteredSubcategories };
+    } catch (error) {
+      console.error('Failed to get subcategories by category:', error);
+      return { success: false, error: 'Failed to load subcategories' };
+    }
+  },
+  
+  createSubcategory: async (subcategoryData: Omit<Subcategory, 'id'>): Promise<ServiceResult<Subcategory>> => {
+    try {
+      if (!AuthService.isAuthenticated()) {
+        return { success: false, error: 'Authentication required' };
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const subcategoriesJson = localStorage.getItem(SUBCATEGORIES_STORAGE_KEY);
+      const subcategories: Subcategory[] = subcategoriesJson ? JSON.parse(subcategoriesJson) : [];
+      
+      // Generate a unique ID
+      const id = `subcategory-${Date.now()}`;
+      
+      const newSubcategory: Subcategory = {
+        id,
+        name: subcategoryData.name,
+        parentCategoryId: subcategoryData.parentCategoryId,
+        count: 0
+      };
+      
+      subcategories.push(newSubcategory);
+      localStorage.setItem(SUBCATEGORIES_STORAGE_KEY, JSON.stringify(subcategories));
+      
+      return { success: true, data: newSubcategory };
+    } catch (error) {
+      console.error('Failed to create subcategory:', error);
+      return { success: false, error: 'Failed to create subcategory' };
+    }
   }
 };
+
+// Export the Subcategory interface
+export type { Subcategory };

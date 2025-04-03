@@ -41,5 +41,13 @@ declare module '@/assets/data' {
       id: string;
       date: string;
     };
+    subcategory?: string;
+    newsItems?: {
+      id: string;
+      title: string;
+      content: string;
+      date: string;
+      imageUrl?: string;
+    }[];
   }
 }
