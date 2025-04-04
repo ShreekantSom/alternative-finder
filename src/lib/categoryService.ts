@@ -59,6 +59,70 @@ class CategoryService {
     }
   }
   
+  // Add the missing methods
+  async deleteCategory(id: string): Promise<ServiceResult> {
+    try {
+      // In a real app with a database, we would delete the category here
+      // For this demo, we'll simulate a successful delete
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      return {
+        success: false,
+        error: 'Failed to delete category'
+      };
+    }
+  }
+
+  async updateCategory(
+    id: string, 
+    categoryData: { name: string; icon: string; count: number }
+  ): Promise<ServiceResult> {
+    try {
+      // In a real app with a database, we would update the category here
+      // For this demo, we'll simulate a successful update
+      return {
+        success: true,
+        data: {
+          id,
+          ...categoryData
+        }
+      };
+    } catch (error) {
+      console.error('Error updating category:', error);
+      return {
+        success: false,
+        error: 'Failed to update category'
+      };
+    }
+  }
+
+  async createCategory(
+    categoryData: { name: string; icon: string; count: number }
+  ): Promise<ServiceResult> {
+    try {
+      // In a real app with a database, we would create the category here
+      // For this demo, we'll simulate a successful creation with a random ID
+      const id = Math.random().toString(36).substring(2, 9);
+      return {
+        success: true,
+        data: {
+          id,
+          ...categoryData
+        }
+      };
+    } catch (error) {
+      console.error('Error creating category:', error);
+      return {
+        success: false,
+        error: 'Failed to create category'
+      };
+    }
+  }
+  
   // Helper function to create URL-friendly slug from a string
   createSlug(text: string): string {
     return text

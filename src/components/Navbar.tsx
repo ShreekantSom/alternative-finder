@@ -1,5 +1,6 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -13,8 +14,9 @@ import {
   Menu, 
   User, 
   Heart, 
-  MapPin, 
-  Globe 
+  Globe,
+  Search,
+  ChevronDown
 } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import {
@@ -23,33 +25,122 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import PincodeMenu from "@/components/PincodeMenu";
 import { AuthService } from "@/lib/auth";
-import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import NavbarSearch from "./navbar/NavbarSearch";
+import MobileMenu from "./navbar/MobileMenu";
+import { Alternative } from "@/assets/data";
+import { motion, AnimatePresence } from "framer-motion";
+import { categoryService } from "@/lib/categoryService";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<{ email: string; role?: string } | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [showNavbarSearch, setShowNavbarSearch] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
     const user = AuthService.getCurrentUser();
     setIsLoggedIn(!!user);
+    setUser(user);
+    
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 100;
+      setScrolled(isScrolled);
+      setShowNavbarSearch(isScrolled);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    fetchCategories();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  const fetchCategories = async () => {
+    try {
+      const result = await categoryService.getAllCategories();
+      if (result.success) {
+        setCategories(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
+
+  const handleItemSelect = (alternative: Alternative) => {
+    navigate(`/business/${alternative.id}`);
+    setShowNavbarSearch(false);
+  };
+  
+  const handleAuthClick = () => {
+    if (isLoggedIn) {
+      if (user?.role === 'brand') {
+        navigate('/brand-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
-    <div className="bg-background border-b">
+    <div className={`sticky top-0 z-50 bg-background border-b transition-shadow duration-300 ${scrolled ? 'shadow-md' : ''}`}>
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center">
-          <Link to="/" className="font-semibold text-lg mr-8">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="font-semibold text-lg mr-4">
             Discover Businesses
           </Link>
-          <nav className="hidden md:flex items-center space-x-6">
+          
+          <nav className="hidden md:flex items-center space-x-4">
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
               Home
             </Link>
             <Link to="/discover" className="text-muted-foreground hover:text-foreground transition-colors">
               Discover
             </Link>
+            
+            {/* Categories dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-1">
+                  Categories <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Browse Categories</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="max-h-[60vh] overflow-y-auto">
+                  {categories.map((category) => (
+                    <DropdownMenuItem key={category.id} asChild>
+                      <Link to={`/category/${category.id}`} className="w-full">
+                        {category.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  {/* Additional categories */}
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/banking" className="w-full">
+                      Banking
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/insurance" className="w-full">
+                      Insurance
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <Link to="/collections" className="text-muted-foreground hover:text-foreground transition-colors">
               Collections
             </Link>
@@ -60,6 +151,16 @@ export default function Navbar() {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Navbar Search that appears when scrolled */}
+          <AnimatePresence>
+            {showNavbarSearch && (
+              <NavbarSearch 
+                showSearch={showNavbarSearch} 
+                onItemSelect={handleItemSelect} 
+              />
+            )}
+          </AnimatePresence>
+          
           {/* Location Picker */}
           <PincodeMenu />
           
@@ -76,24 +177,28 @@ export default function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>My Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/wishlists" className="cursor-pointer flex items-center">
-                      <Heart className="mr-2 h-4 w-4" />
-                      <span>My Wishlists</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/brand-submission" className="cursor-pointer flex items-center">
-                      <Globe className="mr-2 h-4 w-4" />
-                      <span>Submit Your Business</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="cursor-pointer flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlists" className="cursor-pointer flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        <span>My Wishlists</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/brand-submission" className="cursor-pointer flex items-center">
+                        <Globe className="mr-2 h-4 w-4" />
+                        <span>Submit Your Business</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
@@ -103,50 +208,26 @@ export default function Navbar() {
             )}
           </div>
           
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:w-64">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>
-                  Explore and discover amazing businesses.
-                </SheetDescription>
-              </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <Link to="/" className="hover:underline">
-                  Home
-                </Link>
-                <Link to="/discover" className="hover:underline">
-                  Discover
-                </Link>
-                <Link to="/collections" className="hover:underline">
-                  Collections
-                </Link>
-                <Link to="/news" className="hover:underline">
-                  News
-                </Link>
-                <Link to="/auth" className="hover:underline">
-                  Sign In
-                </Link>
-                <Link to="/profile" className="hover:underline">
-                  My Profile
-                </Link>
-                <Link to="/wishlists" className="hover:underline">
-                  My Wishlists
-                </Link>
-                <Link to="/brand-submission" className="hover:underline">
-                  Submit Your Business
-                </Link>
-              </div>
-            </SheetContent>
-          </Sheet>
+          {/* Mobile Menu Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <MobileMenu 
+        isOpen={mobileMenuOpen} 
+        showNavbarSearch={showNavbarSearch}
+        user={user}
+        handleAuthClick={handleAuthClick}
+        handleItemSelect={handleItemSelect}
+      />
     </div>
   );
 }
