@@ -43,6 +43,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AlternativeCard from '@/components/AlternativeCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export interface WishlistItem {
+  businessId: string;
+  dateAdded: string;
+  notes?: string;
+  alternative?: Alternative;
+}
+
 export function UserWishlists() {
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
   const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(null);
@@ -481,8 +488,8 @@ export function UserWishlists() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {selectedWishlist.items.map((item, idx) => (
                         <AlternativeCard 
-                          key={item.alternativeId} 
-                          alternative={item.alternative} 
+                          key={item.businessId} 
+                          alternative={businessesData[item.businessId] || item.alternative || {}} 
                           index={idx} 
                         />
                       ))}
