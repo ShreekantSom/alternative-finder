@@ -9,7 +9,176 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          available_pincodes: string[] | null
+          category_id: string | null
+          category_name: string
+          created_at: string
+          description: string
+          founded_year: number | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          is_new: boolean | null
+          logo_url: string | null
+          name: string
+          rating: number | null
+          reviews_count: number | null
+          short_description: string
+          slug: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          available_pincodes?: string[] | null
+          category_id?: string | null
+          category_name: string
+          created_at?: string
+          description: string
+          founded_year?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          logo_url?: string | null
+          name: string
+          rating?: number | null
+          reviews_count?: number | null
+          short_description: string
+          slug: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          available_pincodes?: string[] | null
+          category_id?: string | null
+          category_name?: string
+          created_at?: string
+          description?: string
+          founded_year?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          logo_url?: string | null
+          name?: string
+          rating?: number | null
+          reviews_count?: number | null
+          short_description?: string
+          slug?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          count: number | null
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number | null
+          created_at?: string
+          icon: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number | null
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          added_at: string
+          business_id: string
+          id: string
+          notes: string | null
+          wishlist_id: string
+        }
+        Insert: {
+          added_at?: string
+          business_id: string
+          id?: string
+          notes?: string | null
+          wishlist_id: string
+        }
+        Update: {
+          added_at?: string
+          business_id?: string
+          id?: string
+          notes?: string | null
+          wishlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wishlist_items_wishlist_id_fkey"
+            columns: ["wishlist_id"]
+            isOneToOne: false
+            referencedRelation: "wishlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wishlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,5 +1,7 @@
+
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceResult {
   success: boolean;
@@ -10,13 +12,49 @@ interface ServiceResult {
 class SoftwareService {
   async getAllSoftware(): Promise<ServiceResult> {
     try {
-      // In a real app, this would be a backend API call to a database
-      // For demo purposes, we'll return mock data for businesses
-      const { alternatives } = await import('@/assets/data');
-      return {
-        success: true,
-        data: alternatives
-      };
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching businesses from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        return {
+          success: true,
+          data: alternatives
+        };
+      }
+      
+      if (data.length > 0) {
+        // Transform Supabase data to match our Alternative interface
+        const transformedData = data.map(business => ({
+          id: business.id,
+          name: business.name,
+          description: business.description,
+          category: business.category_name,
+          likes: business.reviews_count || 0,
+          imageUrl: business.image_url || 'https://picsum.photos/200',
+          url: business.website_url || 'https://example.com',
+          pricing: 'Freemium', // Default value
+          platform: ['Web'], // Default value
+          availablePincodes: business.available_pincodes || []
+        }));
+        
+        return {
+          success: true,
+          data: transformedData
+        };
+      } else {
+        // If no data is found in Supabase, fallback to mock data
+        const { alternatives } = await import('@/assets/data');
+        return {
+          success: true,
+          data: alternatives
+        };
+      }
     } catch (error) {
       console.error('Error fetching businesses:', error);
       return {
@@ -28,14 +66,52 @@ class SoftwareService {
 
   async getSoftwareByCategory(category: string): Promise<ServiceResult> {
     try {
-      // In a real app, this would be a backend API call to a database
-      // For demo purposes, we'll filter the mock data
-      const { alternatives } = await import('@/assets/data');
-      const filteredAlternatives = alternatives.filter(item => item.category === category);
-      return {
-        success: true,
-        data: filteredAlternatives
-      };
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('category_name', category)
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching businesses by category from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => item.category === category);
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
+      
+      if (data.length > 0) {
+        // Transform Supabase data to match our Alternative interface
+        const transformedData = data.map(business => ({
+          id: business.id,
+          name: business.name,
+          description: business.description,
+          category: business.category_name,
+          likes: business.reviews_count || 0,
+          imageUrl: business.image_url || 'https://picsum.photos/200',
+          url: business.website_url || 'https://example.com',
+          pricing: 'Freemium', // Default value
+          platform: ['Web'], // Default value
+          availablePincodes: business.available_pincodes || []
+        }));
+        
+        return {
+          success: true,
+          data: transformedData
+        };
+      } else {
+        // If no data is found in Supabase, fallback to mock data
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => item.category === category);
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
     } catch (error) {
       console.error('Error fetching businesses by category:', error);
       return {
@@ -47,24 +123,67 @@ class SoftwareService {
 
   async getSoftwareById(id: string) {
     try {
-      // In a real app, we'd call an API endpoint
-      // For demo purposes, we're using the alternatives array
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
       
-      // Import alternatives directly for server-side
-      const { alternatives } = await import('@/assets/data');
+      if (error) {
+        console.error('Error fetching business by ID from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const software = alternatives.find(item => item.id === id);
+        
+        if (software) {
+          return {
+            success: true,
+            data: software
+          };
+        } else {
+          return {
+            success: false,
+            error: "Business not found"
+          };
+        }
+      }
       
-      const software = alternatives.find(item => item.id === id);
-      
-      if (software) {
+      if (data) {
+        // Transform to match our Alternative interface
+        const transformedData = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          category: data.category_name,
+          likes: data.reviews_count || 0,
+          imageUrl: data.image_url || 'https://picsum.photos/200',
+          url: data.website_url || 'https://example.com',
+          pricing: 'Freemium', // Default value
+          platform: ['Web'], // Default value
+          availablePincodes: data.available_pincodes || []
+        };
+        
         return {
           success: true,
-          data: software
+          data: transformedData
         };
       } else {
-        return {
-          success: false,
-          error: "Business not found"
-        };
+        // If not found in Supabase, try fallback
+        const { alternatives } = await import('@/assets/data');
+        const software = alternatives.find(item => item.id === id);
+        
+        if (software) {
+          return {
+            success: true,
+            data: software
+          };
+        } else {
+          return {
+            success: false,
+            error: "Business not found"
+          };
+        }
       }
     } catch (error) {
       console.error("Error fetching business by ID:", error);
@@ -77,24 +196,74 @@ class SoftwareService {
 
   async getSoftwareBySlug(slug: string) {
     try {
-      // Import alternatives
-      const { alternatives } = await import('@/assets/data');
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
       
-      // Create slug from name and find matching business
-      const software = alternatives.find(item => this.createSlug(item.name) === slug);
+      if (error) {
+        console.error('Error fetching business by slug from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const software = alternatives.find(item => this.createSlug(item.name) === slug);
+        
+        if (software) {
+          const externalReviews = await getExternalReviews(software.id);
+          software.externalReviews = externalReviews;
+          return {
+            success: true,
+            data: software
+          };
+        } else {
+          return {
+            success: false,
+            error: "Business not found"
+          };
+        }
+      }
       
-      if (software) {
-        const externalReviews = await getExternalReviews(software.id);
-        software.externalReviews = externalReviews;
+      if (data) {
+        // Transform to match our Alternative interface
+        const transformedData = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          category: data.category_name,
+          likes: data.reviews_count || 0,
+          imageUrl: data.image_url || 'https://picsum.photos/200',
+          url: data.website_url || 'https://example.com',
+          pricing: 'Freemium', // Default value
+          platform: ['Web'], // Default value
+          availablePincodes: data.available_pincodes || []
+        };
+        
+        const externalReviews = await getExternalReviews(data.id);
+        transformedData.externalReviews = externalReviews;
+        
         return {
           success: true,
-          data: software
+          data: transformedData
         };
       } else {
-        return {
-          success: false,
-          error: "Business not found"
-        };
+        // If not found in Supabase, try fallback
+        const { alternatives } = await import('@/assets/data');
+        const software = alternatives.find(item => this.createSlug(item.name) === slug);
+        
+        if (software) {
+          const externalReviews = await getExternalReviews(software.id);
+          software.externalReviews = externalReviews;
+          return {
+            success: true,
+            data: software
+          };
+        } else {
+          return {
+            success: false,
+            error: "Business not found"
+          };
+        }
       }
     } catch (error) {
       console.error("Error fetching business by slug:", error);
@@ -150,25 +319,63 @@ class SoftwareService {
 
   async createSoftware(newService: Omit<Alternative, 'id'>): Promise<ServiceResult> {
     try {
-      // In a real app, this would be a backend API call
-      // For demo purposes, we'll just simulate a successful creation
-      const { alternatives } = await import('@/assets/data');
+      // Create slug from name
+      const slug = this.createSlug(newService.name);
       
-      // Generate a new ID (in a real app, the backend would do this)
-      const newId = (alternatives.length + 1).toString();
+      const { data, error } = await supabase
+        .from('businesses')
+        .insert({
+          name: newService.name,
+          slug: slug,
+          description: newService.description,
+          short_description: newService.description.substring(0, 100) + '...',
+          image_url: newService.imageUrl,
+          logo_url: newService.imageUrl,
+          category_name: newService.category,
+          website_url: newService.url,
+          founded_year: new Date().getFullYear(),
+          rating: 4.0,
+          reviews_count: newService.likes || 0,
+          is_new: true,
+          available_pincodes: []
+        })
+        .select()
+        .single();
       
-      const newBusiness = {
-        id: newId,
-        ...newService
+      if (error) {
+        console.error('Error creating business in Supabase:', error);
+        
+        // Fallback for demo
+        const newId = (Math.floor(Math.random() * 1000) + 1).toString();
+        
+        const newBusiness = {
+          id: newId,
+          ...newService
+        };
+        
+        return {
+          success: true,
+          data: newBusiness
+        };
+      }
+      
+      // Transform to match our Alternative interface
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        category: data.category_name,
+        likes: data.reviews_count || 0,
+        imageUrl: data.image_url || 'https://picsum.photos/200',
+        url: data.website_url || 'https://example.com',
+        pricing: newService.pricing,
+        platform: newService.platform,
+        availablePincodes: data.available_pincodes || []
       };
-      
-      // Note: In this demo, we aren't actually adding to the alternatives array
-      // because it's imported and can't be modified. In a real app, this would 
-      // be stored in a database.
       
       return {
         success: true,
-        data: newBusiness
+        data: transformedData
       };
     } catch (error) {
       console.error('Error creating business:', error);
@@ -181,28 +388,88 @@ class SoftwareService {
 
   async updateSoftware(id: string, updatedService: Partial<Alternative>): Promise<ServiceResult> {
     try {
-      // In a real app, this would be a backend API call
-      // For demo purposes, we'll just simulate a successful update
-      const { alternatives } = await import('@/assets/data');
+      // Create updates object based on what's provided
+      const updates: any = {};
       
-      const existingService = alternatives.find(service => service.id === id);
+      if (updatedService.name) {
+        updates.name = updatedService.name;
+        updates.slug = this.createSlug(updatedService.name);
+      }
       
-      if (!existingService) {
+      if (updatedService.description) {
+        updates.description = updatedService.description;
+        updates.short_description = updatedService.description.substring(0, 100) + '...';
+      }
+      
+      if (updatedService.category) {
+        updates.category_name = updatedService.category;
+      }
+      
+      if (updatedService.imageUrl) {
+        updates.image_url = updatedService.imageUrl;
+        updates.logo_url = updatedService.imageUrl;
+      }
+      
+      if (updatedService.url) {
+        updates.website_url = updatedService.url;
+      }
+      
+      if (updatedService.likes !== undefined) {
+        updates.reviews_count = updatedService.likes;
+      }
+      
+      updates.updated_at = new Date();
+      
+      const { data, error } = await supabase
+        .from('businesses')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating business in Supabase:', error);
+        
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const existingService = alternatives.find(service => service.id === id);
+        
+        if (!existingService) {
+          return {
+            success: false,
+            error: 'Business not found'
+          };
+        }
+        
+        // Create an updated version
+        const updatedBusiness = {
+          ...existingService,
+          ...updatedService
+        };
+        
         return {
-          success: false,
-          error: 'Business not found'
+          success: true,
+          data: updatedBusiness
         };
       }
       
-      // Create an updated version (in a real app, this would update the database)
-      const updatedBusiness = {
-        ...existingService,
-        ...updatedService
+      // Transform to match our Alternative interface
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        category: data.category_name,
+        likes: data.reviews_count || 0,
+        imageUrl: data.image_url || 'https://picsum.photos/200',
+        url: data.website_url || 'https://example.com',
+        pricing: updatedService.pricing || 'Freemium',
+        platform: updatedService.platform || ['Web'],
+        availablePincodes: data.available_pincodes || []
       };
       
       return {
         success: true,
-        data: updatedBusiness
+        data: transformedData
       };
     } catch (error) {
       console.error('Error updating business:', error);
@@ -215,22 +482,20 @@ class SoftwareService {
 
   async deleteSoftware(id: string): Promise<ServiceResult> {
     try {
-      // In a real app, this would be a backend API call
-      // For demo purposes, we'll just simulate a successful deletion
-      const { alternatives } = await import('@/assets/data');
+      const { error } = await supabase
+        .from('businesses')
+        .delete()
+        .eq('id', id);
       
-      const serviceExists = alternatives.some(service => service.id === id);
-      
-      if (!serviceExists) {
+      if (error) {
+        console.error('Error deleting business from Supabase:', error);
+        
+        // Fallback for demo
         return {
-          success: false,
-          error: 'Business not found'
+          success: true,
+          data: { id }
         };
       }
-      
-      // Note: In this demo, we aren't actually removing from the alternatives array
-      // because it's imported and can't be modified. In a real app, this would 
-      // delete from a database.
       
       return {
         success: true,

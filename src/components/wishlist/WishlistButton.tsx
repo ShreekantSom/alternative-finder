@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Heart, Plus, Check, ListPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { wishlistService, Wishlist } from '@/lib/wishlistService';
 import { AuthService } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WishlistButtonProps {
   businessId: string;
@@ -53,9 +53,28 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
     
     setIsLoading(true);
     try {
-      const result = await wishlistService.getUserWishlists(user.userId);
-      if (result.success && result.data) {
-        setUserWishlists(result.data);
+      const { data, error } = await supabase
+        .from('wishlists')
+        .select('*')
+        .eq('user_id', user.userId);
+      
+      if (error) {
+        console.error("Error fetching wishlists from Supabase:", error);
+        const result = await wishlistService.getUserWishlists(user.userId);
+        if (result.success && result.data) {
+          setUserWishlists(result.data);
+        }
+      } else {
+        const transformedData = data.map(list => ({
+          id: list.id,
+          name: list.name,
+          description: list.description || '',
+          isPublic: list.is_public,
+          userId: list.user_id,
+          items: []
+        }));
+        
+        setUserWishlists(transformedData);
       }
     } catch (error) {
       console.error("Error fetching wishlists:", error);
@@ -68,19 +87,37 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
     setIsLoading(true);
     
     try {
-      const result = await wishlistService.addItemToWishlist(wishlistId, businessId, notes);
-      if (result.success) {
+      const { error } = await supabase
+        .from('wishlist_items')
+        .insert({
+          wishlist_id: wishlistId,
+          business_id: businessId,
+          notes: notes
+        });
+      
+      if (error) {
+        console.error("Error adding to wishlist in Supabase:", error);
+        const result = await wishlistService.addItemToWishlist(wishlistId, businessId, notes);
+        if (result.success) {
+          setIsAddDialogOpen(false);
+          setNotes('');
+          toast({
+            title: "Added to Wishlist",
+            description: "Business has been added to your wishlist"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to add to wishlist",
+            variant: "destructive"
+          });
+        }
+      } else {
         setIsAddDialogOpen(false);
         setNotes('');
         toast({
           title: "Added to Wishlist",
           description: "Business has been added to your wishlist"
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to add to wishlist",
-          variant: "destructive"
         });
       }
     } catch (error) {
@@ -114,15 +151,63 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
     }
     
     try {
-      const result = await wishlistService.createWishlist(user.userId, newListName, newListDescription);
-      if (result.success && result.data) {
-        setUserWishlists([...userWishlists, result.data]);
+      const { data, error } = await supabase
+        .from('wishlists')
+        .insert({
+          name: newListName,
+          description: newListDescription,
+          is_public: false,
+          user_id: user.userId
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error("Error creating wishlist in Supabase:", error);
+        const result = await wishlistService.createWishlist(user.userId, newListName, newListDescription);
+        if (result.success && result.data) {
+          setUserWishlists([...userWishlists, result.data]);
+          setIsNewListDialogOpen(false);
+          setNewListName('');
+          setNewListDescription('');
+          
+          await wishlistService.addItemToWishlist(result.data.id, businessId, notes);
+          
+          toast({
+            title: "Wishlist Created",
+            description: `${newListName} created and business added`
+          });
+          
+          setIsAddDialogOpen(false);
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to create wishlist",
+            variant: "destructive"
+          });
+        }
+      } else {
+        const newWishlist = {
+          id: data.id,
+          name: data.name,
+          description: data.description || '',
+          isPublic: data.is_public,
+          userId: data.user_id,
+          items: []
+        };
+        
+        setUserWishlists([...userWishlists, newWishlist]);
         setIsNewListDialogOpen(false);
         setNewListName('');
         setNewListDescription('');
         
-        // Add the business to the newly created wishlist
-        await wishlistService.addItemToWishlist(result.data.id, businessId, notes);
+        await supabase
+          .from('wishlist_items')
+          .insert({
+            wishlist_id: data.id,
+            business_id: businessId,
+            notes: notes
+          });
         
         toast({
           title: "Wishlist Created",
@@ -130,12 +215,6 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
         });
         
         setIsAddDialogOpen(false);
-      } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to create wishlist",
-          variant: "destructive"
-        });
       }
     } catch (error) {
       console.error("Error creating wishlist:", error);
@@ -188,7 +267,6 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
         </DropdownMenuContent>
       </DropdownMenu>
       
-      {/* Add to existing wishlist dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -235,7 +313,6 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
         </DialogContent>
       </Dialog>
       
-      {/* Create new wishlist dialog */}
       <Dialog open={isNewListDialogOpen} onOpenChange={setIsNewListDialogOpen}>
         <DialogContent>
           <DialogHeader>

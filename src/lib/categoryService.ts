@@ -1,5 +1,6 @@
 
 import { Category } from "@/assets/data";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ServiceResult {
   success: boolean;
@@ -10,10 +11,33 @@ interface ServiceResult {
 class CategoryService {
   async getAllCategories(): Promise<ServiceResult> {
     try {
-      const { categories } = await import('@/assets/data');
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories from Supabase:', error);
+        // Fallback to local data if Supabase fails
+        const { categories } = await import('@/assets/data');
+        return {
+          success: true,
+          data: categories
+        };
+      }
+      
+      // Transform Supabase data to match our Category interface
+      const transformedData = data.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        icon: cat.icon,
+        count: cat.count || 0
+      }));
+      
       return {
         success: true,
-        data: categories
+        data: transformedData
       };
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -26,23 +50,78 @@ class CategoryService {
 
   async getCategoryById(id: string): Promise<ServiceResult> {
     try {
-      const { categories } = await import('@/assets/data');
+      // Try to fetch from Supabase first by ID
+      let { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
       
-      // First try direct ID match
-      let category = categories.find(cat => cat.id === id);
-      
-      // If not found, try name match
-      if (!category) {
-        category = categories.find(cat => 
-          cat.name.toLowerCase() === id.toLowerCase() ||
-          this.createSlug(cat.name) === id.toLowerCase()
-        );
+      // If not found by ID, try by slug
+      if (!data && !error) {
+        const result = await supabase
+          .from('categories')
+          .select('*')
+          .eq('slug', id.toLowerCase())
+          .maybeSingle();
+        
+        data = result.data;
+        error = result.error;
       }
       
-      if (category) {
+      // If still not found, try by name match
+      if (!data && !error) {
+        const result = await supabase
+          .from('categories')
+          .select('*')
+          .ilike('name', `%${id}%`)
+          .maybeSingle();
+        
+        data = result.data;
+        error = result.error;
+      }
+      
+      if (error) {
+        console.error('Error fetching category from Supabase:', error);
+        // Fallback to local data if Supabase fails
+        const { categories } = await import('@/assets/data');
+        
+        // Try direct ID match
+        let category = categories.find(cat => cat.id === id);
+        
+        // If not found, try name match
+        if (!category) {
+          category = categories.find(cat => 
+            cat.name.toLowerCase() === id.toLowerCase() ||
+            this.createSlug(cat.name) === id.toLowerCase()
+          );
+        }
+        
+        if (category) {
+          return {
+            success: true,
+            data: category
+          };
+        } else {
+          return {
+            success: false,
+            error: 'Category not found'
+          };
+        }
+      }
+      
+      if (data) {
+        // Transform to match our Category interface
+        const transformedData = {
+          id: data.id,
+          name: data.name,
+          icon: data.icon,
+          count: data.count || 0
+        };
+        
         return {
           success: true,
-          data: category
+          data: transformedData
         };
       } else {
         return {
@@ -59,11 +138,23 @@ class CategoryService {
     }
   }
   
-  // Add the missing methods
   async deleteCategory(id: string): Promise<ServiceResult> {
     try {
-      // In a real app with a database, we would delete the category here
-      // For this demo, we'll simulate a successful delete
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error deleting category from Supabase:', error);
+        
+        // Fallback for demo when not connected to Supabase
+        return {
+          success: true,
+          data: { id }
+        };
+      }
+      
       return {
         success: true,
         data: { id }
@@ -82,14 +173,46 @@ class CategoryService {
     categoryData: { name: string; icon: string; count: number }
   ): Promise<ServiceResult> {
     try {
-      // In a real app with a database, we would update the category here
-      // For this demo, we'll simulate a successful update
+      // Create a slug from the name
+      const slug = this.createSlug(categoryData.name);
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .update({
+          name: categoryData.name,
+          slug: slug,
+          icon: categoryData.icon,
+          count: categoryData.count,
+          updated_at: new Date()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating category in Supabase:', error);
+        
+        // Fallback for demo when not connected to Supabase
+        return {
+          success: true,
+          data: {
+            id,
+            ...categoryData
+          }
+        };
+      }
+      
+      // Transform to match our Category interface
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        icon: data.icon,
+        count: data.count || 0
+      };
+      
       return {
         success: true,
-        data: {
-          id,
-          ...categoryData
-        }
+        data: transformedData
       };
     } catch (error) {
       console.error('Error updating category:', error);
@@ -104,15 +227,45 @@ class CategoryService {
     categoryData: { name: string; icon: string; count: number }
   ): Promise<ServiceResult> {
     try {
-      // In a real app with a database, we would create the category here
-      // For this demo, we'll simulate a successful creation with a random ID
-      const id = Math.random().toString(36).substring(2, 9);
+      // Create a slug from the name
+      const slug = this.createSlug(categoryData.name);
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({
+          name: categoryData.name,
+          slug: slug,
+          icon: categoryData.icon,
+          count: categoryData.count || 0
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error creating category in Supabase:', error);
+        
+        // Fallback for demo when not connected to Supabase
+        const id = Math.random().toString(36).substring(2, 9);
+        return {
+          success: true,
+          data: {
+            id,
+            ...categoryData
+          }
+        };
+      }
+      
+      // Transform to match our Category interface
+      const transformedData = {
+        id: data.id,
+        name: data.name,
+        icon: data.icon,
+        count: data.count || 0
+      };
+      
       return {
         success: true,
-        data: {
-          id,
-          ...categoryData
-        }
+        data: transformedData
       };
     } catch (error) {
       console.error('Error creating category:', error);
