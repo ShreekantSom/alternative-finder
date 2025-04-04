@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin, Award } from 'lucide-react';
@@ -93,7 +94,7 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
     >
-      <Link to={`/service/${alternative.id}`}>
+      <Link to={`/business/${alternative.id}`}>
         <Card className="h-full overflow-hidden hover:shadow-md transition-all duration-300 group">
           <div className="relative overflow-hidden aspect-video bg-secondary/30">
             <img

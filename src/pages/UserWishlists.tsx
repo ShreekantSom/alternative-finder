@@ -47,7 +47,6 @@ export interface WishlistItem {
   businessId: string;
   dateAdded: string;
   notes?: string;
-  alternative?: Alternative;
 }
 
 export function UserWishlists() {
@@ -486,13 +485,16 @@ export function UserWishlists() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedWishlist.items.map((item, idx) => (
-                        <AlternativeCard 
-                          key={item.businessId} 
-                          alternative={businessesData[item.businessId] || item.alternative || {}} 
-                          index={idx} 
-                        />
-                      ))}
+                      {selectedWishlist.items.map((item, idx) => {
+                        const businessData = businessesData[item.businessId];
+                        return businessData ? (
+                          <AlternativeCard 
+                            key={item.businessId} 
+                            alternative={businessData} 
+                            index={idx} 
+                          />
+                        ) : null;
+                      })}
                     </div>
                   )}
                 </div>

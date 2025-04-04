@@ -117,7 +117,7 @@ export function NewBrandSpotlights() {
                 </CardContent>
                 <CardFooter>
                   <Button asChild variant="default" className="w-full">
-                    <Link to={`/service/${brand.id}`}>
+                    <Link to={`/business/${brand.id}`}>
                       Explore Brand
                     </Link>
                   </Button>

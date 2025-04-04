@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -28,11 +29,45 @@ export function CategoryDetail() {
         const categoryResult = await categoryService.getCategoryById(categoryId);
         
         if (!categoryResult.success) {
+          // If category not found by ID, try finding by name/slug
+          const categoriesResult = await softwareService.getCategories();
+          
+          if (categoriesResult.success) {
+            const foundCategory = categoriesResult.data.find(
+              (cat: any) => 
+                cat.id === categoryId || 
+                cat.name.toLowerCase() === categoryId.toLowerCase() ||
+                categoryService.createSlug(cat.name) === categoryId
+            );
+            
+            if (foundCategory) {
+              setCategory(foundCategory);
+              
+              // Get services for this category
+              const servicesResult = await softwareService.getSoftwareByCategory(foundCategory.name);
+              
+              if (servicesResult.success) {
+                setServices(servicesResult.data);
+                
+                // Sort services by likes to get top rated
+                const topRatedServices = [...servicesResult.data]
+                  .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+                  .slice(0, 3);
+                
+                setTopServices(topRatedServices);
+              }
+              
+              setIsLoading(false);
+              return;
+            }
+          }
+          
           toast({
             title: "Category not found",
             description: "We couldn't find this category",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
         
