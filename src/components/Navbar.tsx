@@ -92,6 +92,38 @@ export default function Navbar() {
     }
   };
 
+  // Additional categories with subcategories
+  const additionalCategories = [
+    {
+      name: "BFSI",
+      subcategories: [
+        { name: "Banking", slug: "banking" },
+        { name: "Insurance", slug: "insurance" },
+        { name: "Investments", slug: "investments" },
+        { name: "Loans", slug: "loans" },
+        { name: "Payment Services", slug: "payment-services" }
+      ]
+    },
+    {
+      name: "Entertainment",
+      subcategories: [
+        { name: "Music Labels", slug: "music-labels" },
+        { name: "Music Streaming", slug: "music-streaming" },
+        { name: "Cinema Chains", slug: "cinema-chains" },
+        { name: "OTT Platforms", slug: "ott-platforms" }
+      ]
+    },
+    {
+      name: "Food & Beverages",
+      subcategories: [
+        { name: "Restaurants", slug: "restaurants" },
+        { name: "Cloud Kitchens", slug: "cloud-kitchens" },
+        { name: "Cafes", slug: "cafes" },
+        { name: "Fast Food", slug: "fast-food" }
+      ]
+    }
+  ];
+
   return (
     <div className={`sticky top-0 z-50 bg-background border-b transition-shadow duration-300 ${scrolled ? 'shadow-md' : ''}`}>
       <div className="container flex h-16 items-center justify-between">
@@ -101,9 +133,6 @@ export default function Navbar() {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-4">
-            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-              Home
-            </Link>
             <Link to="/discover" className="text-muted-foreground hover:text-foreground transition-colors">
               Discover
             </Link>
@@ -115,7 +144,7 @@ export default function Navbar() {
                   Categories <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuContent align="start" className="w-64">
                 <DropdownMenuLabel>Browse Categories</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <div className="max-h-[60vh] overflow-y-auto">
@@ -126,7 +155,10 @@ export default function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                   ))}
-                  {/* Additional categories */}
+                  
+                  {/* BFSI Section */}
+                  <DropdownMenuLabel className="mt-2">BFSI</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/category/banking" className="w-full">
                       Banking
@@ -135,6 +167,40 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/category/insurance" className="w-full">
                       Insurance
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/investments" className="w-full">
+                      Investments
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/loans" className="w-full">
+                      Loans
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  {/* Entertainment Section */}
+                  <DropdownMenuLabel className="mt-2">Entertainment</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/music-labels" className="w-full">
+                      Music Labels
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/music-streaming" className="w-full">
+                      Music Streaming
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/cinema-chains" className="w-full">
+                      Cinema Chains
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/category/ott-platforms" className="w-full">
+                      OTT Platforms
                     </Link>
                   </DropdownMenuItem>
                 </div>

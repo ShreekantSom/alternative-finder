@@ -1,134 +1,115 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from 'react';
+import { Loader2, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
-import { Star, Sparkles, Award } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alternative } from '@/assets/data';
+import { softwareService } from '@/lib/softwareService';
 
-// Interface for a brand
-interface Brand {
-  id: string;
-  name: string;
-  category: string;
-  shortDescription: string;
-  imageUrl: string;
-  isNew: boolean;
-  foundedYear: number;
+interface NewBrandSpotlightsProps {
+  onBusinessClick?: (businessId: string) => void;
 }
 
-// Example brand data
-const newBrands: Brand[] = [
-  {
-    id: "brand-1",
-    name: "EcoVibe",
-    category: "Sustainable Fashion",
-    shortDescription: "Eco-friendly clothing made from recycled materials with a focus on minimizing carbon footprint.",
-    imageUrl: "https://picsum.photos/seed/ecovibe/200/200",
-    isNew: true,
-    foundedYear: 2022
-  },
-  {
-    id: "brand-2",
-    name: "NutriBox",
-    category: "Health Foods",
-    shortDescription: "Plant-based meal subscription delivering nutritionally balanced meals right to your door.",
-    imageUrl: "https://picsum.photos/seed/nutribox/200/200",
-    isNew: true,
-    foundedYear: 2023
-  },
-  {
-    id: "brand-3",
-    name: "HomeSmart",
-    category: "Smart Home",
-    shortDescription: "Innovative home automation solutions that are easy to install and integrate with existing systems.",
-    imageUrl: "https://picsum.photos/seed/homesmart/200/200",
-    isNew: true,
-    foundedYear: 2022
-  }
-];
-
-export function NewBrandSpotlights() {
-  const [isLoading, setIsLoading] = useState(false);
-
-  return (
-    <section className="py-16 px-4 bg-slate-50 dark:bg-slate-900">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h2 className="text-3xl font-bold flex items-center gap-2 mb-2">
-              <Sparkles className="h-6 w-6 text-yellow-500" />
-              New Brand Spotlights
-            </h2>
-            <p className="text-muted-foreground max-w-2xl">
-              Discover the latest additions to our directory - innovative brands making waves in the D2C space.
-            </p>
+export default function NewBrandSpotlights({ onBusinessClick }: NewBrandSpotlightsProps) {
+  const [newBrands, setNewBrands] = useState<Alternative[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const fetchNewBrands = async () => {
+      try {
+        const result = await softwareService.getAllSoftware();
+        if (result.success) {
+          // Get the most recent brands (for demo, just take a few random ones)
+          const sortedBrands = result.data.sort(() => Math.random() - 0.5).slice(0, 6);
+          setNewBrands(sortedBrands);
+        }
+      } catch (error) {
+        console.error("Error fetching new brands:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchNewBrands();
+  }, []);
+  
+  const handleBrandClick = (businessId: string) => {
+    if (onBusinessClick) {
+      onBusinessClick(businessId);
+    } else {
+      navigate(`/business/${businessId}`);
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <section className="py-12 px-4">
+        <div className="container mx-auto">
+          <div className="text-center">
+            <Loader2 className="w-6 h-6 mx-auto animate-spin" />
+            <p className="mt-2 text-muted-foreground">Loading new brands...</p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/collections/new-brands">View All New Brands</Link>
+        </div>
+      </section>
+    );
+  }
+  
+  return (
+    <section className="py-12 px-4 bg-muted/30">
+      <div className="container mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold">New Brand Spotlights</h2>
+            <p className="text-muted-foreground">Discover the newest brands on our platform</p>
+          </div>
+          <Button variant="ghost" className="hidden sm:flex items-center" asChild>
+            <Link to="/discover?sort=newest">
+              View all <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {isLoading ? (
-            // Loading skeletons
-            Array(3).fill(0).map((_, i) => (
-              <Card key={`skeleton-${i}`} className="overflow-hidden">
-                <CardHeader className="pb-0">
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-6 w-full mb-1" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-[200px] w-full mb-4" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3" />
-                </CardContent>
-                <CardFooter>
-                  <Skeleton className="h-10 w-full" />
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            // Actual brand cards
-            newBrands.map(brand => (
-              <Card key={brand.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <Badge variant="secondary" className="mb-2">
-                      {brand.category}
-                    </Badge>
-                    <Badge variant="outline" className="bg-yellow-100 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300 flex items-center gap-1">
-                      <Star className="h-3 w-3" /> New Brand
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-xl">{brand.name}</CardTitle>
-                  <p className="text-xs text-muted-foreground">Founded {brand.foundedYear}</p>
-                </CardHeader>
-                <CardContent className="pb-4">
-                  <div className="relative w-full h-48 mb-4 overflow-hidden rounded-md">
-                    <img 
-                      src={brand.imageUrl} 
-                      alt={brand.name} 
-                      className="w-full h-full object-cover transition-transform hover:scale-105"
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{brand.shortDescription}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild variant="default" className="w-full">
-                    <Link to={`/business/${brand.id}`}>
-                      Explore Brand
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {newBrands.map(brand => (
+            <Card 
+              key={brand.id} 
+              className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleBrandClick(brand.id)}
+            >
+              <div className="relative h-40">
+                <img 
+                  src={brand.imageUrl} 
+                  alt={brand.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                  New
+                </div>
+              </div>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-lg mb-1">{brand.name}</h3>
+                <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
+                  {brand.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs bg-secondary px-2 py-1 rounded">{brand.category}</span>
+                  <div className="text-xs text-muted-foreground">{brand.likes} likes</div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        <div className="mt-8 text-center sm:hidden">
+          <Button asChild>
+            <Link to="/discover?sort=newest">
+              View all new brands
+            </Link>
+          </Button>
         </div>
       </div>
     </section>
   );
 }
-
-export default NewBrandSpotlights;

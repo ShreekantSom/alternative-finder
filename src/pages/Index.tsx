@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import AlternativesList from '@/components/AlternativesList';
@@ -12,6 +13,7 @@ import AdvancedFilters from '@/components/filters/AdvancedFilters';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
 import { useToast } from "@/components/ui/use-toast";
+
 export function Index() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [alternatives, setAlternatives] = useState<Alternative[]>([]);
@@ -23,13 +25,14 @@ export function Index() {
     location: 'All',
     sustainability: false
   });
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
+  
   useEffect(() => {
     fetchAlternatives();
   }, [selectedCategory, advancedFilters]);
+  
   useEffect(() => {
     if (location.state?.searchResults) {
       setSearchResults(location.state.searchResults);
@@ -45,6 +48,7 @@ export function Index() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+  
   const fetchAlternatives = async () => {
     setIsLoading(true);
     try {
@@ -91,13 +95,16 @@ export function Index() {
       setIsLoading(false);
     }
   };
+  
   const extractPrice = (item: Alternative): number => {
     return parseInt(item.id) * 100;
   };
+  
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setShowSearchResults(false);
   };
+  
   const handleSearch = (results: Alternative[]) => {
     setSearchResults(results);
     setShowSearchResults(true);
@@ -110,9 +117,15 @@ export function Index() {
       }
     }, 100);
   };
+  
   const handleAdvancedFilterChange = (filters: any) => {
     setAdvancedFilters(filters);
   };
+  
+  const handleBusinessClick = (businessId: string) => {
+    navigate(`/business/${businessId}`);
+  };
+  
   return <div className="min-h-screen">
       <Navbar />
       <main>
@@ -133,13 +146,18 @@ export function Index() {
             
             <CuratedCollections />
             
-            <NewBrandSpotlights />
+            <NewBrandSpotlights onBusinessClick={handleBusinessClick} />
             
             <div className="container mx-auto px-4 py-8">
               <AdvancedFilters onChange={handleAdvancedFilterChange} />
               
               
-              <AlternativesList alternatives={alternatives} isLoading={isLoading} selectedCategory={selectedCategory} />
+              <AlternativesList 
+                alternatives={alternatives} 
+                isLoading={isLoading} 
+                selectedCategory={selectedCategory} 
+                onBusinessClick={handleBusinessClick}
+              />
             </div>
             
             <HomeNews />
@@ -147,4 +165,5 @@ export function Index() {
       </main>
     </div>;
 }
+
 export default Index;

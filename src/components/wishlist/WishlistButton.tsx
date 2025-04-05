@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Heart, Plus, Check, ListPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,13 +66,17 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
           setUserWishlists(result.data);
         }
       } else {
-        const transformedData = data.map(list => ({
+        // Transform data to match Wishlist interface
+        const transformedData: Wishlist[] = data.map(list => ({
           id: list.id,
           name: list.name,
           description: list.description || '',
           isPublic: list.is_public,
           userId: list.user_id,
-          items: []
+          items: [],
+          createdAt: list.created_at || new Date().toISOString(),
+          updatedAt: list.updated_at || new Date().toISOString(),
+          shareableLink: list.is_public ? `${window.location.origin}/shared-wishlist/${list.id}` : undefined
         }));
         
         setUserWishlists(transformedData);
@@ -187,13 +192,16 @@ export function WishlistButton({ businessId, variant = "outline", size = "defaul
           });
         }
       } else {
-        const newWishlist = {
+        // Create properly typed new wishlist object
+        const newWishlist: Wishlist = {
           id: data.id,
           name: data.name,
           description: data.description || '',
           isPublic: data.is_public,
           userId: data.user_id,
-          items: []
+          items: [],
+          createdAt: data.created_at || new Date().toISOString(),
+          updatedAt: data.updated_at || new Date().toISOString()
         };
         
         setUserWishlists([...userWishlists, newWishlist]);

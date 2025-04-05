@@ -1,4 +1,3 @@
-
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +6,16 @@ interface ServiceResult {
   success: boolean;
   data?: Alternative[] | Alternative | any;
   error?: string;
+}
+
+interface TransformedBusiness extends Omit<Alternative, 'externalReviews'> {
+  externalReviews?: Array<{
+    source: string;
+    rating: number;
+    count: number;
+    url: string;
+    verified: boolean;
+  }>;
 }
 
 class SoftwareService {
@@ -38,7 +47,7 @@ class SoftwareService {
           likes: business.reviews_count || 0,
           imageUrl: business.image_url || 'https://picsum.photos/200',
           url: business.website_url || 'https://example.com',
-          pricing: 'Freemium', // Default value
+          pricing: this.mapPricing(business.pricing || 'Freemium'),
           platform: ['Web'], // Default value
           availablePincodes: business.available_pincodes || []
         }));
@@ -62,6 +71,12 @@ class SoftwareService {
         error: 'Failed to load businesses'
       };
     }
+  }
+
+  // Helper function to ensure pricing is one of the allowed values
+  mapPricing(pricing: string): "Freemium" | "Free" | "Paid" | "Subscription" | "Open Source" {
+    const validPricings = ["Freemium", "Free", "Paid", "Subscription", "Open Source"];
+    return validPricings.includes(pricing) ? pricing as any : "Freemium";
   }
 
   async getSoftwareByCategory(category: string): Promise<ServiceResult> {
@@ -94,7 +109,7 @@ class SoftwareService {
           likes: business.reviews_count || 0,
           imageUrl: business.image_url || 'https://picsum.photos/200',
           url: business.website_url || 'https://example.com',
-          pricing: 'Freemium', // Default value
+          pricing: this.mapPricing(business.pricing || 'Freemium'),
           platform: ['Web'], // Default value
           availablePincodes: business.available_pincodes || []
         }));
@@ -159,7 +174,7 @@ class SoftwareService {
           likes: data.reviews_count || 0,
           imageUrl: data.image_url || 'https://picsum.photos/200',
           url: data.website_url || 'https://example.com',
-          pricing: 'Freemium', // Default value
+          pricing: this.mapPricing(data.pricing || 'Freemium'),
           platform: ['Web'], // Default value
           availablePincodes: data.available_pincodes || []
         };
@@ -211,10 +226,13 @@ class SoftwareService {
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
-          software.externalReviews = externalReviews;
+          const enhancedSoftware = {
+            ...software,
+            externalReviews
+          };
           return {
             success: true,
-            data: software
+            data: enhancedSoftware
           };
         } else {
           return {
@@ -225,8 +243,8 @@ class SoftwareService {
       }
       
       if (data) {
-        // Transform to match our Alternative interface
-        const transformedData = {
+        // Transform to match our Alternative interface with externalReviews
+        const transformedData: TransformedBusiness = {
           id: data.id,
           name: data.name,
           description: data.description,
@@ -234,7 +252,7 @@ class SoftwareService {
           likes: data.reviews_count || 0,
           imageUrl: data.image_url || 'https://picsum.photos/200',
           url: data.website_url || 'https://example.com',
-          pricing: 'Freemium', // Default value
+          pricing: this.mapPricing(data.pricing || 'Freemium'),
           platform: ['Web'], // Default value
           availablePincodes: data.available_pincodes || []
         };
@@ -253,10 +271,13 @@ class SoftwareService {
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
-          software.externalReviews = externalReviews;
+          const enhancedSoftware = {
+            ...software,
+            externalReviews
+          };
           return {
             success: true,
-            data: software
+            data: enhancedSoftware
           };
         } else {
           return {
@@ -337,7 +358,8 @@ class SoftwareService {
           rating: 4.0,
           reviews_count: newService.likes || 0,
           is_new: true,
-          available_pincodes: []
+          available_pincodes: [],
+          pricing: newService.pricing
         })
         .select()
         .single();
@@ -368,7 +390,7 @@ class SoftwareService {
         likes: data.reviews_count || 0,
         imageUrl: data.image_url || 'https://picsum.photos/200',
         url: data.website_url || 'https://example.com',
-        pricing: newService.pricing,
+        pricing: this.mapPricing(data.pricing || newService.pricing),
         platform: newService.platform,
         availablePincodes: data.available_pincodes || []
       };
@@ -462,7 +484,7 @@ class SoftwareService {
         likes: data.reviews_count || 0,
         imageUrl: data.image_url || 'https://picsum.photos/200',
         url: data.website_url || 'https://example.com',
-        pricing: updatedService.pricing || 'Freemium',
+        pricing: this.mapPricing(data.pricing || updatedService.pricing),
         platform: updatedService.platform || ['Web'],
         availablePincodes: data.available_pincodes || []
       };

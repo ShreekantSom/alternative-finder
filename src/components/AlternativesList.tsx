@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Alternative } from '@/assets/data';
@@ -8,17 +9,21 @@ import LoadMoreButton from './pagination/LoadMoreButton';
 import AlternativesPagination from './pagination/AlternativesPagination';
 import { useAlternativesFiltering } from '@/hooks/useAlternativesFiltering';
 import { useAlternativesLoader } from '@/hooks/useAlternativesLoader';
+
 interface AlternativesListProps {
   alternatives: Alternative[];
   isLoading: boolean;
   searchResults?: Alternative[];
   selectedCategory?: string;
+  onBusinessClick?: (businessId: string) => void;
 }
+
 export function AlternativesList({
   alternatives: providedAlternatives,
   isLoading,
   searchResults = [],
-  selectedCategory = 'All'
+  selectedCategory = 'All',
+  onBusinessClick
 }: AlternativesListProps) {
   // Use custom hooks for filtering and loading alternatives
   const {
@@ -28,6 +33,7 @@ export function AlternativesList({
     filterCategory,
     handleFilterChange
   } = useAlternativesFiltering(providedAlternatives, searchResults, selectedCategory);
+  
   const {
     currentPage,
     hasMore,
@@ -60,10 +66,12 @@ export function AlternativesList({
       };
     }
   };
+  
   const {
     title,
     description
   } = getHeaderContent();
+  
   const handleLoadMore = () => {
     loadMoreAlternatives(setAllAlternatives, filterCategory);
   };
@@ -79,13 +87,17 @@ export function AlternativesList({
         </div>
       </section>;
   }
+  
   return <section className="px-4 py-0">
       <div className="container max-w-7xl mx-auto">
         {/* Header with filter toggle */}
         <AlternativesHeader title={title} description={description} filterComponent={<AlternativesFilter selectedCategory={selectedCategory} onFilterChange={handleFilterChange} searchResultsExist={searchResults.length > 0} />} />
         
         {/* Alternatives grid */}
-        <AlternativesGrid alternatives={filteredAlternatives} />
+        <AlternativesGrid 
+          alternatives={filteredAlternatives} 
+          onBusinessClick={onBusinessClick}
+        />
         
         {/* Load more button */}
         {filteredAlternatives.length > 0 && !isLoading && !loadingMore && hasMore && searchResults.length === 0 && <LoadMoreButton hasMore={hasMore} isLoading={loadingMore} onLoadMore={handleLoadMore} />}
@@ -103,4 +115,5 @@ export function AlternativesList({
       </div>
     </section>;
 }
+
 export default AlternativesList;

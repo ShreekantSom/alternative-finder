@@ -1,47 +1,42 @@
 
-import { motion } from 'framer-motion';
-import AlternativeCard from '@/components/AlternativeCard';
 import { Alternative } from '@/assets/data';
+import { Link, useNavigate } from 'react-router-dom';
+import AlternativeCard from '@/components/AlternativeCard';
 
 interface AlternativesGridProps {
   alternatives: Alternative[];
+  onBusinessClick?: (businessId: string) => void;
 }
 
-export function AlternativesGrid({ alternatives }: AlternativesGridProps) {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+export function AlternativesGrid({ alternatives, onBusinessClick }: AlternativesGridProps) {
+  const navigate = useNavigate();
+  
+  const handleClick = (businessId: string) => {
+    if (onBusinessClick) {
+      onBusinessClick(businessId);
+    } else {
+      navigate(`/business/${businessId}`);
     }
   };
-
-  if (alternatives.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <h3 className="text-xl font-medium mb-2">No alternatives found</h3>
-        <p className="text-muted-foreground">Try adjusting your filters to find more results</p>
-      </div>
-    );
-  }
-
+  
   return (
-    <motion.div 
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {alternatives.map((alternative, index) => (
-        <AlternativeCard 
-          key={`${alternative.id}-${index}`} 
-          alternative={alternative} 
-          index={index}
-        />
-      ))}
-    </motion.div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      {alternatives.length === 0 ? (
+        <div className="col-span-full py-16 text-center">
+          <p className="text-muted-foreground">No alternatives found matching your criteria.</p>
+        </div>
+      ) : (
+        alternatives.map((alternative) => (
+          <div 
+            key={alternative.id} 
+            className="cursor-pointer" 
+            onClick={() => handleClick(alternative.id)}
+          >
+            <AlternativeCard alternative={alternative} />
+          </div>
+        ))
+      )}
+    </div>
   );
 }
 
