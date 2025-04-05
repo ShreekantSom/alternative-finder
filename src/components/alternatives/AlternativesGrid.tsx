@@ -26,13 +26,13 @@ export function AlternativesGrid({ alternatives, onBusinessClick }: Alternatives
           <p className="text-muted-foreground">No alternatives found matching your criteria.</p>
         </div>
       ) : (
-        alternatives.map((alternative) => (
+        alternatives.map((alternative, index) => (
           <div 
             key={alternative.id} 
             className="cursor-pointer" 
             onClick={() => handleClick(alternative.id)}
           >
-            <AlternativeCard alternative={alternative} />
+            <AlternativeCard alternative={alternative} index={index} />
           </div>
         ))
       )}

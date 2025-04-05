@@ -44,12 +44,14 @@ class SoftwareService {
           name: business.name,
           description: business.description,
           category: business.category_name,
+          subcategory: business.subcategory,
           likes: business.reviews_count || 0,
           imageUrl: business.image_url || 'https://picsum.photos/200',
           url: business.website_url || 'https://example.com',
           pricing: this.mapPricing(business.pricing || 'Freemium'),
           platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || []
+          availablePincodes: business.available_pincodes || [],
+          tags: business.tags || []
         }));
         
         return {
@@ -106,12 +108,14 @@ class SoftwareService {
           name: business.name,
           description: business.description,
           category: business.category_name,
+          subcategory: business.subcategory,
           likes: business.reviews_count || 0,
           imageUrl: business.image_url || 'https://picsum.photos/200',
           url: business.website_url || 'https://example.com',
           pricing: this.mapPricing(business.pricing || 'Freemium'),
           platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || []
+          availablePincodes: business.available_pincodes || [],
+          tags: business.tags || []
         }));
         
         return {
@@ -171,12 +175,14 @@ class SoftwareService {
           name: data.name,
           description: data.description,
           category: data.category_name,
+          subcategory: data.subcategory,
           likes: data.reviews_count || 0,
           imageUrl: data.image_url || 'https://picsum.photos/200',
           url: data.website_url || 'https://example.com',
           pricing: this.mapPricing(data.pricing || 'Freemium'),
           platform: ['Web'], // Default value
-          availablePincodes: data.available_pincodes || []
+          availablePincodes: data.available_pincodes || [],
+          tags: data.tags || []
         };
         
         return {
@@ -249,12 +255,14 @@ class SoftwareService {
           name: data.name,
           description: data.description,
           category: data.category_name,
+          subcategory: data.subcategory,
           likes: data.reviews_count || 0,
           imageUrl: data.image_url || 'https://picsum.photos/200',
           url: data.website_url || 'https://example.com',
           pricing: this.mapPricing(data.pricing || 'Freemium'),
           platform: ['Web'], // Default value
-          availablePincodes: data.available_pincodes || []
+          availablePincodes: data.available_pincodes || [],
+          tags: data.tags || []
         };
         
         const externalReviews = await getExternalReviews(data.id);
@@ -387,12 +395,14 @@ class SoftwareService {
         name: data.name,
         description: data.description,
         category: data.category_name,
+        subcategory: data.subcategory,
         likes: data.reviews_count || 0,
         imageUrl: data.image_url || 'https://picsum.photos/200',
         url: data.website_url || 'https://example.com',
         pricing: this.mapPricing(data.pricing || newService.pricing),
         platform: newService.platform,
-        availablePincodes: data.available_pincodes || []
+        availablePincodes: data.available_pincodes || [],
+        tags: data.tags || []
       };
       
       return {
@@ -426,6 +436,10 @@ class SoftwareService {
       if (updatedService.category) {
         updates.category_name = updatedService.category;
       }
+
+      if (updatedService.subcategory) {
+        updates.subcategory = updatedService.subcategory;
+      }
       
       if (updatedService.imageUrl) {
         updates.image_url = updatedService.imageUrl;
@@ -438,6 +452,10 @@ class SoftwareService {
       
       if (updatedService.likes !== undefined) {
         updates.reviews_count = updatedService.likes;
+      }
+
+      if (updatedService.tags) {
+        updates.tags = updatedService.tags;
       }
       
       updates.updated_at = new Date();
@@ -481,12 +499,14 @@ class SoftwareService {
         name: data.name,
         description: data.description,
         category: data.category_name,
+        subcategory: data.subcategory,
         likes: data.reviews_count || 0,
         imageUrl: data.image_url || 'https://picsum.photos/200',
         url: data.website_url || 'https://example.com',
         pricing: this.mapPricing(data.pricing || updatedService.pricing),
         platform: updatedService.platform || ['Web'],
-        availablePincodes: data.available_pincodes || []
+        availablePincodes: data.available_pincodes || [],
+        tags: data.tags || []
       };
       
       return {
@@ -547,6 +567,204 @@ class SoftwareService {
     }
     
     return result;
+  }
+
+  async getSoftwareByTag(tag: string): Promise<ServiceResult> {
+    try {
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .contains('tags', [tag])
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching businesses by tag from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => 
+          item.tags && item.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+        );
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
+      
+      if (data.length > 0) {
+        // Transform Supabase data to match our Alternative interface
+        const transformedData = data.map(business => ({
+          id: business.id,
+          name: business.name,
+          description: business.description,
+          category: business.category_name,
+          subcategory: business.subcategory,
+          likes: business.reviews_count || 0,
+          imageUrl: business.image_url || 'https://picsum.photos/200',
+          url: business.website_url || 'https://example.com',
+          pricing: this.mapPricing(business.pricing || 'Freemium'),
+          platform: ['Web'], // Default value
+          availablePincodes: business.available_pincodes || [],
+          tags: business.tags || []
+        }));
+        
+        return {
+          success: true,
+          data: transformedData
+        };
+      } else {
+        // If no data is found in Supabase, fallback to mock data
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => 
+          item.tags && item.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+        );
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching businesses by tag:', error);
+      return {
+        success: false,
+        error: 'Failed to load businesses by tag'
+      };
+    }
+  }
+
+  async getSoftwareBySubcategory(subcategory: string): Promise<ServiceResult> {
+    try {
+      // Try to fetch from Supabase first
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('subcategory', subcategory)
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching businesses by subcategory from Supabase:', error);
+        // Fallback to mock data if Supabase fails
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => 
+          item.subcategory && item.subcategory.toLowerCase() === subcategory.toLowerCase()
+        );
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
+      
+      if (data.length > 0) {
+        // Transform Supabase data to match our Alternative interface
+        const transformedData = data.map(business => ({
+          id: business.id,
+          name: business.name,
+          description: business.description,
+          category: business.category_name,
+          subcategory: business.subcategory,
+          likes: business.reviews_count || 0,
+          imageUrl: business.image_url || 'https://picsum.photos/200',
+          url: business.website_url || 'https://example.com',
+          pricing: this.mapPricing(business.pricing || 'Freemium'),
+          platform: ['Web'], // Default value
+          availablePincodes: business.available_pincodes || [],
+          tags: business.tags || []
+        }));
+        
+        return {
+          success: true,
+          data: transformedData
+        };
+      } else {
+        // If no data is found in Supabase, fallback to mock data
+        const { alternatives } = await import('@/assets/data');
+        const filteredAlternatives = alternatives.filter(item => 
+          item.subcategory && item.subcategory.toLowerCase() === subcategory.toLowerCase()
+        );
+        return {
+          success: true,
+          data: filteredAlternatives
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching businesses by subcategory:', error);
+      return {
+        success: false,
+        error: 'Failed to load businesses by subcategory'
+      };
+    }
+  }
+
+  async searchTagsAndSubcategories(query: string): Promise<ServiceResult> {
+    try {
+      // In a real app, this would query the database for tags and subcategories
+      // For now, we'll return some mock data
+      const mockTags = [
+        { id: 'tag1', name: 'Fast Delivery', count: 12 },
+        { id: 'tag2', name: 'Low Fees', count: 8 },
+        { id: 'tag3', name: 'Free Shipping', count: 15 },
+        { id: 'tag4', name: 'Premium Support', count: 5 },
+        { id: 'tag5', name: 'Student Discount', count: 9 },
+        { id: 'tag6', name: 'Free Trial', count: 14 },
+        { id: 'tag7', name: 'Eco-Friendly', count: 7 }
+      ];
+      
+      const mockSubcategories = [
+        { id: 'sub1', name: 'Music Streaming', parentCategory: 'Entertainment' },
+        { id: 'sub2', name: 'Video Streaming', parentCategory: 'Entertainment' },
+        { id: 'sub3', name: 'Food Ordering', parentCategory: 'Food Delivery' },
+        { id: 'sub4', name: 'Meal Preparation', parentCategory: 'Meal Kits' },
+        { id: 'sub5', name: 'Banking', parentCategory: 'BFSI' },
+        { id: 'sub6', name: 'Insurance', parentCategory: 'BFSI' },
+        { id: 'sub7', name: 'Investing', parentCategory: 'BFSI' },
+        { id: 'sub8', name: 'Music Labels', parentCategory: 'Entertainment' },
+        { id: 'sub9', name: 'Cinema Chains', parentCategory: 'Entertainment' }
+      ];
+      
+      const filteredTags = mockTags.filter(tag => 
+        tag.name.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      const filteredSubcategories = mockSubcategories.filter(sub => 
+        sub.name.toLowerCase().includes(query.toLowerCase()) || 
+        sub.parentCategory.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      return {
+        success: true,
+        data: {
+          tags: filteredTags,
+          subcategories: filteredSubcategories
+        }
+      };
+    } catch (error) {
+      console.error('Error searching tags and subcategories:', error);
+      return {
+        success: false,
+        error: 'Failed to search tags and subcategories'
+      };
+    }
+  }
+
+  // Check if a business is available in a specific pincode
+  async checkPincodeAvailability(serviceId: string, pincode: string): Promise<boolean> {
+    try {
+      const result = await this.getSoftwareById(serviceId);
+      if (result.success && result.data) {
+        // In a real app, this would check against the business's available pincodes
+        // For demo purposes, we'll simulate with simple logic
+        const service = result.data as Alternative;
+        if (service.availablePincodes) {
+          return service.availablePincodes.includes(pincode);
+        }
+        // Default to available if no pincodes are specified
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking pincode availability:", error);
+      return false;
+    }
   }
 }
 

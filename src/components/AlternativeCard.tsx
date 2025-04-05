@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Share2, ExternalLink, Tag, Star, Truck, Store, MapPin, Award } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Tag as TagIcon, Star, Truck, Store, MapPin, Award } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { motion } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import {
   CardDescription 
 } from "@/components/ui/card";
 import { FeatureDisplay } from '@/components/service/FeatureDisplay';
+import { BusinessTags } from '@/components/service/BusinessTags';
 
 interface AlternativeCardProps {
   alternative: Alternative;
@@ -43,7 +44,7 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    const serviceUrl = `${window.location.origin}/service/${alternative.id}`;
+    const serviceUrl = `${window.location.origin}/business/${alternative.id}`;
     navigator.clipboard.writeText(serviceUrl);
     
     toast({
@@ -110,7 +111,7 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
             
             <div className="absolute top-3 left-3">
               <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1">
-                <Tag size={12} />
+                <TagIcon size={12} />
                 {alternative.category}
               </Badge>
             </div>
@@ -190,6 +191,16 @@ export function AlternativeCard({ alternative, index }: AlternativeCardProps) {
                   </Badge>
                 )}
               </div>
+            )}
+            
+            {/* Show tags */}
+            {alternative.tags && alternative.tags.length > 0 && (
+              <BusinessTags 
+                business={alternative} 
+                className="mt-2" 
+                limit={3} 
+                showIcon={false}
+              />
             )}
           </CardContent>
           

@@ -72,7 +72,7 @@ export default function NewBrandSpotlights({ onBusinessClick }: NewBrandSpotligh
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {newBrands.map(brand => (
+          {newBrands.map((brand, index) => (
             <Card 
               key={brand.id} 
               className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"

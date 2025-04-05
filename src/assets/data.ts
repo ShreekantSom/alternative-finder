@@ -1,3 +1,4 @@
+
 // Sample data for companies/brands/businesses
 export interface Alternative {
   id: string;
@@ -27,6 +28,8 @@ export interface Alternative {
     instagram?: string;
     youtube?: string;
   };
+  tags?: string[];
+  subcategory?: string;
 }
 
 export interface Category {
@@ -55,7 +58,9 @@ export const alternatives: Alternative[] = [
       facebook: 'https://www.facebook.com/instacart',
       twitter: 'https://twitter.com/instacart',
       instagram: 'https://www.instagram.com/instacart'
-    }
+    },
+    tags: ['Fast Delivery', 'Local Stores', 'Grocery', 'Convenience'],
+    subcategory: 'Grocery Delivery'
   },
   {
     id: '2',
@@ -75,7 +80,9 @@ export const alternatives: Alternative[] = [
       facebook: 'https://www.facebook.com/doordash',
       twitter: 'https://twitter.com/doordash',
       instagram: 'https://www.instagram.com/doordash'
-    }
+    },
+    tags: ['Fast Delivery', 'Restaurant Delivery', 'Wide Selection', 'Local Favorites'],
+    subcategory: 'Restaurant Delivery'
   },
   {
     id: '3',
@@ -103,7 +110,9 @@ export const alternatives: Alternative[] = [
       facebook: 'https://www.facebook.com/uber',
       twitter: 'https://twitter.com/uber',
       linkedin: 'https://www.linkedin.com/company/uber-com/'
-    }
+    },
+    tags: ['Ride-Sharing', 'Transportation', 'Food Delivery', 'Global Service'],
+    subcategory: 'Ride-Hailing'
   },
   {
     id: '4',
@@ -122,7 +131,9 @@ export const alternatives: Alternative[] = [
       facebook: 'https://www.facebook.com/netflix',
       twitter: 'https://twitter.com/netflix',
       instagram: 'https://www.instagram.com/netflix'
-    }
+    },
+    tags: ['Streaming', 'Original Content', 'Movies', 'TV Shows'],
+    subcategory: 'Video Streaming'
   },
   {
     id: '5',
@@ -141,7 +152,9 @@ export const alternatives: Alternative[] = [
     socialLinks: {
       facebook: 'https://www.facebook.com/HelloFresh',
       instagram: 'https://www.instagram.com/hellofresh'
-    }
+    },
+    tags: ['Meal Kits', 'Fresh Ingredients', 'Easy Cooking', 'Subscription Box'],
+    subcategory: 'Meal Plans'
   },
   {
     id: '6',
@@ -160,7 +173,9 @@ export const alternatives: Alternative[] = [
       facebook: 'https://www.facebook.com/Spotify',
       twitter: 'https://twitter.com/spotify',
       instagram: 'https://www.instagram.com/spotify'
-    }
+    },
+    tags: ['Music Streaming', 'Podcasts', 'Playlists', 'Audio Content'],
+    subcategory: 'Music Streaming'
   }
 ];
 
@@ -172,7 +187,10 @@ export const categories: Category[] = [
   { id: '5', name: 'Meal Kits', icon: 'package', count: 18 },
   { id: '6', name: 'Grocery', icon: 'shopping-basket', count: 27 },
   { id: '7', name: 'Health & Wellness', icon: 'heart', count: 35 },
-  { id: '8', name: 'Fashion', icon: 'shirt', count: 29 }
+  { id: '8', name: 'Fashion', icon: 'shirt', count: 29 },
+  { id: '9', name: 'BFSI', icon: 'building-bank', count: 38 },
+  { id: '10', name: 'Education', icon: 'book-open', count: 29 },
+  { id: '11', name: 'Healthcare', icon: 'heart-pulse', count: 33 }
 ];
 
 export const featuredAlternative: Alternative = {
@@ -185,5 +203,7 @@ export const featuredAlternative: Alternative = {
   pricing: 'Subscription',
   imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Amazon_Prime_Logo.svg/2560px-Amazon_Prime_Logo.svg.png',
   url: 'https://www.amazon.com/prime',
-  availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002']
+  availablePincodes: ['110001', '110002', '400001', '400002', '560001', '560002'],
+  tags: ['Fast Shipping', 'Video Streaming', 'Music Streaming', 'Exclusive Deals'],
+  subcategory: 'E-commerce Plus'
 };
