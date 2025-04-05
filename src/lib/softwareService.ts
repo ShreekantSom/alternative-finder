@@ -1,6 +1,8 @@
+
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
 import { supabase } from '@/integrations/supabase/client';
+import { mapPricing, createSlug, getExternalReviews, transformBusinessToAlternative } from './softwareUtils';
 
 interface ServiceResult {
   success: boolean;
@@ -39,20 +41,7 @@ class SoftwareService {
       
       if (data.length > 0) {
         // Transform Supabase data to match our Alternative interface
-        const transformedData = data.map(business => ({
-          id: business.id,
-          name: business.name,
-          description: business.description,
-          category: business.category_name,
-          subcategory: business.subcategory,
-          likes: business.reviews_count || 0,
-          imageUrl: business.image_url || 'https://picsum.photos/200',
-          url: business.website_url || 'https://example.com',
-          pricing: this.mapPricing(business.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || [],
-          tags: business.tags || []
-        }));
+        const transformedData = data.map(business => transformBusinessToAlternative(business));
         
         return {
           success: true,
@@ -73,12 +62,6 @@ class SoftwareService {
         error: 'Failed to load businesses'
       };
     }
-  }
-
-  // Helper function to ensure pricing is one of the allowed values
-  mapPricing(pricing: string): "Freemium" | "Free" | "Paid" | "Subscription" | "Open Source" {
-    const validPricings = ["Freemium", "Free", "Paid", "Subscription", "Open Source"];
-    return validPricings.includes(pricing) ? pricing as any : "Freemium";
   }
 
   async getSoftwareByCategory(category: string): Promise<ServiceResult> {
@@ -103,20 +86,7 @@ class SoftwareService {
       
       if (data.length > 0) {
         // Transform Supabase data to match our Alternative interface
-        const transformedData = data.map(business => ({
-          id: business.id,
-          name: business.name,
-          description: business.description,
-          category: business.category_name,
-          subcategory: business.subcategory,
-          likes: business.reviews_count || 0,
-          imageUrl: business.image_url || 'https://picsum.photos/200',
-          url: business.website_url || 'https://example.com',
-          pricing: this.mapPricing(business.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || [],
-          tags: business.tags || []
-        }));
+        const transformedData = data.map(business => transformBusinessToAlternative(business));
         
         return {
           success: true,
@@ -170,20 +140,7 @@ class SoftwareService {
       
       if (data) {
         // Transform to match our Alternative interface
-        const transformedData = {
-          id: data.id,
-          name: data.name,
-          description: data.description,
-          category: data.category_name,
-          subcategory: data.subcategory,
-          likes: data.reviews_count || 0,
-          imageUrl: data.image_url || 'https://picsum.photos/200',
-          url: data.website_url || 'https://example.com',
-          pricing: this.mapPricing(data.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: data.available_pincodes || [],
-          tags: data.tags || []
-        };
+        const transformedData = transformBusinessToAlternative(data);
         
         return {
           success: true,
@@ -228,7 +185,7 @@ class SoftwareService {
         console.error('Error fetching business by slug from Supabase:', error);
         // Fallback to mock data if Supabase fails
         const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => this.createSlug(item.name) === slug);
+        const software = alternatives.find(item => createSlug(item.name) === slug);
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
@@ -250,20 +207,7 @@ class SoftwareService {
       
       if (data) {
         // Transform to match our Alternative interface with externalReviews
-        const transformedData: TransformedBusiness = {
-          id: data.id,
-          name: data.name,
-          description: data.description,
-          category: data.category_name,
-          subcategory: data.subcategory,
-          likes: data.reviews_count || 0,
-          imageUrl: data.image_url || 'https://picsum.photos/200',
-          url: data.website_url || 'https://example.com',
-          pricing: this.mapPricing(data.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: data.available_pincodes || [],
-          tags: data.tags || []
-        };
+        const transformedData: TransformedBusiness = transformBusinessToAlternative(data);
         
         const externalReviews = await getExternalReviews(data.id);
         transformedData.externalReviews = externalReviews;
@@ -275,7 +219,7 @@ class SoftwareService {
       } else {
         // If not found in Supabase, try fallback
         const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => this.createSlug(item.name) === slug);
+        const software = alternatives.find(item => createSlug(item.name) === slug);
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
@@ -303,16 +247,6 @@ class SoftwareService {
     }
   }
 
-  // Helper function to create URL-friendly slug from a string
-  createSlug(text: string): string {
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Remove consecutive hyphens
-      .trim();
-  }
-
   async getCategories() {
     return crawlCategories();
   }
@@ -325,31 +259,10 @@ class SoftwareService {
     return searchAlternatives(query);
   }
 
-  // Check if a business is available in a specific pincode
-  async checkPincodeAvailability(serviceId: string, pincode: string): Promise<boolean> {
-    try {
-      const result = await this.getSoftwareById(serviceId);
-      if (result.success && result.data) {
-        // In a real app, this would check against the business's available pincodes
-        // For demo purposes, we'll simulate with simple logic
-        const service = result.data as Alternative;
-        if (service.availablePincodes) {
-          return service.availablePincodes.includes(pincode);
-        }
-        // Default to available if no pincodes are specified
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error checking pincode availability:", error);
-      return false;
-    }
-  }
-
   async createSoftware(newService: Omit<Alternative, 'id'>): Promise<ServiceResult> {
     try {
       // Create slug from name
-      const slug = this.createSlug(newService.name);
+      const slug = createSlug(newService.name);
       
       const { data, error } = await supabase
         .from('businesses')
@@ -390,20 +303,7 @@ class SoftwareService {
       }
       
       // Transform to match our Alternative interface
-      const transformedData = {
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        category: data.category_name,
-        subcategory: data.subcategory,
-        likes: data.reviews_count || 0,
-        imageUrl: data.image_url || 'https://picsum.photos/200',
-        url: data.website_url || 'https://example.com',
-        pricing: this.mapPricing(data.pricing || newService.pricing),
-        platform: newService.platform,
-        availablePincodes: data.available_pincodes || [],
-        tags: data.tags || []
-      };
+      const transformedData = transformBusinessToAlternative(data);
       
       return {
         success: true,
@@ -425,7 +325,7 @@ class SoftwareService {
       
       if (updatedService.name) {
         updates.name = updatedService.name;
-        updates.slug = this.createSlug(updatedService.name);
+        updates.slug = createSlug(updatedService.name);
       }
       
       if (updatedService.description) {
@@ -494,20 +394,7 @@ class SoftwareService {
       }
       
       // Transform to match our Alternative interface
-      const transformedData = {
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        category: data.category_name,
-        subcategory: data.subcategory,
-        likes: data.reviews_count || 0,
-        imageUrl: data.image_url || 'https://picsum.photos/200',
-        url: data.website_url || 'https://example.com',
-        pricing: this.mapPricing(data.pricing || updatedService.pricing),
-        platform: updatedService.platform || ['Web'],
-        availablePincodes: data.available_pincodes || [],
-        tags: data.tags || []
-      };
+      const transformedData = transformBusinessToAlternative(data);
       
       return {
         success: true,
@@ -593,20 +480,7 @@ class SoftwareService {
       
       if (data.length > 0) {
         // Transform Supabase data to match our Alternative interface
-        const transformedData = data.map(business => ({
-          id: business.id,
-          name: business.name,
-          description: business.description,
-          category: business.category_name,
-          subcategory: business.subcategory,
-          likes: business.reviews_count || 0,
-          imageUrl: business.image_url || 'https://picsum.photos/200',
-          url: business.website_url || 'https://example.com',
-          pricing: this.mapPricing(business.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || [],
-          tags: business.tags || []
-        }));
+        const transformedData = data.map(business => transformBusinessToAlternative(business));
         
         return {
           success: true,
@@ -656,20 +530,7 @@ class SoftwareService {
       
       if (data.length > 0) {
         // Transform Supabase data to match our Alternative interface
-        const transformedData = data.map(business => ({
-          id: business.id,
-          name: business.name,
-          description: business.description,
-          category: business.category_name,
-          subcategory: business.subcategory,
-          likes: business.reviews_count || 0,
-          imageUrl: business.image_url || 'https://picsum.photos/200',
-          url: business.website_url || 'https://example.com',
-          pricing: this.mapPricing(business.pricing || 'Freemium'),
-          platform: ['Web'], // Default value
-          availablePincodes: business.available_pincodes || [],
-          tags: business.tags || []
-        }));
+        const transformedData = data.map(business => transformBusinessToAlternative(business));
         
         return {
           success: true,
@@ -766,47 +627,6 @@ class SoftwareService {
       return false;
     }
   }
-}
-
-async function getExternalReviews(serviceId: string) {
-  // In a real app, this would fetch from an API or scraping service
-  // For demo purposes, we're returning mock data
-  
-  const mockReviews = [
-    {
-      source: "TrustPilot",
-      rating: 4.5,
-      count: 1247,
-      url: "https://trustpilot.com",
-      verified: true
-    },
-    {
-      source: "Google Reviews",
-      rating: 4.3,
-      count: 853,
-      url: "https://google.com",
-      verified: true
-    },
-    {
-      source: "Yelp",
-      rating: 3.8,
-      count: 412,
-      url: "https://yelp.com",
-      verified: false
-    }
-  ];
-  
-  // Simulate different reviews for different services
-  const lastDigit = parseInt(serviceId.slice(-1), 10);
-  if (lastDigit % 3 === 0) {
-    mockReviews[0].rating = 3.9;
-    mockReviews[1].rating = 4.1;
-  } else if (lastDigit % 3 === 1) {
-    mockReviews[0].rating = 4.7;
-    mockReviews[2].rating = 4.2;
-  }
-  
-  return mockReviews;
 }
 
 export const softwareService = new SoftwareService();

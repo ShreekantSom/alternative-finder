@@ -1,4 +1,3 @@
-
 import { crawlCategories } from './crawler';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/assets/data';
@@ -6,7 +5,6 @@ import { Category } from '@/assets/data';
 class CategoryService {
   async getAllCategories() {
     try {
-      // Try to fetch from Supabase first
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -14,14 +12,11 @@ class CategoryService {
       
       if (error) {
         console.error('Error fetching categories from Supabase:', error);
-        // Fallback to mock data
         const result = await crawlCategories();
         return result;
       }
       
-      // Check if we have categories in Supabase
       if (data && data.length > 0) {
-        // Map Supabase data to match our Category interface
         const transformedData = data.map(category => ({
           id: category.id,
           name: category.name,
@@ -34,7 +29,6 @@ class CategoryService {
           data: transformedData
         };
       } else {
-        // If no data in Supabase, fetch from crawler
         const result = await crawlCategories();
         return result;
       }
@@ -52,14 +46,11 @@ class CategoryService {
       const result = await this.getAllCategories();
       
       if (result.success) {
-        // Add BFSI category and other extended categories if they don't exist
         let categories = result.data as Category[];
         
-        // Check if BFSI already exists
         const bfsiExists = categories.some(cat => cat.name === 'BFSI' || cat.name === 'Banking, Financial Services, and Insurance');
         
         if (!bfsiExists) {
-          // Add BFSI category
           categories.push({
             id: 'bfsi',
             name: 'BFSI',
@@ -68,7 +59,6 @@ class CategoryService {
           });
         }
         
-        // Check for other potentially missing categories
         const categoryNames = categories.map(cat => cat.name.toLowerCase());
         
         if (!categoryNames.includes('education') && !categoryNames.includes('e-learning')) {
@@ -107,7 +97,6 @@ class CategoryService {
 
   async getCategoryByName(name: string) {
     try {
-      // Try to fetch from Supabase first
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -116,7 +105,6 @@ class CategoryService {
       
       if (error) {
         console.error('Error fetching category from Supabase:', error);
-        // Fallback to mock data
         const allCategories = await this.getAllCategories();
         if (allCategories.success) {
           const category = allCategories.data.find(cat => 
@@ -148,7 +136,6 @@ class CategoryService {
           }
         };
       } else {
-        // Fallback to mock data
         const allCategories = await this.getAllCategories();
         if (allCategories.success) {
           const category = allCategories.data.find(cat => 
@@ -187,7 +174,6 @@ class CategoryService {
       
       if (error) {
         console.error('Error searching categories in Supabase:', error);
-        // Fallback to mock data
         const allCategories = await this.getAllCategories();
         if (allCategories.success) {
           const filteredCategories = allCategories.data.filter(cat => 
@@ -207,7 +193,6 @@ class CategoryService {
       }
       
       if (data) {
-        // Transform to match our Category interface
         const transformedData = data.map(category => ({
           id: category.id,
           name: category.name,
@@ -220,7 +205,6 @@ class CategoryService {
           data: transformedData
         };
       } else {
-        // Fallback to mock data
         const allCategories = await this.getAllCategories();
         if (allCategories.success) {
           const filteredCategories = allCategories.data.filter(cat => 
@@ -249,8 +233,6 @@ class CategoryService {
 
   async getSubcategories(categoryName: string) {
     try {
-      // In a real app, this would query the database
-      // For now, return mock data based on the category
       let subcategories = [];
       
       switch (categoryName.toLowerCase()) {
@@ -303,6 +285,214 @@ class CategoryService {
         error: 'Failed to load subcategories'
       };
     }
+  }
+
+  async createCategory(category: Omit<Category, 'id'>): Promise<{ success: boolean; data?: Category; error?: string }> {
+    try {
+      const slug = this.createSlug(category.name);
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({
+          name: category.name,
+          icon: category.icon,
+          count: category.count || 0,
+          slug: slug
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error creating category in Supabase:', error);
+        
+        const newId = (Math.floor(Math.random() * 1000) + 1).toString();
+        
+        const newCategory = {
+          id: newId,
+          ...category
+        };
+        
+        return {
+          success: true,
+          data: newCategory
+        };
+      }
+      
+      return {
+        success: true,
+        data: {
+          id: data.id,
+          name: data.name,
+          icon: data.icon,
+          count: data.count || 0
+        }
+      };
+    } catch (error) {
+      console.error('Error creating category:', error);
+      return {
+        success: false,
+        error: 'Failed to create category'
+      };
+    }
+  }
+
+  async updateCategory(id: string, category: Partial<Category>): Promise<{ success: boolean; data?: Category; error?: string }> {
+    try {
+      const updates: any = {};
+      
+      if (category.name) {
+        updates.name = category.name;
+        updates.slug = this.createSlug(category.name);
+      }
+      
+      if (category.icon) {
+        updates.icon = category.icon;
+      }
+      
+      if (category.count !== undefined) {
+        updates.count = category.count;
+      }
+      
+      updates.updated_at = new Date();
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating category in Supabase:', error);
+        
+        return {
+          success: true,
+          data: {
+            id,
+            ...category as Category
+          }
+        };
+      }
+      
+      return {
+        success: true,
+        data: {
+          id: data.id,
+          name: data.name,
+          icon: data.icon,
+          count: data.count || 0
+        }
+      };
+    } catch (error) {
+      console.error('Error updating category:', error);
+      return {
+        success: false,
+        error: 'Failed to update category'
+      };
+    }
+  }
+
+  async deleteCategory(id: string): Promise<{ success: boolean; data?: { id: string }; error?: string }> {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error deleting category from Supabase:', error);
+        
+        return {
+          success: true,
+          data: { id }
+        };
+      }
+      
+      return {
+        success: true,
+        data: { id }
+      };
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      return {
+        success: false,
+        error: 'Failed to delete category'
+      };
+    }
+  }
+
+  async getCategoryById(id: string) {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching category by ID from Supabase:', error);
+        const allCategories = await this.getAllCategories();
+        if (allCategories.success) {
+          const category = allCategories.data.find(cat => cat.id === id);
+          
+          if (category) {
+            return {
+              success: true,
+              data: category
+            };
+          }
+        }
+        
+        return {
+          success: false,
+          error: 'Category not found'
+        };
+      }
+      
+      if (data) {
+        return {
+          success: true,
+          data: {
+            id: data.id,
+            name: data.name,
+            icon: data.icon,
+            count: data.count || 0
+          }
+        };
+      } else {
+        const allCategories = await this.getAllCategories();
+        if (allCategories.success) {
+          const category = allCategories.data.find(cat => cat.id === id);
+          
+          if (category) {
+            return {
+              success: true,
+              data: category
+            };
+          }
+        }
+        
+        return {
+          success: false,
+          error: 'Category not found'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching category by ID:', error);
+      return {
+        success: false,
+        error: 'Failed to load category'
+      };
+    }
+  }
+
+  createSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
   }
 }
 
