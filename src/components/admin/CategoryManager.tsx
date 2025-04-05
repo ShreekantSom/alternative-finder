@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -41,6 +40,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category } from '@/assets/data';
 import { categoryService } from '@/lib/categoryService';
+import { CategoryDialog } from './category/CategoryDialog';
+import { CategoryDeleteDialog } from './category/CategoryDeleteDialog';
+import { CategoryTable } from './category/CategoryTable';
 
 const categorySchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),

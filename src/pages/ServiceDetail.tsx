@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Alternative } from '@/assets/data';
 import { softwareService } from '@/lib/softwareService';
+import { createSlug } from '@/lib/softwareUtils';
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,7 @@ export function ServiceDetail() {
           setBusiness(result.data);
           
           if (id && !slug) {
-            const businessSlug = softwareService.createSlug(result.data.name);
+            const businessSlug = createSlug(result.data.name);
             navigate(`/service/${businessSlug}`, { replace: true });
           }
           
