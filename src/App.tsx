@@ -9,7 +9,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import ServiceDetail from "./pages/ServiceDetail";
+import BusinessDetail from "./pages/BusinessDetail";
 import NewsSection from "./pages/NewsSection";
 import Collections from "./pages/Collections";
 import Discover from "./pages/Discover";
@@ -33,12 +33,13 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/admin" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/brand-dashboard" element={<BrandDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/brand-submission" element={<BrandSubmission />} />
-              <Route path="/business/:id" element={<ServiceDetail />} />
-              <Route path="/d2c/:slug" element={<ServiceDetail />} />
+              <Route path="/business/:id" element={<BusinessDetail />} />
+              <Route path="/d2c/:slug" element={<BusinessDetail />} />
               <Route path="/news" element={<NewsSection />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/collection/:id" element={<Collections />} />

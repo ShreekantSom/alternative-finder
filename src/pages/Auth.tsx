@@ -12,11 +12,10 @@ export function Auth() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
 
-  // Check if this is an admin login page
+  // Check if this is an admin login page based on the path
   useEffect(() => {
-    // Check if the hostname starts with admin.
-    const isAdminDomain = window.location.hostname.startsWith('admin.');
-    setIsAdminLogin(isAdminDomain);
+    const path = location.pathname;
+    setIsAdminLogin(path === '/admin');
 
     const params = new URLSearchParams(location.search);
     const mode = params.get('mode');
@@ -32,12 +31,12 @@ export function Auth() {
     if (AuthService.isAuthenticated()) {
       const currentUser = AuthService.getCurrentUser();
       
-      // Redirect based on user role and domain
+      // Redirect based on user role and login type
       if (isAdminLogin) {
         if (currentUser?.role === 'admin') {
           navigate('/dashboard');
         } else {
-          // If not admin but on admin subdomain, show error
+          // If not admin but on admin path, show error
           setSuccessMessage("Access denied. Admin credentials required.");
           AuthService.logout();
           return;
@@ -62,13 +61,13 @@ export function Auth() {
     // Check user role for redirection
     const currentUser = AuthService.getCurrentUser();
     
-    // Special handling for admin domain
+    // Special handling for admin login
     if (isAdminLogin) {
       if (currentUser?.role === 'admin') {
         // Redirect admin to dashboard after showing success message briefly
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
-        // Not an admin but on admin domain
+        // Not an admin but on admin path
         setSuccessMessage("Access denied. Admin credentials required.");
         AuthService.logout();
       }

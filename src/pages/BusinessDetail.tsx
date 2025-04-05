@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -8,17 +9,17 @@ import { useToast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card } from "@/components/ui/card";
-import ServiceHeader from '@/components/service/ServiceHeader';
+import BusinessHeader from '@/components/service/BusinessHeader';
 import PincodeAlert from '@/components/service/PincodeAlert';
-import ServiceCTA from '@/components/service/ServiceCTA';
-import ServiceReviews from '@/components/service/ServiceReviews';
-import RelatedServices from '@/components/service/RelatedServices';
-import ServiceSocialLinks from '@/components/service/ServiceSocialLinks';
-import ServiceComparisonTable from '@/components/service/ServiceComparisonTable';
-import ServiceDetailTabs from '@/components/service/ServiceDetailTabs';
+import BusinessCTA from '@/components/service/BusinessCTA';
+import BusinessReviews from '@/components/service/BusinessReviews';
+import RelatedBusinesses from '@/components/service/RelatedBusinesses';
+import BusinessSocialLinks from '@/components/service/BusinessSocialLinks';
+import BusinessComparisonTable from '@/components/service/BusinessComparisonTable';
+import BusinessDetailTabs from '@/components/service/BusinessDetailTabs';
 import ExternalReviews from '@/components/service/ExternalReviews';
 
-export function ServiceDetail() {
+export function BusinessDetail() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const [business, setBusiness] = useState<Alternative | null>(null);
   const [relatedBusinesses, setRelatedBusinesses] = useState<Alternative[]>([]);
@@ -54,7 +55,7 @@ export function ServiceDetail() {
           
           if (id && !slug) {
             const businessSlug = createSlug(result.data.name);
-            navigate(`/service/${businessSlug}`, { replace: true });
+            navigate(`/business/${businessSlug}`, { replace: true });
           }
           
           const userPincode = localStorage.getItem("userPincode");
@@ -126,11 +127,11 @@ export function ServiceDetail() {
   };
 
   if (isLoading) {
-    return <ServiceDetailSkeleton />;
+    return <BusinessDetailSkeleton />;
   }
 
   if (!business) {
-    return <ServiceDetailNotFound />;
+    return <BusinessDetailNotFound />;
   }
 
   return (
@@ -152,35 +153,35 @@ export function ServiceDetail() {
           userPincode={localStorage.getItem("userPincode")} 
         />
 
-        <ServiceHeader 
-          service={business} 
+        <BusinessHeader 
+          business={business} 
           isLiked={isLiked} 
           onLike={handleLike} 
           onShare={handleShare} 
           getPricingBgColor={getPricingBgColor} 
         />
         
-        <ServiceDetailTabs business={business} />
+        <BusinessDetailTabs business={business} />
         
-        <ServiceSocialLinks service={business} />
+        <BusinessSocialLinks business={business} />
 
-        <ServiceCTA 
-          serviceName={business.name} 
-          serviceUrl={business.url} 
+        <BusinessCTA 
+          businessName={business.name} 
+          businessUrl={business.url} 
         />
         
         {business.externalReviews && business.externalReviews.length > 0 && (
           <ExternalReviews 
             reviews={business.externalReviews} 
-            serviceName={business.name}
+            businessName={business.name}
           />
         )}
         
-        <ServiceComparisonTable mainService={business} />
+        <BusinessComparisonTable mainBusiness={business} />
         
-        <ServiceReviews 
-          serviceId={business.id}
-          serviceName={business.name}
+        <BusinessReviews 
+          businessId={business.id}
+          businessName={business.name}
         />
 
         <SimilarBusinesses 
@@ -189,8 +190,8 @@ export function ServiceDetail() {
           getPricingBgColor={getPricingBgColor}
         />
 
-        <RelatedServices 
-          services={relatedBusinesses} 
+        <RelatedBusinesses 
+          businesses={relatedBusinesses} 
           isLoading={false} 
           category={business.category} 
         />
@@ -199,7 +200,7 @@ export function ServiceDetail() {
   );
 }
 
-function ServiceDetailSkeleton() {
+function BusinessDetailSkeleton() {
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -214,7 +215,7 @@ function ServiceDetailSkeleton() {
   );
 }
 
-function ServiceDetailNotFound() {
+function BusinessDetailNotFound() {
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -242,7 +243,7 @@ function SimilarBusinesses({ businesses, category, getPricingBgColor }: {
       <h2 className="text-2xl font-bold mb-6">Similar Businesses in {category}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {businesses.map((alt) => (
-          <Link to={`/service/${alt.id}`} key={alt.id} className="block">
+          <Link to={`/business/${alt.id}`} key={alt.id} className="block">
             <Card className="h-full hover:shadow-md transition-all duration-300">
               <div className="p-4 flex items-center">
                 <img 
@@ -266,4 +267,4 @@ function SimilarBusinesses({ businesses, category, getPricingBgColor }: {
   );
 }
 
-export default ServiceDetail;
+export default BusinessDetail;
