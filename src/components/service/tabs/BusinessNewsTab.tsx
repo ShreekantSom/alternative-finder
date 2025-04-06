@@ -53,3 +53,4 @@ export function BusinessNewsTab({ newsItems }: BusinessNewsTabProps) {
 }
 
 export default BusinessNewsTab;
+export type { NewsItem };

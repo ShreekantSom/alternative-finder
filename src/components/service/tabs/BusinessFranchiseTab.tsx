@@ -134,3 +134,4 @@ export function BusinessFranchiseTab({ franchise, formatCurrency }: BusinessFran
 }
 
 export default BusinessFranchiseTab;
+export type { Franchise };

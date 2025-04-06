@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { softwareService } from '@/lib/softwareService';
+import { businessService } from '@/lib/businessService';
 import { useToast } from '@/components/ui/use-toast';
 import { Alternative } from '@/assets/data';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ export function AdminBusinessManagement() {
     const loadBusinesses = async () => {
       try {
         setIsLoading(true);
-        const result = await softwareService.getAllSoftware();
+        const result = await businessService.getAllBusinesses();
         if (result.success) {
           setBusinesses(result.data);
         }
@@ -67,7 +67,7 @@ export function AdminBusinessManagement() {
     if (!businessToDelete) return;
     
     try {
-      const result = await softwareService.deleteSoftware(businessToDelete.id);
+      const result = await businessService.deleteBusiness(businessToDelete.id);
       if (result.success) {
         setBusinesses(businesses.filter(b => b.id !== businessToDelete.id));
         toast({

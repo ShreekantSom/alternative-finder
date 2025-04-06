@@ -11,7 +11,7 @@ import CuratedCollections from '@/components/home/CuratedCollections';
 import NewBrandSpotlights from '@/components/home/NewBrandSpotlights';
 import AdvancedFilters from '@/components/filters/AdvancedFilters';
 import { Alternative } from '@/assets/data';
-import { softwareService } from '@/lib/softwareService';
+import { businessService } from '@/lib/businessService';
 import { useToast } from "@/components/ui/use-toast";
 
 export function Index() {
@@ -54,9 +54,9 @@ export function Index() {
     try {
       let result;
       if (selectedCategory === "All") {
-        result = await softwareService.getAllSoftware();
+        result = await businessService.getAllBusinesses();
       } else {
-        result = await softwareService.getSoftwareByCategory(selectedCategory);
+        result = await businessService.getBusinessesByCategory(selectedCategory);
       }
       if (result.success) {
         let filteredData = result.data;
@@ -80,12 +80,12 @@ export function Index() {
       } else {
         toast({
           title: "Error",
-          description: "Failed to load service providers",
+          description: "Failed to load business providers",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error("Error fetching businesses:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
