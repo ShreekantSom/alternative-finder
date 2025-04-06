@@ -34,7 +34,7 @@ export function Auth() {
       // Redirect based on user role and login type
       if (isAdminLogin) {
         if (currentUser?.role === 'admin') {
-          navigate('/dashboard');
+          navigate('/admin/dashboard');
         } else {
           // If not admin but on admin path, show error
           setSuccessMessage("Access denied. Admin credentials required.");
@@ -65,7 +65,7 @@ export function Auth() {
     if (isAdminLogin) {
       if (currentUser?.role === 'admin') {
         // Redirect admin to dashboard after showing success message briefly
-        setTimeout(() => navigate('/dashboard'), 1500);
+        setTimeout(() => navigate('/admin/dashboard'), 1500);
       } else {
         // Not an admin but on admin path
         setSuccessMessage("Access denied. Admin credentials required.");

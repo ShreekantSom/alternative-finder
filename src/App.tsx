@@ -8,6 +8,13 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminBusinessManagement from "./pages/admin/AdminBusinessManagement";
+import AdminCategoryManagement from "./pages/admin/AdminCategoryManagement";
+import AdminUserManagement from "./pages/admin/AdminUserManagement";
+import AdminNewsManagement from "./pages/admin/AdminNewsManagement";
+import AdminSettings from "./pages/admin/AdminSettings";
+import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
 import Profile from "./pages/Profile";
 import BusinessDetail from "./pages/BusinessDetail";
 import NewsSection from "./pages/NewsSection";
@@ -47,6 +54,39 @@ const App = () => (
               <Route path="/category/:categoryId" element={<CategoryDetail />} />
               <Route path="/wishlists" element={<UserWishlists />} />
               <Route path="/shared-wishlist/:id" element={<UserWishlists />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/dashboard" element={
+                <ProtectedAdminRoute>
+                  <AdminDashboard />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/admin/businesses" element={
+                <ProtectedAdminRoute>
+                  <AdminBusinessManagement />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/admin/categories" element={
+                <ProtectedAdminRoute>
+                  <AdminCategoryManagement />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/admin/users" element={
+                <ProtectedAdminRoute>
+                  <AdminUserManagement />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/admin/news" element={
+                <ProtectedAdminRoute>
+                  <AdminNewsManagement />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/admin/settings" element={
+                <ProtectedAdminRoute>
+                  <AdminSettings />
+                </ProtectedAdminRoute>
+              } />
+              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

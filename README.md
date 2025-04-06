@@ -5,6 +5,7 @@ A modern web application for discovering, exploring, and saving businesses acros
 
 ## Features
 
+### User Features
 - **Business Discovery**: Browse and search businesses across multiple categories
 - **Detailed Business Profiles**: View comprehensive information about each business
 - **User Authentication**: Create an account, log in, and manage your profile
@@ -14,6 +15,50 @@ A modern web application for discovering, exploring, and saving businesses acros
 - **Responsive Design**: Optimized for all devices from mobile to desktop
 - **Theme Support**: Choose between light, dark, or system theme
 - **Brand Submissions**: Businesses can submit their information for listing
+
+### Admin Features
+- **Dashboard**: Overview statistics and charts showing system activity
+- **Business Management**: Create, edit, delete, and feature businesses
+- **Category Management**: Organize businesses with categories and subcategories
+- **User Management**: Monitor and manage user accounts with role-based permissions
+- **News Management**: Create and publish news articles related to businesses
+- **System Settings**: Configure site settings, email templates, and data backups
+
+## Routes
+
+### Main Routes
+- Home page: `/`
+- Authentication: `/auth`
+- User dashboard: `/dashboard`
+- Brand dashboard: `/brand-dashboard`
+- Business details: `/business/:id`
+- Category details: `/category/:categoryId`
+- News section: `/news`
+- Collections: `/collections`
+- Discover page: `/discover`
+- Wishlists: `/wishlists`
+
+### Admin Routes
+- Admin login: `/admin`
+- Admin dashboard: `/admin/dashboard`
+- Business management: `/admin/businesses`
+- Category management: `/admin/categories`
+- User management: `/admin/users`
+- News management: `/admin/news`
+- System settings: `/admin/settings`
+
+## Authentication System
+- **User Registration**: Email and password-based signup
+- **User Login**: Secure authentication with session management
+- **Role-Based Access**: Different interfaces for regular users, brands, and admins
+- **Protected Routes**: Secure areas accessible only to authenticated users with appropriate roles
+
+## Admin Capabilities
+- Full CRUD operations for all content types
+- Approval workflows for business submissions
+- Content moderation tools
+- Analytics and reporting features
+- System configuration and backup management
 
 ## Tech Stack
 
@@ -27,6 +72,7 @@ This project is built with a modern tech stack:
 - **shadcn/ui**: High-quality UI components built with Radix UI and Tailwind
 - **Supabase**: Backend-as-a-Service for authentication and data storage
 - **Tanstack Query**: Data fetching and state management
+- **Recharts**: Flexible charting library for data visualization
 
 ## Getting Started
 
@@ -59,6 +105,22 @@ npm run dev
 ## Deployment
 
 The application can be deployed to any static hosting service such as Vercel, Netlify, or GitHub Pages.
+
+## Default Accounts
+
+For testing purposes, the application comes with pre-configured accounts:
+
+- **Admin Account**: 
+  - Email: admin@example.com
+  - Password: admin123
+
+- **Regular User Account**:
+  - Email: user@example.com
+  - Password: user123
+
+- **Brand Account**:
+  - Email: brand@example.com
+  - Password: brand123
 
 ## Contributing
 
