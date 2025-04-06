@@ -50,21 +50,29 @@ export interface Alternative {
   }>;
   franchise?: {
     available: boolean;
-    initialInvestment?: number;
-    royaltyFee?: string;
-    marketingFee?: string;
-    termLength?: string;
-    financingOptions?: boolean;
-    trainingProgram?: boolean;
+    initialInvestment?: {
+      min: number;
+      max: number;
+      currency: string;
+    };
+    fees?: {
+      franchiseFee?: number;
+      royaltyFee?: number;
+      marketingFee?: number;
+    };
+    requirements?: string[];
+    locations?: number;
+    support?: string[];
+    trainingProvided?: boolean;
   };
   newsItems?: Array<{
     id: string;
     title: string;
     content: string;
     date: string;
-    source: string;
-    url: string;
-    excerpt: string;
+    source?: string;
+    url?: string;
+    excerpt?: string;
     imageUrl?: string;
   }>;
 }

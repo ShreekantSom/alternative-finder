@@ -35,8 +35,17 @@ export function BusinessDetailTabs({ business }: BusinessDetailTabsProps) {
 
   // Transform franchise to match Franchise interface if it exists
   const transformedFranchise: Franchise | undefined = business.franchise ? {
-    ...business.franchise,
-    available: business.franchise.available !== undefined ? business.franchise.available : false
+    available: business.franchise.available,
+    initialInvestment: business.franchise.initialInvestment ? {
+      min: business.franchise.initialInvestment.min,
+      max: business.franchise.initialInvestment.max,
+      currency: business.franchise.initialInvestment.currency
+    } : undefined,
+    fees: business.franchise.fees,
+    requirements: business.franchise.requirements,
+    locations: business.franchise.locations,
+    support: business.franchise.support,
+    trainingProvided: business.franchise.trainingProvided
   } : undefined;
   
   return (

@@ -1,11 +1,14 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
-interface NewsItem {
+export interface NewsItem {
   id: string;
   title: string;
   content: string;
   date: string;
+  source?: string;
+  url?: string;
+  excerpt?: string;
   imageUrl?: string;
 }
 
