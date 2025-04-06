@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -173,7 +172,7 @@ export function BusinessDetail() {
         {business.externalReviews && business.externalReviews.length > 0 && (
           <ExternalReviews 
             reviews={business.externalReviews} 
-            businessName={business.name}
+            serviceName={business.name}
           />
         )}
         

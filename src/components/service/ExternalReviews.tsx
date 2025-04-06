@@ -13,7 +13,7 @@ interface ExternalReview {
 
 interface ExternalReviewsProps {
   reviews?: ExternalReview[];
-  serviceName: string;
+  serviceName?: string; // Make this optional to maintain compatibility
 }
 
 export function ExternalReviews({ reviews, serviceName }: ExternalReviewsProps) {

@@ -66,9 +66,10 @@ export function BusinessSocialLinks({ business }: BusinessSocialLinksProps) {
             />
           )}
           
-          {business.socialLinks?.website && (
+          {/* Replace website with a direct check on the business URL */}
+          {business.url && (
             <SocialButton 
-              href={business.socialLinks.website}
+              href={business.url}
               icon={<Globe className="h-5 w-5" />}
               label="Website"
               color="bg-gray-600 hover:bg-gray-700"

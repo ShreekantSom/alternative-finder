@@ -1,5 +1,14 @@
-
 // Sample data for companies/brands/businesses
+
+// Define types for features
+export interface FeatureItem {
+  name: string;
+  description?: string;
+  available?: boolean;
+}
+
+export type Feature = string | FeatureItem;
+
 export interface Alternative {
   id: string;
   name: string;
@@ -30,6 +39,29 @@ export interface Alternative {
   };
   tags?: string[];
   subcategory?: string;
+  features?: Feature[];
+  externalReviews?: Array<{
+    source: string;
+    rating: number;
+    count: number;
+    url: string;
+    verified: boolean;
+  }>;
+  franchise?: {
+    initialInvestment?: number;
+    royaltyFee?: string;
+    marketingFee?: string;
+    termLength?: string;
+    financingOptions?: boolean;
+    trainingProgram?: boolean;
+  };
+  newsItems?: Array<{
+    title: string;
+    date: string;
+    source: string;
+    url: string;
+    excerpt: string;
+  }>;
 }
 
 export interface Category {

@@ -15,6 +15,15 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, ChevronDown, ChevronUp, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Define a type for features to handle both string and object formats
+interface FeatureItem {
+  name: string;
+  description?: string;
+  available?: boolean;
+}
+
+type Feature = string | FeatureItem;
+
 interface BusinessComparisonTableProps {
   mainBusiness: Alternative;
 }
@@ -127,10 +136,30 @@ function FeatureComparison({
   mainBusiness: Alternative; 
   competitors: Alternative[] 
 }) {
+  // Helper function to extract feature name regardless of format
+  const getFeatureName = (feature: Feature): string => {
+    if (typeof feature === 'string') {
+      return feature;
+    }
+    return feature.name;
+  };
+
+  // Check if business has a feature by name
+  const businessHasFeature = (business: Alternative, featureName: string): boolean => {
+    if (!business.features) return false;
+    
+    return business.features.some(f => {
+      if (typeof f === 'string') {
+        return f === featureName;
+      }
+      return f.name === featureName;
+    });
+  };
+
   // Combine all features for comparison
   const allFeatures = Array.from(new Set([
-    ...(mainBusiness.features || []).map(f => f.name),
-    ...competitors.flatMap(comp => (comp.features || []).map(f => f.name))
+    ...(mainBusiness.features || []).map(getFeatureName),
+    ...competitors.flatMap(comp => (comp.features || []).map(getFeatureName))
   ]));
   
   if (allFeatures.length === 0) {
@@ -154,7 +183,7 @@ function FeatureComparison({
             <TableRow key={feature}>
               <TableCell className="font-medium">{feature}</TableCell>
               <TableCell>
-                {(mainBusiness.features || []).some(f => f.name === feature) ? (
+                {businessHasFeature(mainBusiness, feature) ? (
                   <Check className="h-5 w-5 text-green-500" />
                 ) : (
                   <X className="h-5 w-5 text-red-500" />
@@ -162,7 +191,7 @@ function FeatureComparison({
               </TableCell>
               {competitors.map(comp => (
                 <TableCell key={comp.id}>
-                  {(comp.features || []).some(f => f.name === feature) ? (
+                  {businessHasFeature(comp, feature) ? (
                     <Check className="h-5 w-5 text-green-500" />
                   ) : (
                     <X className="h-5 w-5 text-red-500" />
@@ -224,13 +253,13 @@ function PricingComparison({
           <TableRow>
             <TableCell className="font-medium">{mainBusiness.name}</TableCell>
             <TableCell>{getPricingBadge(mainBusiness.pricing)}</TableCell>
-            <TableCell>{mainBusiness.startingPrice || "Not available"}</TableCell>
+            <TableCell>{"Not available"}</TableCell>
           </TableRow>
           {competitors.map(comp => (
             <TableRow key={comp.id}>
               <TableCell className="font-medium">{comp.name}</TableCell>
               <TableCell>{getPricingBadge(comp.pricing)}</TableCell>
-              <TableCell>{comp.startingPrice || "Not available"}</TableCell>
+              <TableCell>{"Not available"}</TableCell>
             </TableRow>
           ))}
         </TableBody>
