@@ -46,7 +46,7 @@ export function AlternativeCardImage({
         </div>
       )}
       
-      {alternative.franchise?.available && (
+      {alternative.franchise && alternative.franchise.available && (
         <div className="absolute bottom-3 right-3">
           <Badge variant="outline" className="bg-primary/20 text-primary flex items-center gap-1 px-2 py-1">
             <Award size={12} />

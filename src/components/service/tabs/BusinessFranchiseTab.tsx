@@ -3,7 +3,7 @@ import { Award, DollarSign } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface Franchise {
+export interface Franchise {
   available: boolean;
   initialInvestment?: {
     min: number;

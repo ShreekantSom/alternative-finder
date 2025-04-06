@@ -1,3 +1,4 @@
+
 // Sample data for companies/brands/businesses
 
 // Define types for features
@@ -48,6 +49,7 @@ export interface Alternative {
     verified: boolean;
   }>;
   franchise?: {
+    available: boolean;
     initialInvestment?: number;
     royaltyFee?: string;
     marketingFee?: string;
@@ -56,11 +58,14 @@ export interface Alternative {
     trainingProgram?: boolean;
   };
   newsItems?: Array<{
+    id: string;
     title: string;
+    content: string;
     date: string;
     source: string;
     url: string;
     excerpt: string;
+    imageUrl?: string;
   }>;
 }
 

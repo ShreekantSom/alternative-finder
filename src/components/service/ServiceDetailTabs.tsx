@@ -3,8 +3,8 @@ import { Alternative } from '@/assets/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BusinessDetailsTab from './tabs/BusinessDetailsTab';
 import BusinessFeaturesTab from './tabs/BusinessFeaturesTab';
-import BusinessFranchiseTab from './tabs/BusinessFranchiseTab';
-import BusinessNewsTab from './tabs/BusinessNewsTab';
+import BusinessFranchiseTab, { Franchise } from './tabs/BusinessFranchiseTab';
+import BusinessNewsTab, { NewsItem } from './tabs/BusinessNewsTab';
 import BusinessProductsTab from './tabs/BusinessProductsTab';
 import BusinessServicesTab from './tabs/BusinessServicesTab';
 
@@ -20,6 +20,24 @@ export function ServiceDetailTabs({ business }: ServiceDetailTabsProps) {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+  
+  // Transform newsItems to match NewsItem interface if they exist
+  const transformedNewsItems: NewsItem[] | undefined = business.newsItems?.map(item => ({
+    id: item.id || `news-${Math.random().toString(36).substring(2, 11)}`,
+    title: item.title,
+    content: item.content || item.excerpt || '',
+    date: item.date,
+    source: item.source,
+    url: item.url,
+    excerpt: item.excerpt,
+    imageUrl: item.imageUrl
+  }));
+
+  // Transform franchise to match Franchise interface if it exists
+  const transformedFranchise: Franchise | undefined = business.franchise ? {
+    ...business.franchise,
+    available: business.franchise.available !== undefined ? business.franchise.available : false
+  } : undefined;
   
   return (
     <Tabs defaultValue="details" className="mb-12">
@@ -45,11 +63,11 @@ export function ServiceDetailTabs({ business }: ServiceDetailTabsProps) {
       </TabsContent>
       
       <TabsContent value="franchise">
-        <BusinessFranchiseTab franchise={business.franchise} formatCurrency={formatCurrency} />
+        <BusinessFranchiseTab franchise={transformedFranchise} formatCurrency={formatCurrency} />
       </TabsContent>
       
       <TabsContent value="news">
-        <BusinessNewsTab newsItems={business.newsItems} />
+        <BusinessNewsTab newsItems={transformedNewsItems} />
       </TabsContent>
       
       {business.products && business.products.length > 0 && (
