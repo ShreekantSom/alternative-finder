@@ -48,7 +48,7 @@ export function RelatedBusinesses({ businesses, isLoading, category }: RelatedBu
           {businesses.map((business) => (
             <Link 
               key={business.id} 
-              to={`/business/${createSlug(business.name)}`} 
+              to={`/business/${business.id}`} 
               className="flex items-center space-x-4 p-3 rounded-md hover:bg-accent transition-colors"
             >
               <img 
@@ -69,16 +69,6 @@ export function RelatedBusinesses({ businesses, isLoading, category }: RelatedBu
       </CardContent>
     </Card>
   );
-}
-
-// Helper function to create URL-friendly slugs
-function createSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim();
 }
 
 export default RelatedBusinesses;

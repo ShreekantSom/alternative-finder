@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -138,7 +137,7 @@ export function Index() {
               </div> : <div className="mb-4">
                 <p className="text-sm text-muted-foreground">Found {searchResults.length} results</p>
               </div>}
-            <AlternativesList alternatives={searchResults} isLoading={false} searchResults={searchResults} />
+            <AlternativesList alternatives={searchResults} isLoading={false} searchResults={searchResults} onBusinessClick={handleBusinessClick} />
           </div> : <>
             <FeaturedAlternative />
             
@@ -150,7 +149,6 @@ export function Index() {
             
             <div className="container mx-auto px-4 py-8">
               <AdvancedFilters onChange={handleAdvancedFilterChange} />
-              
               
               <AlternativesList 
                 alternatives={alternatives} 

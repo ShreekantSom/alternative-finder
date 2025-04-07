@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, LineChart } from "@/components/ui/recharts";
 import BusinessProfileEditor from "./BusinessProfileEditor";
 import BusinessAnalytics from "./BusinessAnalytics";
 import BusinessEngagement from "./BusinessEngagement";
@@ -89,20 +88,9 @@ export function BusinessUserDashboard() {
                 <CardDescription>Daily views and interactions over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <LineChart 
-                  data={[
-                    { name: 'Jan', value: 400 },
-                    { name: 'Feb', value: 300 },
-                    { name: 'Mar', value: 500 },
-                    { name: 'Apr', value: 350 },
-                    { name: 'May', value: 450 },
-                    { name: 'Jun', value: 600 },
-                  ]}
-                  index="name"
-                  categories={['value']}
-                  colors={['blue']}
-                  className="h-72" 
-                />
+                <div className="h-72 flex items-center justify-center bg-muted/20 rounded-md">
+                  <p className="text-muted-foreground">Performance chart will appear here</p>
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -111,19 +99,9 @@ export function BusinessUserDashboard() {
                 <CardDescription>Platform user segments interested in your business</CardDescription>
               </CardHeader>
               <CardContent>
-                <BarChart 
-                  data={[
-                    { name: 'Small Business', value: 35 },
-                    { name: 'Enterprise', value: 25 },
-                    { name: 'Freelancer', value: 20 },
-                    { name: 'Consumer', value: 15 },
-                    { name: 'Other', value: 5 },
-                  ]}
-                  index="name"
-                  categories={['value']}
-                  colors={['blue']}
-                  className="h-72" 
-                />
+                <div className="h-72 flex items-center justify-center bg-muted/20 rounded-md">
+                  <p className="text-muted-foreground">Demographics chart will appear here</p>
+                </div>
               </CardContent>
             </Card>
           </div>

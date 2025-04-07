@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Alternative } from '@/assets/data';
-import { softwareService } from '@/lib/softwareService';
+import { businessService } from '@/lib/businessService';
 import { createSlug } from '@/lib/softwareUtils';
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
@@ -36,9 +36,9 @@ export function BusinessDetail() {
         let result;
         
         if (id) {
-          result = await softwareService.getSoftwareById(id);
+          result = await businessService.getBusinessById(id);
         } else if (slug) {
-          result = await softwareService.getSoftwareBySlug(slug);
+          result = await businessService.getBusinessBySlug(slug);
         } else {
           toast({
             title: "Error",
@@ -63,7 +63,7 @@ export function BusinessDetail() {
             setIsAvailableInPincode(isAvailable);
           }
           
-          const relatedResult = await softwareService.getSoftwareByCategory(result.data.category);
+          const relatedResult = await businessService.getBusinessesByCategory(result.data.category);
           if (relatedResult.success) {
             const others = relatedResult.data.filter((item: Alternative) => item.id !== result.data.id);
             setRelatedBusinesses(others.slice(0, 3));

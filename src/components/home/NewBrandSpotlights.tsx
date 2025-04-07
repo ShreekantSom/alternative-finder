@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alternative } from '@/assets/data';
-import { softwareService } from '@/lib/softwareService';
+import { businessService } from '@/lib/businessService';
 
 interface NewBrandSpotlightsProps {
   onBusinessClick?: (businessId: string) => void;
@@ -19,7 +19,7 @@ export default function NewBrandSpotlights({ onBusinessClick }: NewBrandSpotligh
   useEffect(() => {
     const fetchNewBrands = async () => {
       try {
-        const result = await softwareService.getAllSoftware();
+        const result = await businessService.getAllBusinesses();
         if (result.success) {
           // Get the most recent brands (for demo, just take a few random ones)
           const sortedBrands = result.data.sort(() => Math.random() - 0.5).slice(0, 6);
