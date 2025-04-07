@@ -1,8 +1,8 @@
-
 import { Alternative } from '@/assets/data';
 import { crawlCategories, fetchMoreAlternatives, searchAlternatives } from './crawler';
 import { supabase } from '@/integrations/supabase/client';
 import { mapPricing, createSlug, getExternalReviews, transformBusinessToAlternative } from './softwareUtils';
+import { getMockAlternatives } from './mockData';
 
 interface ServiceResult {
   success: boolean;
@@ -32,10 +32,10 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching businesses from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
+        const mockAlternatives = getMockAlternatives();
         return {
           success: true,
-          data: alternatives
+          data: mockAlternatives
         };
       }
       
@@ -49,10 +49,10 @@ class SoftwareService {
         };
       } else {
         // If no data is found in Supabase, fallback to mock data
-        const { alternatives } = await import('@/assets/data');
+        const mockAlternatives = getMockAlternatives();
         return {
           success: true,
-          data: alternatives
+          data: mockAlternatives
         };
       }
     } catch (error) {
@@ -76,8 +76,8 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching businesses by category from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => item.category === category);
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => item.category === category);
         return {
           success: true,
           data: filteredAlternatives
@@ -94,8 +94,8 @@ class SoftwareService {
         };
       } else {
         // If no data is found in Supabase, fallback to mock data
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => item.category === category);
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => item.category === category);
         return {
           success: true,
           data: filteredAlternatives
@@ -122,8 +122,8 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching business by ID from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => item.id === id);
+        const mockAlternatives = getMockAlternatives();
+        const software = mockAlternatives.find(item => item.id === id);
         
         if (software) {
           return {
@@ -148,8 +148,8 @@ class SoftwareService {
         };
       } else {
         // If not found in Supabase, try fallback
-        const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => item.id === id);
+        const mockAlternatives = getMockAlternatives();
+        const software = mockAlternatives.find(item => item.id === id);
         
         if (software) {
           return {
@@ -184,8 +184,8 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching business by slug from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => createSlug(item.name) === slug);
+        const mockAlternatives = getMockAlternatives();
+        const software = mockAlternatives.find(item => createSlug(item.name) === slug);
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
@@ -218,8 +218,8 @@ class SoftwareService {
         };
       } else {
         // If not found in Supabase, try fallback
-        const { alternatives } = await import('@/assets/data');
-        const software = alternatives.find(item => createSlug(item.name) === slug);
+        const mockAlternatives = getMockAlternatives();
+        const software = mockAlternatives.find(item => createSlug(item.name) === slug);
         
         if (software) {
           const externalReviews = await getExternalReviews(software.id);
@@ -468,8 +468,8 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching businesses by tag from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => 
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => 
           item.tags && item.tags.some(t => t.toLowerCase() === tag.toLowerCase())
         );
         return {
@@ -488,8 +488,8 @@ class SoftwareService {
         };
       } else {
         // If no data is found in Supabase, fallback to mock data
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => 
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => 
           item.tags && item.tags.some(t => t.toLowerCase() === tag.toLowerCase())
         );
         return {
@@ -518,8 +518,8 @@ class SoftwareService {
       if (error) {
         console.error('Error fetching businesses by subcategory from Supabase:', error);
         // Fallback to mock data if Supabase fails
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => 
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => 
           item.subcategory && item.subcategory.toLowerCase() === subcategory.toLowerCase()
         );
         return {
@@ -538,8 +538,8 @@ class SoftwareService {
         };
       } else {
         // If no data is found in Supabase, fallback to mock data
-        const { alternatives } = await import('@/assets/data');
-        const filteredAlternatives = alternatives.filter(item => 
+        const mockAlternatives = getMockAlternatives();
+        const filteredAlternatives = mockAlternatives.filter(item => 
           item.subcategory && item.subcategory.toLowerCase() === subcategory.toLowerCase()
         );
         return {
@@ -607,7 +607,6 @@ class SoftwareService {
     }
   }
 
-  // Check if a business is available in a specific pincode
   async checkPincodeAvailability(serviceId: string, pincode: string): Promise<boolean> {
     try {
       const result = await this.getSoftwareById(serviceId);

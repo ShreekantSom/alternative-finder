@@ -1,4 +1,5 @@
 
+
 // Define the structure for alternatives (businesses)
 export interface Alternative {
   id: string;
@@ -28,6 +29,56 @@ export interface FeatureItem {
   iconName?: string;
 }
 
+// Sample data for alternatives/businesses
+export const alternatives: Alternative[] = [
+  {
+    id: "1",
+    name: "DoorDash",
+    description: "Food delivery platform connecting customers with local restaurants",
+    category: "Food Delivery",
+    likes: 120,
+    imageUrl: "/images/doordash.png",
+    url: "https://doordash.com",
+    pricing: "Paid",
+    platform: ["Web", "iOS", "Android"]
+  },
+  {
+    id: "2",
+    name: "Uber Eats",
+    description: "Food delivery platform by Uber with extensive restaurant partnerships",
+    category: "Food Delivery",
+    likes: 135,
+    imageUrl: "/images/ubereats.png",
+    url: "https://ubereats.com",
+    pricing: "Paid",
+    platform: ["Web", "iOS", "Android"]
+  },
+  {
+    id: "3",
+    name: "Netflix",
+    description: "Subscription streaming platform for movies and TV shows",
+    category: "Streaming",
+    likes: 180,
+    imageUrl: "/images/netflix.png",
+    url: "https://netflix.com",
+    pricing: "Subscription",
+    platform: ["Web", "iOS", "Android", "Smart TV"]
+  }
+];
+
+// Define a featured alternative
+export const featuredAlternative: Alternative = {
+  id: "1",
+  name: "DoorDash",
+  description: "Food delivery platform connecting customers with local restaurants",
+  category: "Food Delivery",
+  likes: 120,
+  imageUrl: "/images/doordash.png",
+  url: "https://doordash.com",
+  pricing: "Paid",
+  platform: ["Web", "iOS", "Android"]
+};
+
 // Export from this file to be used in other components
 export const categories: Category[] = [
   { id: '1', name: 'Food Delivery', count: 12, icon: 'utensils' },
@@ -39,3 +90,4 @@ export const categories: Category[] = [
   { id: '7', name: 'Productivity', count: 18, icon: 'calendar' },
   { id: '8', name: 'Home Services', count: 9, icon: 'home' },
 ];
+

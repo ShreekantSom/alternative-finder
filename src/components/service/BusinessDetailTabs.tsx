@@ -3,7 +3,7 @@ import { Alternative } from '@/assets/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BusinessDetailsTab from './tabs/BusinessDetailsTab';
 import BusinessFeaturesTab from './tabs/BusinessFeaturesTab';
-import BusinessFranchiseTab, { Franchise } from './tabs/BusinessFranchiseTab';
+import BusinessFranchiseTab from './tabs/BusinessFranchiseTab';
 import BusinessNewsTab, { NewsItem } from './tabs/BusinessNewsTab';
 import BusinessProductsTab from './tabs/BusinessProductsTab';
 import BusinessServicesTab from './tabs/BusinessServicesTab';
@@ -25,21 +25,21 @@ export function BusinessDetailTabs({ business }: BusinessDetailTabsProps) {
   const transformedNewsItems: NewsItem[] | undefined = business.newsItems?.map(item => ({
     id: item.id || `news-${Math.random().toString(36).substring(2, 11)}`,
     title: item.title,
-    content: item.content || item.excerpt || '',
+    content: item.content || (item.excerpt || ''),
     date: item.date,
-    source: item.source,
-    url: item.url,
-    excerpt: item.excerpt,
-    imageUrl: item.imageUrl
+    source: item.source || undefined,
+    url: item.url || undefined,
+    excerpt: item.excerpt || undefined,
+    imageUrl: item.imageUrl || undefined
   }));
 
-  // Transform franchise to match Franchise interface if it exists
-  const transformedFranchise: Franchise | undefined = business.franchise ? {
+  // Transform franchise to match Franchise interface
+  const transformedFranchise = business.franchise ? {
     available: business.franchise.available,
     initialInvestment: business.franchise.initialInvestment ? {
-      min: business.franchise.initialInvestment.min,
-      max: business.franchise.initialInvestment.max,
-      currency: business.franchise.initialInvestment.currency
+      min: business.franchise.initialInvestment.min || 0,
+      max: business.franchise.initialInvestment.max || 0,
+      currency: business.franchise.initialInvestment.currency || 'USD'
     } : undefined,
     fees: business.franchise.fees,
     requirements: business.franchise.requirements,

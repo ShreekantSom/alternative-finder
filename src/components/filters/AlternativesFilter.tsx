@@ -35,8 +35,8 @@ export function AlternativesFilter({
     setIsFilterOpen(!isFilterOpen);
   };
 
-  const categories = ['All', ...new Set(alternatives.map(alt => alt.category))];
-  const platforms = ['All', ...new Set(alternatives.flatMap(alt => alt.platform))];
+  const categories = ['All', ...Array.from(new Set(alternatives.map(alt => alt.category)))];
+  const platforms = ['All', ...Array.from(new Set(alternatives.flatMap(alt => alt.platform)))];
   const pricingOptions = ['All', 'Free', 'Freemium', 'Paid', 'Open Source'];
 
   // Reset state when search results exist
