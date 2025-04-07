@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import UserDashboard from "@/components/user/UserDashboard";
+import BusinessUserDashboard from "@/components/business/BusinessUserDashboard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
@@ -10,6 +11,7 @@ export function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // For demo purposes, set to true
   const [userType, setUserType] = useState<"user" | "business">("user"); // Track user type
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   // In a real app, this would check authentication status
@@ -22,7 +24,7 @@ export function Dashboard() {
       setIsAuthenticated(true);
       
       // Check if this is a business user based on URL or stored user data
-      const path = window.location.pathname;
+      const path = location.pathname;
       if (path.includes("/business/")) {
         setUserType("business");
       } else {
@@ -31,7 +33,7 @@ export function Dashboard() {
     };
 
     checkAuth();
-  }, []);
+  }, [location.pathname]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -55,7 +57,7 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <UserDashboard />
+      {userType === "business" ? <BusinessUserDashboard /> : <UserDashboard />}
     </div>
   );
 }

@@ -17,36 +17,51 @@ interface BusinessNewsTabProps {
 }
 
 export function BusinessNewsTab({ newsItems }: BusinessNewsTabProps) {
+  if (!newsItems || newsItems.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">News & Updates</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">No news or updates available at this time.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Company News</CardTitle>
+        <CardTitle className="text-2xl">News & Updates</CardTitle>
       </CardHeader>
-      <CardContent>
-        {newsItems && newsItems.length > 0 ? (
-          <div className="space-y-6">
-            {newsItems.map((news) => (
-              <div key={news.id} className="border-b border-border pb-6 last:border-0">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-medium">{news.title}</h3>
-                  <span className="text-sm text-muted-foreground">{news.date}</span>
-                </div>
-                {news.imageUrl && (
-                  <img 
-                    src={news.imageUrl} 
-                    alt={news.title} 
-                    className="w-full h-48 object-cover rounded-md mb-4" 
-                  />
-                )}
-                <p>{news.content}</p>
+      <CardContent className="space-y-6">
+        {newsItems.map((item) => (
+          <div key={item.id} className="border-b pb-4 last:border-0">
+            <h3 className="font-medium text-lg mb-1">{item.title}</h3>
+            {item.excerpt ? (
+              <p className="text-muted-foreground mb-2">{item.excerpt}</p>
+            ) : (
+              <p className="text-muted-foreground mb-2">{item.content.substring(0, 150)}...</p>
+            )}
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-muted-foreground">
+                {new Date(item.date).toLocaleDateString()} 
+                {item.source && <span> • {item.source}</span>}
               </div>
-            ))}
+              {item.url && (
+                <a 
+                  href={item.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Read more
+                </a>
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-lg text-muted-foreground">No news available for this business.</p>
-          </div>
-        )}
+        ))}
       </CardContent>
     </Card>
   );

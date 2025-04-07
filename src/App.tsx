@@ -26,6 +26,8 @@ import BrandSubmission from "./pages/BrandSubmission";
 import UserWishlists from "./pages/UserWishlists";
 import ThemeProvider from "./components/ThemeProvider";
 import Footer from "./components/Footer";
+import BusinessLogin from "./pages/business/BusinessLogin";
+import BusinessProfile from "./pages/business/BusinessProfile";
 
 const queryClient = new QueryClient();
 
@@ -56,9 +58,9 @@ const App = () => (
               <Route path="/shared-wishlist/:id" element={<UserWishlists />} />
               
               {/* Business User Routes */}
-              <Route path="/business/login" element={<Auth />} />
+              <Route path="/business/login" element={<BusinessLogin />} />
               <Route path="/business/dashboard" element={<Dashboard />} />
-              <Route path="/business/profile" element={<Profile />} />
+              <Route path="/business/profile" element={<BusinessProfile />} />
               
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={
