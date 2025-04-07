@@ -1,8 +1,7 @@
 
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Check, X } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Check, X } from "lucide-react";
 
 export interface Franchise {
   available: boolean;
@@ -11,7 +10,7 @@ export interface Franchise {
     max: number;
     currency: string;
   };
-  fees?: {
+  fees: {
     royalty?: string;
     marketing?: string;
     other?: string[];
@@ -27,7 +26,10 @@ interface BusinessFranchiseTabProps {
   formatCurrency: (amount: number, currency?: string) => string;
 }
 
-export function BusinessFranchiseTab({ franchise, formatCurrency }: BusinessFranchiseTabProps) {
+export function BusinessFranchiseTab({ 
+  franchise,
+  formatCurrency
+}: BusinessFranchiseTabProps) {
   if (!franchise) {
     return (
       <Card>
@@ -35,140 +37,109 @@ export function BusinessFranchiseTab({ franchise, formatCurrency }: BusinessFran
           <CardTitle className="text-2xl">Franchise Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert className="bg-amber-100 dark:bg-amber-900/20">
-            <AlertCircle className="h-5 w-5 text-amber-800 dark:text-amber-500" />
-            <AlertDescription className="text-amber-800 dark:text-amber-500">
-              No franchise information is available for this business.
-            </AlertDescription>
-          </Alert>
+          <div className="text-center py-8">
+            <p className="text-lg text-muted-foreground">No franchise information available for this business.</p>
+          </div>
         </CardContent>
       </Card>
     );
   }
-  
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Franchise Information</CardTitle>
-        <div className="flex items-center mt-2">
-          <Badge variant={franchise.available ? "success" : "destructive"} className="rounded-md">
-            {franchise.available ? 'Available for Franchising' : 'Not Available for Franchising'}
+        <CardTitle className="text-2xl flex items-center gap-3">
+          Franchise Information
+          <Badge variant={franchise.available ? "secondary" : "destructive"} className="ml-2">
+            {franchise.available ? 'Available' : 'Not Available'}
           </Badge>
-        </div>
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         {!franchise.available ? (
-          <Alert className="bg-gray-100 dark:bg-gray-900/20">
-            <AlertDescription>
-              This business is not currently offering franchise opportunities.
-            </AlertDescription>
-          </Alert>
+          <p className="text-muted-foreground">This business does not currently offer franchise opportunities.</p>
         ) : (
-          <>
+          <div className="space-y-6">
+            {/* Investment Section */}
             {franchise.initialInvestment && (
               <div>
-                <h3 className="text-lg font-medium mb-3">Investment Required</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-1">
-                  <div className="p-4 rounded-md bg-primary/5 dark:bg-primary/10">
-                    <p className="text-sm text-muted-foreground mb-1">Minimum Investment</p>
-                    <p className="text-2xl font-semibold">
-                      {formatCurrency(franchise.initialInvestment.min, franchise.initialInvestment.currency)}
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-md bg-primary/5 dark:bg-primary/10">
-                    <p className="text-sm text-muted-foreground mb-1">Maximum Investment</p>
-                    <p className="text-2xl font-semibold">
-                      {formatCurrency(franchise.initialInvestment.max, franchise.initialInvestment.currency)}
-                    </p>
-                  </div>
-                </div>
+                <h3 className="text-lg font-medium mb-2">Initial Investment</h3>
+                <p className="text-base font-semibold">
+                  {formatCurrency(franchise.initialInvestment.min, franchise.initialInvestment.currency)} - {formatCurrency(franchise.initialInvestment.max, franchise.initialInvestment.currency)}
+                </p>
               </div>
             )}
             
+            {/* Fees Section */}
             {franchise.fees && (
               <div>
-                <h3 className="text-lg font-medium mb-3">Ongoing Fees</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-lg font-medium mb-2">Ongoing Fees</h3>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                   {franchise.fees.royalty && (
-                    <div className="p-4 rounded-md bg-secondary/20">
-                      <p className="text-sm text-muted-foreground">Royalty Fee</p>
-                      <p className="text-lg font-medium">{franchise.fees.royalty}</p>
-                    </div>
+                    <li>Royalty Fee: {franchise.fees.royalty}</li>
                   )}
                   {franchise.fees.marketing && (
-                    <div className="p-4 rounded-md bg-secondary/20">
-                      <p className="text-sm text-muted-foreground">Marketing Fee</p>
-                      <p className="text-lg font-medium">{franchise.fees.marketing}</p>
-                    </div>
+                    <li>Marketing Fee: {franchise.fees.marketing}</li>
                   )}
-                </div>
-                
-                {franchise.fees.other && franchise.fees.other.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-sm text-muted-foreground mb-2">Other Fees</p>
-                    <ul className="list-disc list-inside">
-                      {franchise.fees.other.map((fee, index) => (
-                        <li key={index} className="ml-2">{fee}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {franchise.fees.other && franchise.fees.other.map((fee, index) => (
+                    <li key={index}>{fee}</li>
+                  ))}
+                </ul>
               </div>
             )}
             
+            {/* Requirements Section */}
             {franchise.requirements && franchise.requirements.length > 0 && (
               <div>
-                <h3 className="text-lg font-medium mb-3">Requirements</h3>
-                <ul className="space-y-2">
+                <h3 className="text-lg font-medium mb-2">Requirements</h3>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                   {franchise.requirements.map((req, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>{req}</span>
-                    </li>
+                    <li key={index}>{req}</li>
                   ))}
                 </ul>
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {franchise.locations !== undefined && (
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Locations</h3>
-                  <p className="text-3xl font-semibold">{franchise.locations.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Franchises worldwide</p>
-                </div>
-              )}
-              
+            {/* Locations */}
+            {franchise.locations !== undefined && (
               <div>
-                <h3 className="text-lg font-medium mb-3">Training Provided</h3>
-                {franchise.trainingProvided ? (
-                  <div className="flex items-center">
-                    <Check className="h-6 w-6 text-green-500 mr-2" />
-                    <p className="text-lg">Training program available</p>
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    <X className="h-6 w-6 text-red-500 mr-2" />
-                    <p className="text-lg">No training program provided</p>
-                  </div>
-                )}
+                <h3 className="text-lg font-medium mb-2">Current Franchise Locations</h3>
+                <p>{franchise.locations.toLocaleString()} locations worldwide</p>
               </div>
-            </div>
+            )}
             
+            {/* Support */}
             {franchise.support && franchise.support.length > 0 && (
               <div>
-                <h3 className="text-lg font-medium mb-3">Support Offered</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <h3 className="text-lg font-medium mb-2">Franchisee Support</h3>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                   {franchise.support.map((item, index) => (
-                    <li key={index} className="flex items-center">
-                      <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
+                    <li key={index}>{item}</li>
                   ))}
                 </ul>
               </div>
             )}
-          </>
+            
+            {/* Training */}
+            {franchise.trainingProvided !== undefined && (
+              <div>
+                <h3 className="text-lg font-medium mb-2">Training Program</h3>
+                <div className="flex items-center">
+                  {franchise.trainingProvided ? (
+                    <>
+                      <Check className="w-5 h-5 text-green-500 mr-2" />
+                      <span>Comprehensive training program provided</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-5 h-5 text-red-500 mr-2" />
+                      <span>No training program provided</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

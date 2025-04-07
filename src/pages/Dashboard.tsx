@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 
 export function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // For demo purposes, set to true
+  const [userType, setUserType] = useState<"user" | "business">("user"); // Track user type
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -19,6 +20,14 @@ export function Dashboard() {
       // For demo purposes, we're assuming the user is authenticated
       // In a real app, this would check a token or session
       setIsAuthenticated(true);
+      
+      // Check if this is a business user based on URL or stored user data
+      const path = window.location.pathname;
+      if (path.includes("/business/")) {
+        setUserType("business");
+      } else {
+        setUserType("user");
+      }
     };
 
     checkAuth();
@@ -27,14 +36,17 @@ export function Dashboard() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
+      const loginPath = userType === "business" ? "/business/login" : "/auth";
+      
       toast({
         title: "Authentication Required",
-        description: "Please log in to access your dashboard",
+        description: `Please log in to access your ${userType} dashboard`,
         variant: "destructive",
       });
-      navigate("/auth");
+      
+      navigate(loginPath);
     }
-  }, [isAuthenticated, navigate, toast]);
+  }, [isAuthenticated, navigate, toast, userType]);
 
   if (!isAuthenticated) {
     return null; // Don't render anything while redirecting

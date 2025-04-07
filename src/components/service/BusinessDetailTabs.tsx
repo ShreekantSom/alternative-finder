@@ -25,15 +25,15 @@ export function BusinessDetailTabs({ business }: BusinessDetailTabsProps) {
   const transformedNewsItems: NewsItem[] | undefined = business.newsItems?.map(item => ({
     id: item.id || `news-${Math.random().toString(36).substring(2, 11)}`,
     title: item.title,
-    content: item.content || (item.excerpt || ''),
+    content: item.content || '',
     date: item.date,
-    source: item.source || undefined,
-    url: item.url || undefined,
-    excerpt: item.excerpt || undefined,
-    imageUrl: item.imageUrl || undefined
+    source: item.source,
+    url: item.url,
+    excerpt: item.excerpt,
+    imageUrl: item.imageUrl
   }));
 
-  // Transform franchise to match Franchise interface
+  // Transform franchise to match the updated Franchise interface
   const transformedFranchise = business.franchise ? {
     available: business.franchise.available,
     initialInvestment: business.franchise.initialInvestment ? {
@@ -41,7 +41,11 @@ export function BusinessDetailTabs({ business }: BusinessDetailTabsProps) {
       max: business.franchise.initialInvestment.max || 0,
       currency: business.franchise.initialInvestment.currency || 'USD'
     } : undefined,
-    fees: business.franchise.fees,
+    fees: {
+      royalty: business.franchise.fees?.royaltyFee ? `${business.franchise.fees.royaltyFee}%` : undefined,
+      marketing: business.franchise.fees?.marketingFee ? `${business.franchise.fees.marketingFee}%` : undefined,
+      other: business.franchise.fees?.franchiseFee ? [`Franchise Fee: ${formatCurrency(business.franchise.fees.franchiseFee)}`] : undefined
+    },
     requirements: business.franchise.requirements,
     locations: business.franchise.locations,
     support: business.franchise.support,

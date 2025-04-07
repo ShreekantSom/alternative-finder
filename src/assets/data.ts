@@ -1,5 +1,4 @@
 
-
 // Define the structure for alternatives (businesses)
 export interface Alternative {
   id: string;
@@ -12,6 +11,56 @@ export interface Alternative {
   likes: number;
   platform: string[];
   availablePincodes?: string[];
+  tags?: string[];
+  subcategory?: string;
+  products?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    price?: number;
+    currency?: string;
+    imageUrl?: string;
+  }>;
+  services?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    price?: number;
+    currency?: string;
+    imageUrl?: string;
+  }>;
+  features?: Array<{
+    name: string;
+    description: string;
+    iconName?: string;
+  }>;
+  newsItems?: Array<{
+    id: string;
+    title: string;
+    content: string;
+    date: string;
+    source?: string;
+    url?: string;
+    excerpt?: string;
+    imageUrl?: string;
+  }>;
+  franchise?: {
+    available: boolean;
+    initialInvestment?: {
+      min: number;
+      max: number;
+      currency: string;
+    };
+    fees?: {
+      franchiseFee?: number;
+      royaltyFee?: number;
+      marketingFee?: number;
+    };
+    requirements?: string[];
+    locations?: number;
+    support?: string[];
+    trainingProvided?: boolean;
+  };
 }
 
 // Define the structure for categories
@@ -29,7 +78,7 @@ export interface FeatureItem {
   iconName?: string;
 }
 
-// Sample data for alternatives/businesses
+// Sample data for businesses
 export const alternatives: Alternative[] = [
   {
     id: "1",
@@ -90,4 +139,3 @@ export const categories: Category[] = [
   { id: '7', name: 'Productivity', count: 18, icon: 'calendar' },
   { id: '8', name: 'Home Services', count: 9, icon: 'home' },
 ];
-

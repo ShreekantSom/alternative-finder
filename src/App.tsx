@@ -55,6 +55,11 @@ const App = () => (
               <Route path="/wishlists" element={<UserWishlists />} />
               <Route path="/shared-wishlist/:id" element={<UserWishlists />} />
               
+              {/* Business User Routes */}
+              <Route path="/business/login" element={<Auth />} />
+              <Route path="/business/dashboard" element={<Dashboard />} />
+              <Route path="/business/profile" element={<Profile />} />
+              
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={
                 <ProtectedAdminRoute>

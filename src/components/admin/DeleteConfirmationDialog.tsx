@@ -15,7 +15,8 @@ import { Alternative } from "@/assets/data";
 export interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  businessToDelete?: Alternative; // Make this prop available
+  businessToDelete?: Alternative; // For business deletion
+  softwareToDelete?: Alternative; // Add this for software deletion
   onConfirmDelete: () => Promise<void>;
 }
 
@@ -23,8 +24,12 @@ export function DeleteConfirmationDialog({
   isOpen,
   onOpenChange,
   businessToDelete,
+  softwareToDelete,
   onConfirmDelete,
 }: DeleteConfirmationDialogProps) {
+  // Use either businessToDelete or softwareToDelete, prioritizing businessToDelete
+  const itemToDelete = businessToDelete || softwareToDelete;
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -32,8 +37,8 @@ export function DeleteConfirmationDialog({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action will permanently delete{" "}
-            {businessToDelete ? (
-              <span className="font-semibold">{businessToDelete.name}</span>
+            {itemToDelete ? (
+              <span className="font-semibold">{itemToDelete.name}</span>
             ) : (
               "this item"
             )}{" "}
