@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, LineChart } from "@/components/ui/chart";
+import { BarChart, LineChart } from "@/components/ui/recharts";
 import BusinessProfileEditor from "./BusinessProfileEditor";
 import BusinessAnalytics from "./BusinessAnalytics";
 import BusinessEngagement from "./BusinessEngagement";

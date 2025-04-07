@@ -1,7 +1,7 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
-interface Product {
+export interface Product {
   id: string;
   name: string;
   description: string;

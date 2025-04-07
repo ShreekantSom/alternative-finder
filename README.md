@@ -14,7 +14,16 @@ A modern web application for discovering, exploring, and saving businesses acros
 - **Business Comparison**: Compare features and services of different businesses
 - **Responsive Design**: Optimized for all devices from mobile to desktop
 - **Theme Support**: Choose between light, dark, or system theme
-- **Brand Submissions**: Businesses can submit their information for listing
+- **User Profiles**: Personalized dashboards and preferences
+
+### Business Owner Features
+- **Business Dashboard**: Central hub for managing business presence
+- **Profile Editor**: Update business details, descriptions, and features
+- **Media Gallery**: Manage logos, screenshots, and promotional images
+- **Analytics & Insights**: Track performance, views, and user engagement
+- **Product Management**: Add and manage products/services
+- **Engagement Tools**: Manage user questions and reviews
+- **Verification**: Confirm business ownership and display verification status
 
 ### Admin Features
 - **Dashboard**: Overview statistics and charts showing system activity
@@ -38,6 +47,11 @@ A modern web application for discovering, exploring, and saving businesses acros
 - Discover page: `/discover`
 - Wishlists: `/wishlists`
 
+### Business Owner Routes
+- Business login: `/business/login`
+- Business dashboard: `/business/dashboard`
+- Business profile: `/business/profile`
+
 ### Admin Routes
 - Admin login: `/admin`
 - Admin dashboard: `/admin/dashboard`
@@ -50,15 +64,22 @@ A modern web application for discovering, exploring, and saving businesses acros
 ## Authentication System
 - **User Registration**: Email and password-based signup
 - **User Login**: Secure authentication with session management
-- **Role-Based Access**: Different interfaces for regular users, brands, and admins
+- **Role-Based Access**: Different interfaces for regular users, businesses, and admins
 - **Protected Routes**: Secure areas accessible only to authenticated users with appropriate roles
 
-## Admin Capabilities
-- Full CRUD operations for all content types
-- Approval workflows for business submissions
-- Content moderation tools
-- Analytics and reporting features
-- System configuration and backup management
+## Database Structure
+
+The application uses Supabase for database storage with the following tables:
+
+- **businesses**: Stores business information, descriptions, and metadata
+- **categories**: Contains business categories and their counts
+- **wishlists**: User-created collections of businesses
+- **wishlist_items**: Individual businesses saved to wishlists
+- **business_analytics**: Tracks views, clicks, and engagement metrics for businesses
+- **products**: Products and services offered by businesses
+- **user_profiles**: Extended user profile information
+- **reviews**: User reviews and ratings for businesses
+- **questions**: User questions and business owner answers
 
 ## Tech Stack
 
@@ -118,9 +139,9 @@ For testing purposes, the application comes with pre-configured accounts:
   - Email: user@example.com
   - Password: user123
 
-- **Brand Account**:
-  - Email: brand@example.com
-  - Password: brand123
+- **Business Account**:
+  - Email: business@example.com
+  - Password: business123
 
 ## Contributing
 

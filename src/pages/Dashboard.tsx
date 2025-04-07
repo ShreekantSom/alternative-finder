@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 
 export function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // For demo purposes, set to true
-  const [userType, setUserType] = useState<"user" | "business">("user"); // Track user type
+  const [userType, setUserType] = useState<"user" | "business" | "admin">("user"); // Track user type
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -27,6 +27,8 @@ export function Dashboard() {
       const path = location.pathname;
       if (path.includes("/business/")) {
         setUserType("business");
+      } else if (path.includes("/admin/")) {
+        setUserType("admin");
       } else {
         setUserType("user");
       }
@@ -38,7 +40,13 @@ export function Dashboard() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      const loginPath = userType === "business" ? "/business/login" : "/auth";
+      let loginPath = "/auth";
+      
+      if (userType === "business") {
+        loginPath = "/business/login";
+      } else if (userType === "admin") {
+        loginPath = "/admin";
+      }
       
       toast({
         title: "Authentication Required",
