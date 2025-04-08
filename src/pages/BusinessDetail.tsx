@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -38,7 +39,25 @@ export function BusinessDetail() {
         if (id) {
           result = await businessService.getBusinessById(id);
         } else if (slug) {
-          result = await businessService.getBusinessBySlug(slug);
+          // Check if the method exists, otherwise fallback to fetching all and filtering
+          if (typeof businessService.getSoftwareBySlug === 'function') {
+            result = await businessService.getSoftwareBySlug(slug);
+          } else {
+            // Fallback: Get all businesses and filter by slug
+            const allResult = await businessService.getAllBusinesses();
+            if (allResult.success && allResult.data) {
+              const businesses = allResult.data;
+              const foundBusiness = businesses.find(b => createSlug(b.name) === slug);
+              
+              if (foundBusiness) {
+                result = { success: true, data: foundBusiness };
+              } else {
+                result = { success: false, error: "Business not found" };
+              }
+            } else {
+              result = { success: false, error: "Failed to fetch businesses" };
+            }
+          }
         } else {
           toast({
             title: "Error",
@@ -54,7 +73,7 @@ export function BusinessDetail() {
           
           if (id && !slug) {
             const businessSlug = createSlug(result.data.name);
-            navigate(`/business/${businessSlug}`, { replace: true });
+            navigate(`/business/${id}/${businessSlug}`, { replace: true });
           }
           
           const userPincode = localStorage.getItem("userPincode");

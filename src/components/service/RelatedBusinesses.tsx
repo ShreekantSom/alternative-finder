@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alternative } from '@/assets/data';
 import { Badge } from '@/components/ui/badge';
+import BusinessTags from './BusinessTags';
 
 interface RelatedBusinessesProps {
   businesses: Alternative[];
@@ -59,6 +60,9 @@ export function RelatedBusinesses({ businesses, isLoading, category }: RelatedBu
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium">{business.name}</h3>
                 <p className="text-sm text-muted-foreground truncate">{business.description}</p>
+                {business.tags && business.tags.length > 0 && (
+                  <BusinessTags business={business} limit={2} showIcon={false} className="mt-1" />
+                )}
               </div>
               <Badge variant="outline" className="capitalize">
                 {business.pricing}

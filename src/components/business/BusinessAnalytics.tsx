@@ -1,6 +1,7 @@
 
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bar, Line, Pie } from "recharts";
 
 export function BusinessAnalytics() {
   return (

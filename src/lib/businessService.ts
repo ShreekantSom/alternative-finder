@@ -1,5 +1,5 @@
-
 import { Alternative } from "@/assets/data";
+import { createSlug } from '@/lib/softwareUtils';
 
 // Mock database of businesses
 const businesses: Alternative[] = [
@@ -12,7 +12,8 @@ const businesses: Alternative[] = [
     imageUrl: "/images/doordash.png",
     url: "https://doordash.com",
     pricing: "Paid",
-    platform: ["Web", "iOS", "Android"]
+    platform: ["Web", "iOS", "Android"],
+    tags: ["Food Delivery", "Restaurant Partnership", "Fast Delivery"]
   },
   {
     id: "2",
@@ -23,7 +24,8 @@ const businesses: Alternative[] = [
     imageUrl: "/images/ubereats.png",
     url: "https://ubereats.com",
     pricing: "Paid",
-    platform: ["Web", "iOS", "Android"]
+    platform: ["Web", "iOS", "Android"],
+    tags: ["Food Delivery", "Multiple Restaurants", "Tracking"]
   },
   {
     id: "3",
@@ -34,7 +36,8 @@ const businesses: Alternative[] = [
     imageUrl: "/images/grubhub.png",
     url: "https://grubhub.com",
     pricing: "Paid",
-    platform: ["Web", "iOS", "Android"]
+    platform: ["Web", "iOS", "Android"],
+    tags: ["Food Delivery", "Pickup Options", "Restaurant Discovery"]
   },
   {
     id: "4",
@@ -45,7 +48,8 @@ const businesses: Alternative[] = [
     imageUrl: "/images/postmates.png",
     url: "https://postmates.com",
     pricing: "Paid",
-    platform: ["Web", "iOS", "Android"]
+    platform: ["Web", "iOS", "Android"],
+    tags: ["Food Delivery", "Retail Items", "Courier Service"]
   },
   {
     id: "5",
@@ -56,7 +60,8 @@ const businesses: Alternative[] = [
     imageUrl: "/images/uber.png",
     url: "https://uber.com",
     pricing: "Paid",
-    platform: ["Web", "iOS", "Android"]
+    platform: ["Web", "iOS", "Android"],
+    tags: ["Ride Sharing", "Transportation", "Driver Partnership"]
   },
   {
     id: "6",
@@ -90,8 +95,7 @@ const businesses: Alternative[] = [
     url: "https://hulu.com",
     pricing: "Subscription",
     platform: ["Web", "iOS", "Android", "Smart TV"]
-  },
-  // Add more business examples as needed
+  }
 ];
 
 export const businessService = {
@@ -141,6 +145,33 @@ export const businessService = {
     }
   },
   
+  // Get business by slug
+  getBusinessBySlug: async (slug: string) => {
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const business = businesses.find(s => createSlug(s.name) === slug);
+      if (!business) {
+        return {
+          success: false,
+          error: "Business not found"
+        };
+      }
+      
+      return {
+        success: true,
+        data: business
+      };
+    } catch (error) {
+      console.error(`Error fetching business with slug ${slug}:`, error);
+      return {
+        success: false,
+        error: "Failed to fetch business details"
+      };
+    }
+  },
+  
   // Get businesses by category
   getBusinessesByCategory: async (category: string) => {
     try {
@@ -161,6 +192,29 @@ export const businessService = {
     }
   },
   
+  // Get businesses by tag
+  getBusinessesByTag: async (tag: string) => {
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const filteredBusinesses = businesses.filter(s => 
+        s.tags && s.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+      );
+      
+      return {
+        success: true,
+        data: filteredBusinesses
+      };
+    } catch (error) {
+      console.error(`Error fetching businesses for tag ${tag}:`, error);
+      return {
+        success: false,
+        error: "Failed to fetch businesses by tag"
+      };
+    }
+  },
+  
   // Search businesses by name or description
   searchBusinesses: async (query: string) => {
     try {
@@ -170,7 +224,8 @@ export const businessService = {
       const normalizedQuery = query.toLowerCase();
       const results = businesses.filter(s => 
         s.name.toLowerCase().includes(normalizedQuery) || 
-        s.description.toLowerCase().includes(normalizedQuery)
+        s.description.toLowerCase().includes(normalizedQuery) ||
+        (s.tags && s.tags.some(tag => tag.toLowerCase().includes(normalizedQuery)))
       );
       
       return {

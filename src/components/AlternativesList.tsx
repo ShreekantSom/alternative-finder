@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Alternative } from '@/assets/data';
@@ -8,6 +9,7 @@ import LoadMoreButton from './pagination/LoadMoreButton';
 import AlternativesPagination from './pagination/AlternativesPagination';
 import { useAlternativesFiltering } from '@/hooks/useAlternativesFiltering';
 import { useAlternativesLoader } from '@/hooks/useAlternativesLoader';
+import { TagCloud } from './tag/TagCloud';
 
 interface AlternativesListProps {
   alternatives: Alternative[];
@@ -86,6 +88,13 @@ export function AlternativesList({
   return <section className="px-4 py-0">
       <div className="container max-w-7xl mx-auto">
         <AlternativesHeader title={title} description={description} filterComponent={<AlternativesFilter selectedCategory={selectedCategory} onFilterChange={handleFilterChange} searchResultsExist={searchResults.length > 0} />} />
+        
+        {!searchResults.length && filterCategory === 'All' && (
+          <TagCloud limit={15} title="Popular Tags" clickable={true} onTagSelect={(tag) => {
+            console.log(`Selected tag: ${tag}`);
+            // This would typically navigate to a tag results page
+          }} />
+        )}
         
         <AlternativesGrid 
           alternatives={filteredAlternatives} 

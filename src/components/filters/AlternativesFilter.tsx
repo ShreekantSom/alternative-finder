@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, ChevronDown } from 'lucide-react';
+import { Filter, ChevronDown, Tag } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { alternatives } from '@/assets/data';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AlternativesFilterProps {
   selectedCategory: string;
-  onFilterChange: (filterCategory: string, platform: string, pricing: string) => void;
+  onFilterChange: (filterCategory: string, platform: string, pricing: string, selectedTag?: string) => void;
   searchResultsExist: boolean;
 }
 
@@ -20,6 +21,7 @@ export function AlternativesFilter({
   const [filterCategory, setFilterCategory] = useState(selectedCategory);
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const [selectedPricing, setSelectedPricing] = useState('All');
+  const [selectedTag, setSelectedTag] = useState<string>('');
 
   // Set filter category when selectedCategory prop changes
   useEffect(() => {
@@ -28,8 +30,8 @@ export function AlternativesFilter({
 
   // Update parent component when filters change
   useEffect(() => {
-    onFilterChange(filterCategory, selectedPlatform, selectedPricing);
-  }, [filterCategory, selectedPlatform, selectedPricing, onFilterChange]);
+    onFilterChange(filterCategory, selectedPlatform, selectedPricing, selectedTag);
+  }, [filterCategory, selectedPlatform, selectedPricing, selectedTag, onFilterChange]);
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -38,6 +40,21 @@ export function AlternativesFilter({
   const categories = ['All', ...Array.from(new Set(alternatives.map(alt => alt.category)))];
   const platforms = ['All', ...Array.from(new Set(alternatives.flatMap(alt => alt.platform)))];
   const pricingOptions = ['All', 'Free', 'Freemium', 'Paid', 'Open Source'];
+  
+  // Extract unique tags from all alternatives
+  const allTags = alternatives.reduce((tags: string[], alt) => {
+    if (alt.tags && Array.isArray(alt.tags)) {
+      alt.tags.forEach(tag => {
+        if (!tags.includes(tag)) {
+          tags.push(tag);
+        }
+      });
+    }
+    return tags;
+  }, []);
+  
+  // Popular tags would typically be determined by frequency or prioritized manually
+  const popularTags = allTags.slice(0, 10);
 
   // Reset state when search results exist
   useEffect(() => {
@@ -52,15 +69,44 @@ export function AlternativesFilter({
 
   return (
     <>
-      <Button
-        onClick={toggleFilter}
-        variant="secondary"
-        className="flex items-center space-x-2"
-      >
-        <Filter className="w-4 h-4" />
-        <span>Filters</span>
-        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
-      </Button>
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          onClick={toggleFilter}
+          variant="secondary"
+          className="flex items-center space-x-2"
+        >
+          <Filter className="w-4 h-4" />
+          <span>Filters</span>
+          <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
+        </Button>
+        
+        {popularTags.length > 0 && (
+          <div className="overflow-x-auto flex-1">
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="flex-wrap">
+                <TabsTrigger 
+                  value="all" 
+                  onClick={() => setSelectedTag('')}
+                  className="text-xs px-3"
+                >
+                  All
+                </TabsTrigger>
+                {popularTags.map((tag, index) => (
+                  <TabsTrigger 
+                    key={index} 
+                    value={tag} 
+                    onClick={() => setSelectedTag(tag)}
+                    className="text-xs px-3 flex items-center gap-1"
+                  >
+                    <Tag className="w-3 h-3" />
+                    {tag}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
+      </div>
 
       {/* Filters panel */}
       <motion.div
@@ -113,6 +159,27 @@ export function AlternativesFilter({
               </select>
             </div>
           </div>
+          
+          {/* Tag filter (extended display) */}
+          {allTags.length > 0 && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">Tags</label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag, index) => (
+                  <Button
+                    key={index}
+                    variant={selectedTag === tag ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
+                  >
+                    <Tag className="w-3 h-3 mr-1" />
+                    {tag}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
     </>
